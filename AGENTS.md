@@ -31,7 +31,8 @@
 - 公开仓库为 `https://github.com/muchuanhehua/Hoyo-GI-Toon`；历史 v0.1.0 标签源码为 `933d9c5ddfc0243414991ccc9ea576b87eacd8db`，旧包与标签不覆盖。
 - 历史 v0.1.0 ZIP SHA256 为 `e57a724fc0f64346198696df2acd0b46fee05aee8e5785b9f4502fb209721112`，初次远程安装与新进程核验通过；旧安装证据保存在 `.verification/installed.json` 与 `installed-fresh-process.json`。
 - 本地模块为 `bl_ext.Hoyo_GI_Toon.hoyo_gi_toon`。配置入口为 `tools/configure_installed.py`；`--check-only` 只读核验已安装文件与持久配置。
-- 当前发布为 v0.2.1，固定标签源码 `fbf24f70f1d14a62f3f048b776773777f814d991`，安装包 SHA256 为 `bdcacd9965cdb61d1e9854bc9436a08a8833f3ce6cb5cee9099243bf269c39d3`。19 个安装文件与标签源码逐一一致。v0.2.0 及 v0.1.0 均保留。
+- 当前发布为 v0.2.2，固定标签源码 `4a619b10b68969f655da64d7bd6fa1aa492739f5`，安装包 SHA256 为 `24e142dc60d9bb17514afb01c001c0ff18b355ed853c4df96688c84fb61746ce`。19 个安装文件与标签源码逐一一致，公开下载哈希核验通过。历史版本与标签均保留。
 - v0.2.1 已从公开更新源安装，本地启用和新进程 19 文件核验通过。此前已另开前台进程，实际使用已安装 v0.2.1 导入奥黛塔并渲染，预览保存在 `.verification/preview-odette-20261028/`。
 - v0.2.1 的原版验证证据现保存在 `.verification/releases/v0.2.1-original/`；`.verification/original/` 用于当前候选版本，不用旧包结果代替本次运行。
 - 0.2.2 增加安柏、刻晴初始服装验证，原版独立代码对照入口为 `tools/verify_upstream_workflow.py`。参考侧使用 `--compat-v3-names --local-inputs`，条件与误差限值见 `docs/upstream-baseline.md`；保留实际像素误差，不以数据一致性冒充完整旧向导或游戏画面复现。
+- v0.2.2 已从远程源后台安装，新进程核验 19 个文件、启用状态和其他原有配置保留。安装证据为 `.verification/original/installed.json` 与 `installed-fresh-process.json`。前台奥黛塔会话未热重载或关闭；新版本下次启动加载。
