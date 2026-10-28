@@ -56,7 +56,7 @@ def main():
     report = {"version":manifest["version"], "module":module_name, "repository":URL,
               "directory":str(installed), "payload_files_verified":len(record["payload"]),
               "existing_preferences_preserved":True, "fresh_process":args.check_only}
-    output = ROOT / (".verification/installed-fresh-process.json" if args.check_only else ".verification/installed.json")
+    output = ROOT / (".verification/original/installed-fresh-process.json" if args.check_only else ".verification/original/installed.json")
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     print("HGT_INSTALLED", json.dumps(report, ensure_ascii=False), flush=True)
 

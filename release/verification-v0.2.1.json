@@ -1,0 +1,79 @@
+{
+  "models": [
+    {
+      "model": "奥黛塔",
+      "format": "FBX",
+      "meshes": 10,
+      "bindings": 8,
+      "source_preserved": true,
+      "shape_keys_preserved": true,
+      "refresh_idempotent": true,
+      "material_restore": true,
+      "visual_content_checks": true
+    },
+    {
+      "model": "尼可",
+      "format": "FBX",
+      "meshes": 12,
+      "bindings": 9,
+      "source_preserved": true,
+      "shape_keys_preserved": true,
+      "refresh_idempotent": true,
+      "material_restore": true,
+      "visual_content_checks": true
+    }
+  ],
+  "lifecycle": {
+    "two_character_isolation": true,
+    "local_asset_boundaries": true,
+    "head_shadow_tracking": true,
+    "nonuniform_scale_update": true,
+    "failed_import_rollback": true,
+    "save_reload": true,
+    "original_post_processing": true,
+    "legacy_scene_unchanged": true
+  },
+  "core_sha256": {
+    "__init__.py": "c3957de42f7bbe2b0d917b34e1e093d3dba09149192419e9f6747b7feca67212",
+    "asset_resolver.py": "777725c12b2a40323d144c6859b014e4727aa50f9a741f630dccf176a83a0c0b",
+    "importers.py": "176498a940b891f0a3a9ed8aee62500058373edaa2192cf2f49e44c12e2660cd",
+    "properties.py": "1f2c961712006eec7c0c7823d7bc0bdaad304b037cdc1837ef5c7191e8079e4a",
+    "shaders.py": "6c6d14f8d5f18f92b7cc4a142d546d6d3d6ced4c557115f4608d4917cdf24565",
+    "outlines.py": "7e5bdb9e06e7c5db784e694d9df546120d48a8e949755644a8e01088d9805917",
+    "workflow.py": "14946d6b4446f209fb4e94cf6985e047d0cd990a3bc281c9210ef91598b7048f",
+    "panels.py": "d8ca5302737e778774843f90a7e545afea9ad2548bd83d16257b0ee1add1527f",
+    "post_processing.py": "685051deb60412fd054dfff69b338b28c8be5ec584ad62cc817024edd8ddef21",
+    "upstream_mapping.py": "3da1b73d944c8456ed626ce28b1e5ff26f3f8becf30bebf89aa0236bea8a5f32",
+    "assets/original_shader.blend": "432d37d79150a5a87e88c1bdacbd5bd633d509f393b370de132df744d59e0e96",
+    "assets/original_controls.blend": "2666d5c527de8e082dc3d9e2ae1a84a9c74b0aeb59b8eefba811005783bf4b68",
+    "assets/upstream.json": "681dd4d06ab370a2a2cd654ffaac676764eb817de9e81e32ae3390c1fb30e41f"
+  },
+  "original_conformance": {
+    "upstream_graphs_equal": true,
+    "groups": 36,
+    "materials": 4,
+    "game_assets_excluded": true,
+    "models": [
+      {
+        "model": "奥黛塔",
+        "structure_preserved": true,
+        "oracle_socket_checks": 816,
+        "upstream_render_max_error": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "model": "尼可",
+        "structure_preserved": true,
+        "oracle_socket_checks": 873,
+        "upstream_render_max_error": [
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "scope": "Pinned original v3.4 graphs and original v3 material applier; same adapter and controls for render comparison"
+  },
+  "scope": "固定原版 v3.4 节点与参数映射；原始库和打包库使用相同装配器对照，不代表游戏画面完整复现"
+}

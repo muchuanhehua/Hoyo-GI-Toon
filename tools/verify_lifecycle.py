@@ -20,6 +20,21 @@ spec.loader.exec_module(addon)
 addon.register()
 bpy.ops.wm.read_factory_settings(use_empty=True)
 
+# A 0.1 character has no original-library pointers. Reloading the add-on must
+# leave that existing character's light and material data untouched.
+legacy=bpy.data.objects.new('legacy character',None)
+bpy.context.scene.collection.objects.link(legacy)
+old_light=bpy.data.objects.new('legacy light',bpy.data.lights.new('legacy light','SUN'))
+bpy.context.scene.collection.objects.link(old_light)
+old_light.rotation_euler=(0.2,0.3,0.4)
+legacy.hgt_character.managed=True
+legacy.hgt_character.light=old_light
+old_rotation=old_light.rotation_euler.copy()
+addon.workflow.refresh_character(legacy)
+assert old_light.rotation_euler==old_rotation,'Updating changed a legacy character light'
+bpy.data.objects.remove(legacy,do_unlink=True)
+bpy.data.objects.remove(old_light,do_unlink=True)
+
 
 def controls(root):
     return round(root.hgt_character.global_properties.nodes['Global Properties'].inputs['Shadow Position'].default_value,5)
@@ -104,7 +119,8 @@ for root in roots:
     addon.workflow.refresh_character(root)
 report = {"two_character_isolation": True, "local_asset_boundaries": True,
           "head_shadow_tracking": True, "nonuniform_scale_update": True,
-          "failed_import_rollback": True, "save_reload": True, "original_post_processing":True}
+          "failed_import_rollback": True, "save_reload": True, "original_post_processing":True,
+          "legacy_scene_unchanged":True}
 (project / ".verification/original/lifecycle.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 print("HGT_LIFECYCLE", json.dumps(report), flush=True)
 addon.unregister()

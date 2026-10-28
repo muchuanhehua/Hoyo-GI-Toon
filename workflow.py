@@ -206,7 +206,7 @@ def refresh_character(root, depsgraph=None):
     if _REFRESHING or root is None:
         return
     settings = root.hgt_character
-    if not settings.managed or settings.building:
+    if not settings.managed or settings.building or settings.global_properties is None:
         return
     _REFRESHING = True
     try:
