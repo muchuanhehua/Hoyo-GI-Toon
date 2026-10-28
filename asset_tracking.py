@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import bpy
 
 DATA_KINDS = ("objects", "collections", "meshes", "armatures", "materials", "node_groups",
-              "images", "actions", "shape_keys", "curves", "lights", "cameras", "texts")
+              "images", "actions", "shape_keys", "curves", "lights", "cameras", "texts", "scenes", "worlds")
 
 
 def data_pointers():
@@ -23,6 +23,9 @@ def scene_state(context):
               (scene.render, "engine"), (scene.view_settings, "view_transform"),
               (scene.render, "film_transparent"), (scene.render.image_settings, "file_format"),
               (scene.render.image_settings, "color_mode"), (scene, "camera"), (scene, "hgt_target"))
+    if hasattr(scene, "hgt_output"):
+        fields += tuple((scene.hgt_output, name) for name in
+                        ("camera", "width", "height", "transparent", "filepath", "post_processing"))
     return [(owner, name, getattr(owner, name)) for owner, name in fields if hasattr(owner, name)]
 
 

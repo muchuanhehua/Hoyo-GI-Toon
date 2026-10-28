@@ -16,7 +16,7 @@ Hoyo-GI-Toon 通过独立模块组合基础 FBX 渲染流程，参考插件按�
 
 Better FBX 为独立安装依赖，通过 `better_import.fbx` 调用。其余参考实现按模块适配，不要求安装整套参考插件。
 
-## 01–05 模块接口
+## 模块接口
 
 | 文件与入口 | 结果 | 边界 |
 |---|---|---|
@@ -28,12 +28,18 @@ Better FBX 为独立安装依赖，通过 `better_import.fbx` 调用。其余参
 | `lighting.build / attach / update` | 头部参照、光向控制、Light Vectors | 只引用导入骨架，保留骨架数据和层级；参数更新不重复创建资源 |
 | `outlines.build / update` | 按材质分区的描边修改器 | 沿用材质颜色，位于原始修改器和 Light Vectors 之后，不应用到网格 |
 | `workflow.build / assemble / restore` | 资产根对象、装配或恢复结果 | 编排上述模块；同批重复装配复用根对象和已建资源 |
+| `rendering.prepare / frame_camera / preview` | 自有相机与视图预览 | 按有姿态的角色网格构图，保留原始修改器和用户相机 |
+| `rendering.start / finish` | PNG、完成或取消结果 | 临时场景独立设置尺寸与透明背景，检查真实文件和 PNG 尺寸后清理资源 |
+| `post_processing.configure` | 渲染副本的后期节点 | 保留原合成链，最终 Alpha 在输出模块统一恢复 |
+| `panels` | 导入、外观、光照、输出和渲染操作 | 一个导入入口，常用参数直接展示，其余折叠；错误使用 Blender 原生报告 |
 
 基础色、Ramp 与 Matcap 按 sRGB 读取；LightMap、法线、脸部 SDF 与 Specular Ramp 按 Non-Color 读取。生成图像使用 `CHANNEL_PACKED`，不改导入图像的设置。
 
 原生资源保留 Toon 明暗、脸部 SDF、Fresnel、高光、金属、Alpha 与材质描边路径。资源编译入口为 `tools/build_shader_library.py`，节点选择规则为 `tools/native_shader_paths.py`，输入版本与摘要保存在 `assets/upstream.json`。
 
-后台验证入口为 `tools/verify_development.py`。它读取本地资产索引，输出逐材质匹配、导入基准、数据保护、参数响应与生命周期记录；私人路径与测试工程保留在 `.verification/`。
+后台验证入口为 `tools/verify_development.py`、`tools/verify_integration.py` 和 `tools/verify_interface.py`，分别覆盖模型数据、输出与保存重开、真实界面及撤销重做。验证可将候选 ZIP 安装到项目内隔离仓库，再读取实际安装文件执行。私人路径与工程保留在 `.verification/`。
+
+`tools/build_release.py candidate` 生成并校验候选包。整体验收后，`release` 子命令只将已验证的候选字节推广为发布包并更新索引，历史 ZIP 不覆盖。
 
 ## 接入要求
 

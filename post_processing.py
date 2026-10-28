@@ -1,13 +1,13 @@
-"""Connect the original optional post-processing group to the active output."""
+"""Optional compositor attachment on the isolated render scene."""
 import bpy
 
 
-def configure(scene, root):
+def configure(scene, root, resources):
     group = next((g for g in bpy.data.node_groups
                   if g.get("hgt_owner") == root.hgt_character.uid
                   and g.get("hgt_upstream") == "HoYoverse - Post Processing"), None)
     if group is None:
-        raise ValueError("缺少原版后期节点，请重新导入角色")
+        raise ValueError("缺少后期资源，请重新导入模型")
     tree = scene.compositing_node_group
     if tree and any(n.type == "GROUP" and n.node_tree and
                     n.node_tree.get("hgt_upstream") == "HoYoverse - Post Processing" for n in tree.nodes):
@@ -19,6 +19,7 @@ def configure(scene, root):
         source = output.inputs["Image"].links[0].from_socket
     else:
         tree = bpy.data.node_groups.new("HGT • Compositing", "CompositorNodeTree")
+        resources.add(tree)
         tree.interface.new_socket(name="Image", in_out="OUTPUT", socket_type="NodeSocketColor")
         render = tree.nodes.new("CompositorNodeRLayers")
         render.scene = scene
@@ -28,6 +29,5 @@ def configure(scene, root):
     node = tree.nodes.new("CompositorNodeGroup")
     node.node_tree = group
     node.location = (200, 0)
-    output.location = (430, 0)
     tree.links.new(source, node.inputs["Image"])
     tree.links.new(node.outputs["Image"], output.inputs["Image"])

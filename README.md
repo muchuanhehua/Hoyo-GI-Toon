@@ -2,7 +2,7 @@
 
 面向新手的原神角色渲染插件，围绕模型导入、材质装配、光照、描边和渲染组织操作。
 
-当前开发目标是：在原生 Blender 中，通过单入口调用 Better FBX，读取本地配套资产，完成保留原始数据的基础 FBX 渲染。
+通过单入口调用 Better FBX，读取本地配套资产，完成保留原始数据的基础 FBX 渲染。
 
 ## 开发与验收
 
@@ -12,16 +12,20 @@
 
 ## 使用流程
 
-1. 启用 Better FBX，选择模型文件。
-2. 插件读取配套贴图和材质参数，建立渲染材质与控制器。
-3. 按需调整阴影、描边和光照方向。
-4. 渲染并保存图片。
+1. 在 Blender“偏好设置 → 插件”中安装并启用 Better FBX。
+2. 从磁盘安装 Hoyo-GI-Toon 的 ZIP，打开 3D 视图侧栏的 **Hoyo-GI-Toon**。
+3. 点击 **导入模型**，选择角色 FBX。配套贴图与 JSON 放在同一资产包内。
+4. 按需调整阴影、描边和光照，在 **输出** 中设置图片尺寸与保存位置，点击 **渲染**。
 
-常用操作集中在主面板，光照和输出设置按需展开。
+渲染完成后保存 PNG。透明背景和后期在输出中切换；“重新构图”调整本插件的角色相机。
+
+导入按钮旁的菜单可查看材质对应关系，或恢复导入状态。多次导入时再选择当前角色。
+
+模型网格、骨架与配套文件保留。渲染材质和属性使用派生数据，输出在临时场景中执行，已有相机、灯光和合成链保持独立。当前按整份 FBX 处理，附属对象保留。
 
 ## 交付
 
-当前发布为 `0.2.2`。源码与安装包见 [GitHub](https://github.com/muchuanhehua/Hoyo-GI-Toon) 和 [Releases](https://github.com/muchuanhehua/Hoyo-GI-Toon/releases)。
+源码与安装包见 [GitHub](https://github.com/muchuanhehua/Hoyo-GI-Toon) 和 [Releases](https://github.com/muchuanhehua/Hoyo-GI-Toon/releases)。
 
 Blender 远程更新源：
 

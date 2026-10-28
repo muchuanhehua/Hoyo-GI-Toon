@@ -6,7 +6,7 @@ import bpy
 from bpy.app.handlers import persistent
 from mathutils import Vector
 from .asset_resolver import AssetCatalog, source_name
-from . import asset_tracking, importers, lighting, outlines, shaders
+from . import asset_tracking, importers, lighting, outlines, rendering, shaders
 
 _REFRESHING = False
 
@@ -18,24 +18,6 @@ def bounds(objects):
     low = Vector(tuple(min(p[i] for p in points) for i in range(3)))
     high = Vector(tuple(max(p[i] for p in points) for i in range(3)))
     return low, high
-
-
-def ensure_camera(root, collection, scene):
-    if scene.camera:
-        return
-    meshes = [entry.object for entry in root.hgt_character.meshes if entry.object and not entry.object.hide_render]
-    low, high = bounds(meshes)
-    center = (low + high) * 0.5
-    height = high.z - low.z
-    data = bpy.data.cameras.new("HGT 相机")
-    data.type = "ORTHO"
-    data.ortho_scale = max(height, (high.x - low.x) / (scene.render.resolution_x / scene.render.resolution_y)) * 1.15
-    camera = bpy.data.objects.new(data.name, data)
-    collection.objects.link(camera)
-    camera["hgt_owner"] = root.hgt_character.uid
-    camera.location = center + Vector((0, -height * 3, height * 0.02))
-    camera.rotation_euler = (center - camera.location).to_track_quat("-Z", "Y").to_euler()
-    scene.camera = camera
 
 
 def build(filepath, context):
@@ -130,13 +112,8 @@ def assemble(batch, context):
         library.finish()
         settings.managed = True
         settings.building = False
-        context.scene.render.engine = "BLENDER_EEVEE"
-        context.scene.view_settings.view_transform = "Standard"
-        context.scene.render.film_transparent = True
-        context.scene.render.image_settings.file_format = "PNG"
-        context.scene.render.image_settings.color_mode = "RGBA"
+        rendering.prepare(context.scene, root, collection)
         context.scene.hgt_target = root
-        ensure_camera(root, collection, context.scene)
         refresh_character(root)
         for selected in context.selected_objects:
             selected.select_set(False)
@@ -219,6 +196,10 @@ def restore(root):
     settings.controls.clear()
     settings.global_properties = settings.light_vectors = settings.outline_graph = None
     settings.light = settings.head = None
+    for scene in bpy.data.scenes:
+        if scene.hgt_output.camera == settings.camera:
+            scene.hgt_output.camera = None
+    settings.camera = None
     settings.managed = False
     settings.building = False
     asset_tracking.remove_render_data(settings.uid)

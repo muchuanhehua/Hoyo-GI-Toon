@@ -5,7 +5,7 @@ import bpy
 
 
 def animated_fbx(addon, source, output):
-    bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.ops.wm.read_homefile(use_empty=True,use_factory_startup=True)
     output.mkdir(parents=True, exist_ok=True)
     for path in Path(source).parent.rglob('*'):
         if path.is_file() and path.suffix.lower() != '.fbx':
@@ -69,7 +69,7 @@ def animated_fbx(addon, source, output):
     result=bpy.ops.better_export.fbx(filepath=str(file),use_animation=True,use_timeline_range=True,
                                    use_apply_modifiers=False,use_triangulate=False,use_selection=False)
     assert result=={'FINISHED'} and file.stat().st_size>1000
-    bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.ops.wm.read_homefile(use_empty=True,use_factory_startup=True)
     batch=addon.workflow.importers.import_character(str(file))
     bpy.context.view_layer.update()
     assert batch.data['actions'],'Animated FBX imported without actions'

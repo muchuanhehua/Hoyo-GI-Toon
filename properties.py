@@ -55,24 +55,44 @@ class HGTCharacterSettings(PropertyGroup):
     outline_graph: PointerProperty(type=bpy.types.NodeTree)
     light: PointerProperty(type=bpy.types.Object)
     head: PointerProperty(type=bpy.types.Object)
+    camera: PointerProperty(type=bpy.types.Object)
     shadow_position: FloatProperty(name="阴影位置", default=0.55, min=0, max=1, update=update_appearance)
     outline: FloatProperty(name="描边", default=0.25, min=0, max=1, update=update_appearance)
     light_azimuth: FloatProperty(name="光照方位", subtype="ANGLE", default=0, min=-3.14159, max=3.14159, update=update_appearance)
     light_elevation: FloatProperty(name="光照高度", subtype="ANGLE", default=0, min=-1.55, max=1.55, update=update_appearance)
 
 
-CLASSES = (HGTMaterialBinding, HGTSlotSnapshot, HGTMeshReference, HGTControlReference, HGTCharacterSettings)
+class HGTOutputSettings(PropertyGroup):
+    camera: PointerProperty(name="相机", type=bpy.types.Object, poll=lambda self, obj: obj.type == "CAMERA")
+    width: IntProperty(name="宽", default=1024, min=64, max=16384)
+    height: IntProperty(name="高", default=1536, min=64, max=16384)
+    transparent: BoolProperty(name="透明背景", default=True)
+    filepath: StringProperty(name="保存到", subtype="FILE_PATH")
+    post_processing: BoolProperty(name="后期", default=False)
+    rendering: BoolProperty(options={"HIDDEN", "SKIP_SAVE"})
+
+
+def update_target(self, context):
+    root = self.hgt_target
+    if root and root.hgt_character.managed and root.hgt_character.camera:
+        self.hgt_output.camera = root.hgt_character.camera
+
+
+CLASSES = (HGTMaterialBinding, HGTSlotSnapshot, HGTMeshReference, HGTControlReference, HGTCharacterSettings,
+           HGTOutputSettings)
 
 
 def register():
     for cls in CLASSES:
         bpy.utils.register_class(cls)
     bpy.types.Object.hgt_character = PointerProperty(type=HGTCharacterSettings)
-    bpy.types.Scene.hgt_target = PointerProperty(type=bpy.types.Object)
+    bpy.types.Scene.hgt_output = PointerProperty(type=HGTOutputSettings)
+    bpy.types.Scene.hgt_target = PointerProperty(type=bpy.types.Object, update=update_target)
 
 
 def unregister():
     del bpy.types.Scene.hgt_target
+    del bpy.types.Scene.hgt_output
     del bpy.types.Object.hgt_character
     for cls in reversed(CLASSES):
         bpy.utils.unregister_class(cls)

@@ -20,6 +20,7 @@ from mathutils import Euler
 from verification_data import source_snapshot, mesh_data, digest
 from verification_fixture import animated_fbx
 from verification_assets import check_resolver
+from verification_runtime import copy_better, load_addon, install_candidate, unload_addon
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--assets-index', type=Path, required=True)
@@ -29,8 +30,11 @@ parser.add_argument('--model-index', type=int, action='append')
 parser.add_argument('--render', action='store_true')
 parser.add_argument('--lifecycle', action='store_true')
 parser.add_argument('--animation-fixture', action='store_true')
+parser.add_argument('--addon-dir', type=Path)
+parser.add_argument('--candidate', type=Path)
 args = parser.parse_args(sys.argv[sys.argv.index('--')+1:])
 project = Path(__file__).resolve().parents[1]
+payload = (args.addon_dir or project).resolve()
 out = args.output_dir.resolve()
 out.mkdir(parents=True, exist_ok=True)
 assert out.is_relative_to(project / '.verification')
@@ -48,39 +52,19 @@ def package_hashes(path):
     return {str(p.relative_to(path)):file_hash(p) for p in sorted(path.rglob('*')) if p.is_file()}
 
 
-def copy_better():
-    destination = runtime / 'better_fbx'
-    files = ('__init__.py','importer.py','exporter.py','blender_manifest.toml','gpl-3.0.txt',
-             'bin/Windows/x64/fbx-utility.exe')
-    hashes = {}
-    for name in files:
-        source, target = args.better_fbx / name, destination / name
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, target)
-        hashes[name] = file_hash(source)
-        assert file_hash(target) == hashes[name]
-    (destination / 'data').mkdir(exist_ok=True)
-    sys.path.insert(0, str(runtime))
-    module = importlib.import_module('better_fbx')
-    module.register()
-    return module, hashes
-
-
-better, better_hashes = copy_better()
-spec = importlib.util.spec_from_file_location('hoyo_gi_toon', project / '__init__.py', submodule_search_locations=[str(project)])
-addon = importlib.util.module_from_spec(spec)
-sys.modules[spec.name] = addon
-spec.loader.exec_module(addon)
-addon.register()
+better, better_hashes = copy_better(args.better_fbx, runtime)
+addon = install_candidate(args.candidate,out) if args.candidate else load_addon(payload)
+payload = Path(addon.__file__).resolve().parent
 report = {'scope':'01–05', 'blender':bpy.app.version_string,
           'better_fbx_version':list(better.bl_info['version']), 'better_fbx_sha256':better_hashes,
           'models':[], 'lifecycle':None}
+report['package_sha256']=file_hash(args.candidate) if args.candidate else None
 
 
 def write_report():
-    report['source_sha256'] = {str(p.relative_to(project)):file_hash(p) for p in sorted(project.glob('*.py'))}
-    report['resource_sha256'] = {str(p.relative_to(project)):file_hash(p) for p in sorted((project/'assets').iterdir()) if p.is_file()}
-    report['verification_sha256']={str(p.relative_to(project)):file_hash(p) for p in (Path(__file__),project/'tools/verification_data.py',project/'tools/verification_fixture.py',project/'tools/verification_assets.py')}
+    report['source_sha256'] = {p.relative_to(payload).as_posix():file_hash(p) for p in sorted(payload.glob('*.py'))}
+    report['resource_sha256'] = {p.relative_to(payload).as_posix():file_hash(p) for p in sorted((payload/'assets').iterdir()) if p.is_file()}
+    report['verification_sha256']={p.relative_to(project).as_posix():file_hash(p) for p in (Path(__file__),project/'tools/verification_data.py',project/'tools/verification_fixture.py',project/'tools/verification_assets.py',project/'tools/verification_runtime.py')}
     (out / 'verification.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 
 
@@ -132,10 +116,9 @@ def validate_derived(root, baseline):
 def render(root, destination, azimuth):
     settings, scene = root.hgt_character, bpy.context.scene
     settings.light_azimuth = azimuth
-    scene.render.resolution_x,scene.render.resolution_y = 512,768
-    scene.render.resolution_percentage = 100
-    scene.render.filepath = str(destination)
-    bpy.ops.render.render(write_still=True)
+    scene.hgt_output.width,scene.hgt_output.height = 512,768
+    scene.hgt_output.filepath = str(destination)
+    addon.rendering.start(scene,root)
     assert destination.is_file() and destination.stat().st_size > 1000
     image = bpy.data.images.load(str(destination),check_existing=False)
     pixels = np.asarray(image.pixels[:],dtype=np.float32).reshape((-1,4))
@@ -170,7 +153,7 @@ for position in args.model_index or range(len(index['models'])):
     print('HGT_START',model['name'],flush=True)
     start=time.monotonic()
     source_files=package_hashes(path.parent)
-    bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.ops.wm.read_homefile(use_empty=True,use_factory_startup=True)
     batch = addon.workflow.importers.import_character(str(path))
     bpy.context.view_layer.update()
     baseline = source_snapshot(batch)
@@ -284,7 +267,7 @@ for position in args.model_index or range(len(index['models'])):
     print('HGT_MODEL_PASSED',model['name'],flush=True)
 
 if args.lifecycle:
-    bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.ops.wm.read_homefile(use_empty=True,use_factory_startup=True)
     first=addon.workflow.build(index['models'][0]['path'],bpy.context)
     first_groups={g for g in bpy.data.node_groups if g.get('hgt_owner')==first.hgt_character.uid}
     second=addon.workflow.build(index['models'][1]['path'],bpy.context)
@@ -359,9 +342,9 @@ if args.animation_fixture:
     report['animation_fixture']={'actions':len(batch.data['actions']),'shapes':sum(len(o.data.shape_keys.key_blocks) if o.data.shape_keys else 0 for o in batch.meshes),
                                  'source_actions_preserved':True,'uv_color_normals_preserved':True}
     write_report()
-report['resolver_checks']=check_resolver(importlib.import_module('hoyo_gi_toon.asset_resolver'),out)
+report['resolver_checks']=check_resolver(importlib.import_module(addon.__name__+'.asset_resolver'),out)
 write_report()
-addon.unregister()
+unload_addon(addon)
 better.unregister()
 shutil.rmtree(runtime)
 print('HGT_01_05_COMPLETE',flush=True)
