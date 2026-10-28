@@ -1,218 +1,230 @@
-"""Owned EEVEE node graphs for the initial FBX rendering workflow."""
+"""Assemble the pinned original shader graphs; do not approximate their math."""
+from pathlib import Path
 import bpy
+from .upstream_mapping import ADDITIONAL_MAPPING, ALPHA_MAPPING, FACE_MAPPING, MATERIAL_MAPPING, OUTLINE_MAPPING
+
+LIBRARY_PATH = Path(__file__).parent / "assets/original_shader.blend"
+CONTROLS_PATH = Path(__file__).parent / "assets/original_controls.blend"
+FACE_TYPES = {"Loli":1, "Boy":2, "Girl":3, "Male":4, "Lady":5}
+FACE_NODES = {1:"Face_Lightmap", 2:"Face_Lightmap.001", 3:"Face_Lightmap.002",
+              4:"Face_Lightmap.003", 5:"Face_Lightmap.004"}
 
 
-class Graph:
-    def __init__(self, tree):
-        self.tree = tree
-        self.column = 0
-
-    def node(self, kind, label=""):
-        node = self.tree.nodes.new(kind)
-        node.label = label
-        node.location = (self.column % 6 * 230, -(self.column // 6) * 220)
-        self.column += 1
-        return node
-
-    def connect(self, source, target):
-        if hasattr(source, "is_output"):
-            self.tree.links.new(source, target)
-        else:
-            target.default_value = source
-
-    def math(self, operation, a, b=0):
-        node = self.node("ShaderNodeMath")
-        node.operation = operation
-        self.connect(a, node.inputs[0])
-        self.connect(b, node.inputs[1])
-        return node.outputs[0]
-
-    def mix(self, mode, a, b, factor=1):
-        node = self.node("ShaderNodeMixRGB")
-        node.blend_type = mode
-        self.connect(factor, node.inputs[0])
-        self.connect(a, node.inputs[1])
-        self.connect(b, node.inputs[2])
-        return node.outputs[0]
-
-    def value(self, key, value):
-        node = self.node("ShaderNodeValue", key)
-        node["hgt_control"] = key
-        node.outputs[0].default_value = value
-        return node.outputs[0]
-
-    def separate(self, value):
-        node = self.node("ShaderNodeSeparateXYZ")
-        self.connect(value, node.inputs[0])
-        return node
-
-    def combine(self, x, y, z=0):
-        node = self.node("ShaderNodeCombineXYZ")
-        for i, value in enumerate((x, y, z)):
-            self.connect(value, node.inputs[i])
-        return node.outputs[0]
-
-    def image(self, path, data=False, vector=None, settings=None):
-        colorspace = "Non-Color" if data else "sRGB"
-        key = str(path.resolve()).casefold()
-        image = next((item for item in bpy.data.images if item.get("hgt_file") == key
-                      and item.colorspace_settings.name == colorspace
-                      and item.alpha_mode == "CHANNEL_PACKED"), None)
-        if image is None:
-            image = bpy.data.images.load(str(path), check_existing=False)
-            image.colorspace_settings.name = colorspace
-            # Genshin alpha commonly stores glow/blush/material data, including
-            # zero-alpha pixels with valid RGB. Straight-alpha interpretation
-            # loses those colors during GPU sampling.
-            image.alpha_mode = "CHANNEL_PACKED"
-            image["hgt_file"] = key
-        node = self.node("ShaderNodeTexImage", path.stem)
-        node.image = image
-        node.extension = "EXTEND" if vector is not None and settings is None else "REPEAT"
-        if vector is None:
-            uv = self.node("ShaderNodeTexCoord")
-            vector = uv.outputs["UV"]
-        if settings:
-            scale = settings.get("m_Scale", {})
-            offset = settings.get("m_Offset", {})
-            if scale or offset:
-                mapping = self.node("ShaderNodeVectorMath")
-                mapping.operation = "MULTIPLY_ADD"
-                self.connect(vector, mapping.inputs[0])
-                mapping.inputs[1].default_value = (scale.get("X", 1), scale.get("Y", 1), 1)
-                mapping.inputs[2].default_value = (offset.get("X", 0), offset.get("Y", 0), 0)
-                vector = mapping.outputs[0]
-        self.connect(vector, node.inputs[0])
-        return node
-
-
-def _smooth(g, value, threshold, softness):
-    low = g.math("SUBTRACT", threshold, softness)
-    high = g.math("ADD", threshold, softness)
-    node = g.node("ShaderNodeMapRange")
-    node.interpolation_type = "SMOOTHSTEP"
-    node.clamp = True
-    for socket, source in ((0, value), (1, low), (2, high)):
-        g.connect(source, node.inputs[socket])
-    return node.outputs[0]
-
-
-def build_material(material, assets, root):
-    material.use_nodes = True
-    tree = material.node_tree
-    tree.nodes.clear()
-    g = Graph(tree)
-    material["hgt_owner"] = root.hgt_character.uid
-    material["hgt_role"] = assets.role
-    material["hgt_source"] = assets.source
-    material["hgt_json"] = str(assets.json_path or "")
-    main_path = assets.textures.get("pupil") or assets.textures.get("diffuse")
-    if not main_path:
-        raise ValueError(f"{assets.source} 缺少基础色贴图，请将配套贴图放到模型目录")
-    diffuse = g.image(main_path, settings=assets.texture_settings.get("diffuse"))
-    base = g.mix("MULTIPLY", diffuse.outputs["Color"], assets.color("_Color", (1, 1, 1, 1)))
-    geometry = g.node("ShaderNodeNewGeometry")
-    threshold = g.value("threshold", root.hgt_character.threshold)
-    softness = g.value("softness", root.hgt_character.softness)
-    light = g.node("ShaderNodeCombineXYZ", "Light direction")
-    light["hgt_control"] = "light_vector"
-    normal = geometry.outputs["Normal"]
-    if "normal" in assets.textures and assets.role not in {"face", "brow", "eye"}:
-        normal_tex = g.image(assets.textures["normal"], data=True, settings=assets.texture_settings.get("normal"))
-        separate = g.node("ShaderNodeSeparateColor")
-        g.connect(normal_tex.outputs["Color"], separate.inputs[0])
-        # Unity's DXT5nm-style normal maps store tangent X in alpha and Y in G.
-        normal_color = g.node("ShaderNodeCombineColor")
-        g.connect(normal_tex.outputs["Alpha"], normal_color.inputs[0])
-        g.connect(separate.outputs[1], normal_color.inputs[1])
-        normal_color.inputs[2].default_value = 1
-        normal_map = g.node("ShaderNodeNormalMap")
-        normal_map.inputs[0].default_value = max(0, float(assets.floats.get("_BumpScale", 0.5)))
-        color_source = normal_tex.outputs["Color"] if assets.floats.get("_isNativeMainNormal", 0) else normal_color.outputs[0]
-        g.connect(color_source, normal_map.inputs["Color"])
-        normal = normal_map.outputs[0]
-    ndotl = g.node("ShaderNodeVectorMath")
-    ndotl.operation = "DOT_PRODUCT"
-    g.connect(normal, ndotl.inputs[0])
-    g.connect(light.outputs[0], ndotl.inputs[1])
-    half = g.math("MULTIPLY_ADD", ndotl.outputs["Value"], 0.5)
-    half.node.inputs[2].default_value = 0.5
-    level = _smooth(g, half, threshold, softness)
-    lm = None
-    if "lightmap" in assets.textures and assets.role in {"body", "hair"}:
-        lm = g.image(assets.textures["lightmap"], data=True, settings=assets.texture_settings.get("lightmap"))
-        channels = g.node("ShaderNodeSeparateColor")
-        g.connect(lm.outputs["Color"], channels.inputs[0])
-        ao = g.math("MULTIPLY_ADD", channels.outputs[1], 0.5)
-        ao.node.inputs[2].default_value = 0.5
-        level = g.math("MULTIPLY", level, ao)
-    if assets.role == "face" and "face_sdf" in assets.textures:
-        uv = g.node("ShaderNodeTexCoord")
-        split = g.separate(uv.outputs["UV"])
-        side = g.value("face_side", 1)
-        flip = g.math("LESS_THAN", side, 0)
-        x = g.math("ADD", g.math("MULTIPLY", split.outputs[0], g.math("SUBTRACT", 1, g.math("MULTIPLY", flip, 2))), flip)
-        sdf = g.image(assets.textures["face_sdf"], data=True, vector=g.combine(x, split.outputs[1]))
-        split_sdf = g.node("ShaderNodeSeparateColor")
-        g.connect(sdf.outputs[0], split_sdf.inputs[0])
-        forward = g.value("face_forward", 1)
-        face_cut = g.math("SUBTRACT", 1, g.math("MAXIMUM", forward, 0))
-        level = _smooth(g, split_sdf.outputs[0], face_cut, softness)
-    shadow = g.node("ShaderNodeRGB", "Shadow tint")
-    shadow["hgt_control"] = "shadow_color"
-    shadow.outputs[0].default_value = root.hgt_character.shadow_color
-    tone = g.mix("MIX", shadow.outputs[0], (1, 1, 1, 1), level)
-    if lm and "ramp" in assets.textures and assets.floats.get("_UseShadowRamp", 1):
-        row = g.math("ADD", g.math("MULTIPLY", g.math("FLOOR", g.math("MULTIPLY", lm.outputs["Alpha"], 4.99)), 0.1), 0.55)
-        ramp_uv = g.combine(g.math("ADD", g.math("MULTIPLY", level, 0.85), 0.15), row)
-        ramp = g.image(assets.textures["ramp"], vector=ramp_uv)
-        tone = g.mix("MULTIPLY", tone, ramp.outputs[0])
-    color = g.mix("MULTIPLY", base, tone)
-    # Eye and brow textures carry drawn detail; avoid adding large lighting bands.
-    if assets.role in {"eye", "brow"}:
-        color = base
-    facing = g.node("ShaderNodeVectorMath")
-    facing.operation = "DOT_PRODUCT"
-    g.connect(geometry.outputs["Normal"], facing.inputs[0])
-    g.connect(geometry.outputs["Incoming"], facing.inputs[1])
-    edge = g.math("POWER", g.math("SUBTRACT", 1, g.math("ABSOLUTE", facing.outputs["Value"])), 4)
-    rim = g.math("MULTIPLY", edge, g.value("rim", root.hgt_character.rim))
-    color = g.mix("ADD", color, (1, 0.92, 0.82, 1), rim)
-    color = g.mix("MULTIPLY", color, g.value("light_gain", root.hgt_character.light_energy * 0.5))
-    emission = g.node("ShaderNodeEmission")
-    g.connect(color, emission.inputs[0])
-    output = g.node("ShaderNodeOutputMaterial")
-    alpha_mode = int(assets.floats.get("_MainTexAlphaUse", 0))
-    if alpha_mode in {1, 4}:
-        transparent = g.node("ShaderNodeBsdfTransparent")
-        alpha = diffuse.outputs["Alpha"]
-        if alpha_mode == 1:
-            alpha = g.math("GREATER_THAN", alpha, float(assets.floats.get("_MainTexAlphaCutoff", 0.5)))
-        mix = g.node("ShaderNodeMixShader")
-        g.connect(alpha, mix.inputs[0])
-        g.connect(transparent.outputs[0], mix.inputs[1])
-        g.connect(emission.outputs[0], mix.inputs[2])
-        g.connect(mix.outputs[0], output.inputs[0])
-    else:
-        g.connect(emission.outputs[0], output.inputs[0])
-    material.diffuse_color = (0.65, 0.65, 0.65, 1)
-    material.use_backface_culling = False
-
-
-def set_controls(material, values):
-    if not material or not material.node_tree:
+def walk(tree, seen=None):
+    seen = set() if seen is None else seen
+    if tree.as_pointer() in seen:
         return
-    for node in material.node_tree.nodes:
-        key = node.get("hgt_control")
-        if key not in values:
+    seen.add(tree.as_pointer())
+    yield tree
+    for node in tree.nodes:
+        if node.type == "GROUP" and node.node_tree:
+            yield from walk(node.node_tree, seen)
+
+
+def load_image(path, data=False):
+    colorspace = "Non-Color" if data else "sRGB"
+    key = str(path.resolve()).casefold()
+    image = next((i for i in bpy.data.images if i.get("hgt_file") == key
+                  and i.colorspace_settings.name == colorspace and i.alpha_mode == "CHANNEL_PACKED"), None)
+    if image is None:
+        image = bpy.data.images.load(str(path), check_existing=False)
+        image.colorspace_settings.name = colorspace
+        image.alpha_mode = "CHANNEL_PACKED"
+        image["hgt_file"] = key
+    return image
+
+
+def input_value(modifier, name):
+    socket = next((s for s in modifier.node_group.interface.items_tree
+                   if s.item_type == "SOCKET" and s.in_out == "INPUT" and s.name == name), None)
+    if socket is None:
+        raise ValueError(f"原版节点缺少输入：{name}")
+    return getattr(modifier.properties.inputs, socket.identifier)
+
+
+def set_input(modifier, name, value):
+    input_value(modifier, name).value = value
+
+
+def apply_mapping(node, mapping, assets):
+    applied = {}
+    for key, name in mapping.items():
+        value = assets.colors.get(key, assets.floats.get(key))
+        if value is None:
             continue
-        value = values[key]
-        if key == "light_vector":
-            for i in range(3):
-                if abs(node.inputs[i].default_value - value[i]) > 1e-6:
-                    node.inputs[i].default_value = value[i]
-        elif key == "shadow_color":
-            if any(abs(node.outputs[0].default_value[i] - value[i]) > 1e-6 for i in range(4)):
-                node.outputs[0].default_value = value
-        elif abs(node.outputs[0].default_value - value) > 1e-6:
-            node.outputs[0].default_value = value
+        socket = node.inputs.get(name)
+        if socket is None:
+            raise ValueError(f"原版材质节点缺少参数：{node.name} / {name}")
+        if isinstance(value, dict):
+            value = tuple(float(value[k]) for k in ("r", "g", "b", "a"))
+        socket.default_value = value
+        applied[key] = name
+    return applied
+
+
+class ShaderLibrary:
+    def __init__(self, root):
+        self.root = root
+        self.uid = root.hgt_character.uid
+        with bpy.data.libraries.load(str(LIBRARY_PATH), link=False) as (source, target):
+            target.materials = source.materials
+            target.node_groups = source.node_groups
+        self.materials = {m["hgt_upstream"]:m for m in target.materials}
+        self.groups = {g["hgt_upstream"]:g for g in target.node_groups}
+        for item in (*self.materials.values(), *self.groups.values()):
+            item["hgt_owner"] = self.uid
+            item.use_fake_user = False
+            item.name = f"HGT • {root.name} • {item['hgt_upstream']}"
+        settings = root.hgt_character
+        settings.global_properties = self.groups["Global Material Properties"]
+        settings.light_vectors = self.groups["Light Vectors"]
+        settings.outline_graph = self.groups["HoYoverse - Genshin Impact Outlines"]
+        # Same links made by the original LightingPanel v3.4 setup.
+        tree = settings.global_properties
+        output = tree.nodes["Global Properties"]
+        for node_name, socket_name in (("Ambient", "Ambient Colour"), ("SharpLit", "Sharp Lit Colour"),
+                                      ("SoftLit", "Soft Lit Colour"), ("SharpShadow", "Sharp Shadow Colour"),
+                                      ("SoftShadow", "Soft Shadow Colour"), ("RimLitMult", "Rim Lit"),
+                                      ("RimShadowMult", "Rim Shadow")):
+            node = tree.nodes.get(node_name)
+            if node and output.inputs.get(socket_name):
+                source = node.outputs.get("Result") or node.outputs.get("Color")
+                if source:
+                    tree.links.new(source, output.inputs[socket_name])
+
+    def controls(self, collection):
+        with bpy.data.libraries.load(str(CONTROLS_PATH), link=False) as (source, target):
+            target.objects = source.objects
+        controls = {}
+        for obj in target.objects:
+            key = obj["hgt_upstream"]
+            controls[key] = obj
+            obj["hgt_owner"] = self.uid
+            obj.name = f"HGT • {self.root.name} • {key}"
+            obj.use_fake_user = False
+            obj.hide_render = True
+            collection.objects.link(obj)
+            obj.hide_set(True)
+            entry = self.root.hgt_character.controls.add()
+            entry.object, entry.key = obj, key
+        bpy.context.view_layer.update()
+        return controls
+
+    def _private_textures(self, tree, copies):
+        # Localize only texture-bearing paths, retaining the original formulas.
+        for node in tree.nodes:
+            if node.type != "GROUP" or not node.node_tree:
+                continue
+            original = node.node_tree
+            if not any(n.type == "TEX_IMAGE" for g in walk(original) for n in g.nodes):
+                continue
+            key = original.as_pointer()
+            if key not in copies:
+                copied = original.copy()
+                copies[key] = copied
+                copied.use_fake_user = False
+                copied["hgt_owner"] = self.uid
+                self._private_textures(copied, copies)
+            node.node_tree = copies[key]
+
+    def _bind_textures(self, material, assets):
+        main = assets.textures.get("diffuse")
+        if main is None:
+            raise ValueError(f"{assets.source} 缺少基础色贴图")
+        face_type = next((v for k,v in FACE_TYPES.items() if f"Avatar_{k}" in assets.source), None)
+        if face_type is None:
+            raise ValueError(f"无法确定原版脸部类型：{assets.source}")
+        for tree in walk(material.node_tree):
+            for node in tree.nodes:
+                if node.type != "TEX_IMAGE":
+                    continue
+                name = node.name
+                role, data = None, False
+                if "Diffuse" in name:
+                    role = "diffuse"
+                elif "Normalmap" in name:
+                    role, data = "normal", True
+                elif "Lightmap" in name and not name.startswith("Face_"):
+                    role, data = "lightmap", True
+                elif name.endswith("Shadow_Ramp"):
+                    role = "ramp"
+                elif name == "MetalMap":
+                    role = "metal"
+                elif tree.get("hgt_upstream") == "Genshin Specular" and name == "Image Texture":
+                    role, data = "specular_ramp", True
+                elif name == FACE_NODES[face_type]:
+                    role, data = "face_sdf", True
+                elif name == "Face_Shadow":
+                    role, data = "lightmap", True
+                path = assets.textures.get(role) if role else None
+                if path:
+                    node.image = load_image(path, data)
+                    node["hgt_texture_role"] = role
+        node = material.node_tree.nodes.get("Face Shader")
+        if node:
+            if "face_sdf" not in assets.textures or "lightmap" not in assets.textures:
+                raise ValueError(f"{assets.source} 缺少原版脸部阴影贴图")
+            node.inputs["[Loli/Boy/Girl/Male/Lady]"].default_value = face_type
+
+    def build_material(self, assets):
+        diffuse_name = assets.textures.get("diffuse", Path("")).stem
+        if assets.role in {"face", "eye", "brow"} and "_Tex_Face_" in diffuse_name:
+            kind = "Face"
+        else:
+            kind = "Hair" if assets.role == "hair" else "Body"
+        if kind != "Face":
+            for flag, role in (("_UseBumpMap", "normal"), ("_UseShadowRamp", "ramp"),
+                               ("_MetalMaterial", "metal"), ("_MTUseSpecularRamp", "specular_ramp")):
+                if assets.floats.get(flag, 0) and role not in assets.textures:
+                    raise ValueError(f"{assets.source} 启用了 {flag}，但缺少配套 {role} 贴图")
+        template = self.materials[f"HoYoverse - Genshin {kind}"]
+        material = template.copy()
+        material.name = f"HGT • {self.root.name} • {assets.source.rsplit('_Mat_', 1)[-1]}"
+        material["hgt_owner"], material["hgt_source"], material["hgt_role"] = self.uid, assets.source, assets.role
+        material["hgt_json"] = str(assets.json_path or "")
+        material["hgt_template"] = kind
+        if assets.source.rsplit('_Mat_', 1)[-1] in {"Face", "Eye", "Pupil"}:
+            material.use_raytrace_refraction = True
+        self._private_textures(material.node_tree, {})
+        self._bind_textures(material, assets)
+        node = material.node_tree.nodes["Face Shader" if kind == "Face" else "Body Shader"]
+        applied = apply_mapping(node, FACE_MAPPING if kind == "Face" else MATERIAL_MAPPING, assets)
+        if kind != "Face":
+            applied.update(apply_mapping(node, ADDITIONAL_MAPPING, assets))
+            if "_UseShadowRamp" not in assets.floats:
+                node.inputs["Use Shadow Ramp"].default_value = int("ramp" in assets.textures)
+            if "_UseLightMapColorAO" not in assets.floats:
+                node.inputs["Use Lightmap AO"].default_value = int("lightmap" in assets.textures)
+            mode = int(assets.floats.get("_MainTexAlphaUse", 0))
+            if mode not in ALPHA_MAPPING:
+                raise ValueError(f"原版 v3 不支持该 Alpha 模式：{assets.source} / {mode}")
+            for key, value in ALPHA_MAPPING[mode].items():
+                node.inputs[key].default_value = value
+        material["hgt_applied_parameters"] = list(applied)
+        outline = self.materials["HoYoverse - Genshin Outlines"].copy()
+        outline.name = material.name + " Outlines"
+        outline["hgt_owner"], outline["hgt_source"] = self.uid, assets.source
+        self._bind_textures(outline, assets)
+        outline_node = outline.node_tree.nodes["Outlines"]
+        apply_mapping(outline_node, OUTLINE_MAPPING, assets)
+        if kind == "Face":
+            outline_node.inputs["Use Face Shader"].default_value = 1
+        if int(assets.floats.get("_MainTexAlphaUse", 0)) == 1:
+            outline_node.inputs["Use Alpha"].default_value = 1
+        return material, outline
+
+    def finish(self):
+        for material in self.materials.values():
+            if material.users == 0:
+                bpy.data.materials.remove(material)
+        self.groups["HoYoverse - Post Processing"].use_fake_user = True
+
+
+def set_controls(root):
+    settings = root.hgt_character
+    tree = settings.global_properties
+    if tree is None:
+        return
+    socket = tree.nodes["Global Properties"].inputs["Shadow Position"]
+    if abs(socket.default_value - settings.shadow_position) > 1e-6:
+        socket.default_value = settings.shadow_position

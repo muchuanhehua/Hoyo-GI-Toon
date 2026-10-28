@@ -1,0 +1,158 @@
+{
+  "shader_repository": "https://github.com/festivities/Blender-miHoYo-Shaders",
+  "shader_commit": "b79f0f3fb47b4de2b6d187ee6b66d93cb965968d",
+  "wizard_repository": "https://github.com/michael-gh1/Addons-And-Tools-For-Blender-miHoYo-Shaders",
+  "wizard_commit": "fb942ecc30d9ed3889f5afb0dfb3a23c13601a54",
+  "sources": [
+    {
+      "repository": "festivities/Blender-miHoYo-Shaders",
+      "commit": "b79f0f3fb47b4de2b6d187ee6b66d93cb965968d",
+      "path": "HoYoverse - Genshin Impact v3.4.blend",
+      "sha256": "0a0809dfa495188b057a0144070d7bdedb2213356b4b849e6468dd459180bba2",
+      "bytes": 7691655
+    },
+    {
+      "repository": "festivities/Blender-miHoYo-Shaders",
+      "commit": "b79f0f3fb47b4de2b6d187ee6b66d93cb965968d",
+      "path": "HoYoverse - Genshin Impact Outlines v3.blend",
+      "sha256": "110c66f0fdf22861047a4f198753aaf29aeffdf24f938d2eeea4bd592bb9bd1f",
+      "bytes": 149621
+    },
+    {
+      "repository": "festivities/Blender-miHoYo-Shaders",
+      "commit": "b79f0f3fb47b4de2b6d187ee6b66d93cb965968d",
+      "path": "HoYoverse - Genshin Impact Post-Processing.blend",
+      "sha256": "54a5cd86941981d298f4ff184e9fe52f289e6d1193433640a236d5d42254f3cf",
+      "bytes": 629144
+    },
+    {
+      "repository": "michael-gh1/Addons-And-Tools-For-Blender-miHoYo-Shaders",
+      "commit": "fb942ecc30d9ed3889f5afb0dfb3a23c13601a54",
+      "path": "setup_wizard/character_rig_setup/LightingPanel_Shader_v3_4.blend",
+      "sha256": "6b4e2b098afacfbe2c52974f1c38edc49277f520ab754848ade503110ee93dee",
+      "bytes": 1290596
+    }
+  ],
+  "library_sha256": "432d37d79150a5a87e88c1bdacbd5bd633d509f393b370de132df744d59e0e96",
+  "changes": [
+    "Converted by Blender 5.2",
+    "Removed all images and preview objects; nodes keep original image-name references"
+  ],
+  "texture_references": [
+    {
+      "tree": "Face Factor",
+      "node": "Face_Lightmap.003",
+      "image": "Avatar_Male_Tex_FaceLightmap.png",
+      "colorspace": "Non-Color",
+      "alpha_mode": "CHANNEL_PACKED"
+    },
+    {
+      "tree": "Face Factor",
+      "node": "Face_Lightmap.002",
+      "image": "Avatar_Girl_Tex_FaceLightmap.png",
+      "colorspace": "Non-Color",
+      "alpha_mode": "CHANNEL_PACKED"
+    },
+    {
+      "tree": "Face Factor",
+      "node": "Face_Lightmap.001",
+      "image": "Avatar_Boy_Tex_FaceLightmap.png",
+      "colorspace": "Non-Color",
+      "alpha_mode": "CHANNEL_PACKED"
+    },
+    {
+      "tree": "Face Factor",
+      "node": "Face_Lightmap",
+      "image": "Avatar_Loli_Tex_FaceLightmap.png",
+      "colorspace": "Non-Color",
+      "alpha_mode": "CHANNEL_PACKED"
+    },
+    {
+      "tree": "Face Factor",
+      "node": "Face_Lightmap.004",
+      "image": "Avatar_Lady_Tex_FaceLightmap.png",
+      "colorspace": "Non-Color",
+      "alpha_mode": "CHANNEL_PACKED"
+    },
+    {
+      "tree": "Face Factor",
+      "node": "Face_Shadow",
+      "image": "Avatar_Tex_Face_Shadow.png",
+      "colorspace": "Non-Color",
+      "alpha_mode": "CHANNEL_PACKED"
+    },
+    {
+      "tree": "Genshin Metallic",
+      "node": "MetalMap",
+      "image": "Avatar_Tex_MetalMap.png",
+      "colorspace": "sRGB",
+      "alpha_mode": "CHANNEL_PACKED"
+    },
+    {
+      "tree": "Genshin Specular",
+      "node": "Image Texture",
+      "image": "Avatar_Tex_Specular_Ramp.png",
+      "colorspace": "Non-Color",
+      "alpha_mode": "CHANNEL_PACKED"
+    },
+    {
+      "tree": "HoYoverse - GI Face",
+      "node": "Face_Shadow",
+      "image": "Avatar_Tex_Face_Shadow.png",
+      "colorspace": "Non-Color",
+      "alpha_mode": "CHANNEL_PACKED"
+    }
+  ],
+  "materials": [
+    "HoYoverse - Genshin Body",
+    "HoYoverse - Genshin Face",
+    "HoYoverse - Genshin Hair",
+    "HoYoverse - Genshin Outlines"
+  ],
+  "node_groups": [
+    "&&",
+    "<=",
+    ">=",
+    "Apply Light Modifications",
+    "Body Shadow Ramp",
+    "Color Multipliers",
+    "ColorWheel Vectors",
+    "Depth-based Rim",
+    "Dot Creation",
+    "Face Factor",
+    "Genshin Alpha",
+    "Genshin Bloom",
+    "Genshin Face Lighting",
+    "Genshin Fresnel",
+    "Genshin Lighting",
+    "Genshin Material IDs - Color",
+    "Genshin Material IDs - Float",
+    "Genshin Metallic",
+    "Genshin Outlines",
+    "Genshin Specular",
+    "Genshin Tonemapper",
+    "Global Material Properties",
+    "Hair Shadow Ramp",
+    "HoYoverse - Genshin Impact Outlines",
+    "HoYoverse - GI Body",
+    "HoYoverse - GI Face",
+    "HoYoverse - GI Outlines",
+    "HoYoverse - Post Processing",
+    "Light Vectors",
+    "Linear -> sRGB",
+    "Optimized Normal Map",
+    "Recalculate Z-Coord of Expanded Normal Map",
+    "Slider Vectors",
+    "Smoothstep",
+    "sRGB -> Linear",
+    "UV Lerp"
+  ],
+  "controls_sha256": "2666d5c527de8e082dc3d9e2ae1a84a9c74b0aeb59b8eefba811005783bf4b68",
+  "controls_source": {
+    "repository": "michael-gh1/Addons-And-Tools-For-Blender-miHoYo-Shaders",
+    "commit": "fb942ecc30d9ed3889f5afb0dfb3a23c13601a54",
+    "path": "setup_wizard/character_rig_setup/LightingPanel_Shader_v3_4.blend",
+    "sha256": "6b4e2b098afacfbe2c52974f1c38edc49277f520ab754848ade503110ee93dee",
+    "bytes": 1290596
+  }
+}

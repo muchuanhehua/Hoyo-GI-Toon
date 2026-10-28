@@ -13,8 +13,8 @@ parser.add_argument("--model", type=Path, action="append", required=True)
 parser.add_argument("--render", action="store_true")
 args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
 project = Path(__file__).resolve().parents[1]
-out = project / ".verification"
-out.mkdir(exist_ok=True)
+out = project / ".verification/original"
+out.mkdir(parents=True, exist_ok=True)
 spec = importlib.util.spec_from_file_location("hoyo_gi_toon", project / "__init__.py", submodule_search_locations=[str(project)])
 addon = importlib.util.module_from_spec(spec)
 sys.modules[spec.name] = addon
@@ -47,7 +47,8 @@ for model in args.model:
               "source_preserved": True, "textures": [], "renders": []}
     for binding in settings.bindings:
         record["textures"].append({"material": binding.source_name,
-            "images": [n.image.name for n in binding.generated.node_tree.nodes if n.type == "TEX_IMAGE"]})
+            "images": [n.image.name for t in addon.workflow.shaders.walk(binding.generated.node_tree)
+                       for n in t.nodes if n.type == "TEX_IMAGE" and n.image]})
     bpy.context.scene.render.resolution_x = 768
     bpy.context.scene.render.resolution_y = 896
     bpy.context.scene.render.resolution_percentage = 100
@@ -82,7 +83,7 @@ for model in args.model:
     (out / "fbx-verification.json").write_text(json.dumps({"blender": bpy.app.version_string,
         "models": reports}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("HGT_VERIFIED", json.dumps({key:value for key,value in record.items() if key != "textures"}, ensure_ascii=False), flush=True)
-core_files = ("__init__.py", "asset_resolver.py", "importers.py", "properties.py", "shaders.py", "outlines.py", "workflow.py", "panels.py")
+core_files = ("__init__.py", "asset_resolver.py", "importers.py", "properties.py", "shaders.py", "outlines.py", "workflow.py", "panels.py", "post_processing.py", "upstream_mapping.py", "assets/original_shader.blend", "assets/original_controls.blend", "assets/upstream.json")
 report = {"blender": bpy.app.version_string, "models": reports,
           "core_sha256": {name:fingerprint(project/name) for name in core_files}}
 (out / "fbx-verification.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

@@ -4,7 +4,7 @@ import bpy
 from bpy.props import StringProperty
 from bpy.types import Operator, Panel
 from bpy_extras.io_utils import ImportHelper
-from . import workflow
+from . import post_processing, workflow
 
 
 class HGT_OT_import_character(Operator, ImportHelper):
@@ -51,6 +51,19 @@ class HGT_OT_render(Operator):
         return bpy.ops.render.render("INVOKE_DEFAULT")
 
 
+class HGT_OT_post_processing(HGT_OT_restore):
+    bl_idname = "hgt.post_processing"
+    bl_label = "应用原版后期"
+
+    def execute(self, context):
+        try:
+            post_processing.configure(context.scene, context.scene.hgt_target)
+        except ValueError as exc:
+            self.report({"ERROR"}, str(exc))
+            return {"CANCELLED"}
+        return {"FINISHED"}
+
+
 class HGT_PT_main(Panel):
     bl_label = "Hoyo-GI-Toon"
     bl_idname = "HGT_PT_main"
@@ -71,7 +84,7 @@ class HGT_PT_main(Panel):
             return
         settings = root.hgt_character
         column = layout.column(align=True)
-        for name in ("threshold", "softness", "rim", "outline"):
+        for name in ("shadow_position", "outline"):
             column.prop(settings, name, slider=True)
         layout.separator(factor=0.5)
         layout.operator("hgt.render", icon="RENDER_STILL")
@@ -92,7 +105,7 @@ class HGT_PT_lighting(Panel):
     def draw(self, context):
         column = self.layout.column(align=True)
         settings = context.scene.hgt_target.hgt_character
-        for name in ("light_azimuth", "light_elevation", "light_energy", "shadow_color"):
+        for name in ("light_azimuth", "light_elevation"):
             column.prop(settings, name)
 
 
@@ -123,9 +136,10 @@ class HGT_PT_output(HGT_PT_lighting):
         column.prop(context.scene.render, "resolution_y", text="高")
         column.prop(context.scene.render, "film_transparent", text="透明背景")
         column.prop(context.scene.render, "filepath", text="路径")
+        layout.operator("hgt.post_processing")
 
 
-CLASSES = (HGT_OT_import_character, HGT_OT_restore, HGT_OT_render, HGT_PT_main,
+CLASSES = (HGT_OT_import_character, HGT_OT_restore, HGT_OT_render, HGT_OT_post_processing, HGT_PT_main,
            HGT_PT_lighting, HGT_PT_materials, HGT_PT_output)
 
 

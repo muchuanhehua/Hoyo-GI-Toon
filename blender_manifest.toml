@@ -1,13 +1,13 @@
 schema_version = "1.0.0"
 id = "hoyo_gi_toon"
-version = "0.1.0"
+version = "0.2.0"
 name = "Hoyo-GI-Toon"
 tagline = "原神角色导入、卡通材质、描边与调光"
 maintainer = "muchuanhehua"
 type = "add-on"
 website = "https://github.com/muchuanhehua/Hoyo-GI-Toon"
 blender_version_min = "5.2.0"
-license = ["SPDX:GPL-3.0-or-later"]
+license = ["SPDX:GPL-3.0-only"]
 tags = ["Material", "Import-Export", "Render"]
 
 [permissions]

@@ -25,13 +25,8 @@ def light_direction(settings):
     return Vector((math.sin(a) * math.cos(e), -math.cos(a) * math.cos(e), math.sin(e)))
 
 
-def _make_rig(root, collection, imported):
+def _make_rig(root, collection, imported, library):
     settings = root.hgt_character
-    sun_data = bpy.data.lights.new(f"HGT • {root.name} • 主光", "SUN")
-    sun = bpy.data.objects.new(sun_data.name, sun_data)
-    collection.objects.link(sun)
-    sun["hgt_owner"] = settings.uid
-    settings.light = sun
     armatures = [obj for obj in imported if obj.type == "ARMATURE"]
     if len(armatures) != 1:
         raise ValueError("角色需要唯一骨架；请单独导出角色后导入")
@@ -39,19 +34,36 @@ def _make_rig(root, collection, imported):
     heads = [b for b in armature.pose.bones if b.name.lower().split()[-1] == "head"]
     if len(heads) != 1:
         raise ValueError("无法确定唯一头骨，请保留原神角色的 Head 骨骼名称")
-    head = bpy.data.objects.new(f"HGT • {root.name} • 头部", None)
-    collection.objects.link(head)
-    head["hgt_owner"] = settings.uid
-    head.empty_display_size = settings.height * 0.03
-    head.parent = armature
-    head.parent_type = "BONE"
-    head.parent_bone = heads[0].name
-    bpy.context.view_layer.update()
-    head.matrix_world = armature.matrix_world @ heads[0].matrix
+    controls = library.controls(collection)
+    head = controls["Head Origin"]
+    constraint = head.constraints.get("Child Of")
+    if constraint is None:
+        raise ValueError("原版 Head Origin 缺少 Child Of 约束")
+    constraint.target = armature
+    constraint.subtarget = heads[0].name
+    constraint.inverse_matrix = (armature.matrix_world @ heads[0].matrix).inverted()
+    settings.light = controls["Light Direction"]
     settings.head = head
-    rotation = head.matrix_world.to_quaternion().inverted()
-    settings.head_forward = rotation @ Vector((0, -1, 0))
-    settings.head_right = rotation @ Vector((1, 0, 0))
+    bpy.context.view_layer.update()
+    return controls
+
+
+def _light_vectors(mesh, root, controls):
+    modifier = mesh.modifiers.new("HGT • Light Vectors", "NODES")
+    modifier.node_group = root.hgt_character.light_vectors
+    for name in ("Light Direction", "Head Origin", "Head Forward", "Head Up"):
+        shaders.set_input(modifier, name, controls[name])
+    for name, key in (("Ambient", "Ambient"), ("Lit", "Lit"), ("Shadow", "Shadow"),
+                      ("Rim Lit", "RimLit"), ("Fresnel", "Fresnel"), ("Soft Lit", "SoftLit"),
+                      ("Soft Shadow", "SoftShadow"), ("Rim Shadow", "RimShadow")):
+        shaders.set_input(modifier, name + " Color Wheel", controls["ColorWheel-" + key])
+        shaders.set_input(modifier, name + " Color Picker", controls["ColorPicker-" + key])
+    for axis in ("X", "Y"):
+        shaders.set_input(modifier, f"Rim {axis} Size Origin", controls[f"Origin-Rim{axis}"])
+        shaders.set_input(modifier, f"Rim {axis} Size Slider", controls[f"Slider-Rim{axis}"])
+    for socket in modifier.node_group.interface.items_tree:
+        if socket.item_type == "SOCKET" and socket.in_out == "OUTPUT" and socket.name != "Geometry":
+            getattr(modifier.properties.outputs, socket.identifier).attribute_name = socket.default_attribute_name
 
 
 def ensure_camera(root, collection, scene):
@@ -122,12 +134,18 @@ def build(filepath, context):
         visible = [e.object for e in settings.meshes if not e.object.hide_render]
         low, high = bounds(visible)
         settings.height = max(0.01, high.z - low.z)
-        _make_rig(root, collection, imported)
+        library = shaders.ShaderLibrary(root)
+        controls = _make_rig(root, collection, imported, library)
         built = {}
         for entry in settings.meshes:
             mesh = entry.object
             if mesh.hide_render:
                 continue
+            if not mesh.data.uv_layers.get("UV1"):
+                mesh.data.uv_layers.new(name="UV1")
+            color = mesh.data.color_attributes.active_color
+            if color:
+                color.name = "Col"
             for index, slot in enumerate(mesh.material_slots):
                 original = slot.material
                 if original is None:
@@ -135,16 +153,18 @@ def build(filepath, context):
                 key = original.as_pointer()
                 if key not in built:
                     assets = catalog.resolve(original.name)
-                    generated = bpy.data.materials.new(f"HGT • {root.name} • {assets.source.rsplit('_Mat_', 1)[-1]}")
-                    shaders.build_material(generated, assets, root)
+                    generated, outline = library.build_material(assets)
                     built[key] = generated
                     binding = settings.bindings.add()
                     binding.source, binding.generated = original, generated
+                    binding.outline = outline
                     binding.source_name, binding.role = assets.source, assets.role
                 snap = settings.slots.add()
                 snap.mesh, snap.index, snap.original, snap.generated = mesh, index, original, built[key]
                 slot.material = built[key]
+            _light_vectors(mesh, root, controls)
             outlines.build(mesh, root)
+        library.finish()
         settings.building = False
         context.scene.render.engine = "BLENDER_EEVEE"
         context.scene.view_settings.view_transform = "Standard"
@@ -169,8 +189,8 @@ def build(filepath, context):
         for kind in kinds:
             items = getattr(bpy.data, kind)
             for item in list(items):
-                if item.as_pointer() not in previous_data[kind] and item.users == 0:
-                    items.remove(item)
+                if item.as_pointer() not in previous_data[kind]:
+                    items.remove(item, do_unlink=True)
         bpy.data.collections.remove(collection)
         (scene.render.engine, scene.view_settings.view_transform, scene.render.film_transparent,
          scene.render.image_settings.file_format, scene.render.image_settings.color_mode,
@@ -192,23 +212,10 @@ def refresh_character(root, depsgraph=None):
     try:
         direction = light_direction(settings)
         if settings.light:
-            rotation = direction.to_track_quat("Z", "Y").to_euler()
+            rotation = direction.to_track_quat("-Z", "Y").to_euler()
             if any(abs(settings.light.rotation_euler[i] - rotation[i]) > 1e-6 for i in range(3)):
                 settings.light.rotation_euler = rotation
-            if abs(settings.light.data.energy - settings.light_energy) > 1e-6:
-                settings.light.data.energy = settings.light_energy
-        forward, side = 1.0, 1.0
-        if settings.head:
-            head = settings.head.evaluated_get(depsgraph) if depsgraph else settings.head
-            rotation = head.matrix_world.to_quaternion()
-            horizontal = Vector((direction.x, direction.y, 0)).normalized()
-            forward = (rotation @ Vector(settings.head_forward)).dot(horizontal)
-            side = (rotation @ Vector(settings.head_right)).dot(horizontal)
-        values = {"threshold": settings.threshold, "softness": settings.softness, "rim": settings.rim,
-                  "shadow_color": settings.shadow_color, "light_vector": direction,
-                  "face_forward": forward, "face_side": side, "light_gain": settings.light_energy * 0.5}
-        for binding in settings.bindings:
-            shaders.set_controls(binding.generated, values)
+        shaders.set_controls(root)
         for entry in settings.meshes:
             if entry.object:
                 outlines.update(entry.object, root)

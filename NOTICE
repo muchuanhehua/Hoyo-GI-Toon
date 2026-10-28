@@ -1,12 +1,27 @@
 Hoyo-GI-Toon
 Copyright (C) 2026 muchuanhehua
 
-Distributed under GPL-3.0-or-later. See LICENSE.
+Distributed under GPL-3.0. See LICENSE.
 
-Workflow references:
-- https://github.com/michael-gh1/Addons-And-Tools-For-Blender-miHoYo-Shaders
-- https://github.com/festivities/Blender-miHoYo-Shaders
+Original shader nodes: Festivity / BonnyAnimations and the contributors credited
+by https://github.com/festivities/Blender-miHoYo-Shaders
+Pinned source: b79f0f3fb47b4de2b6d187ee6b66d93cb965968d
 
-This project builds its own Blender node graphs. It does not bundle the above
-projects' shader blend files or any game character models, textures, material
-dumps, or other game assets. Local assets remain subject to their own terms.
+Original setup rules, material parameter mappings and Lighting Panel:
+michael-gh1 (Mken) and the contributors credited by
+https://github.com/michael-gh1/Addons-And-Tools-For-Blender-miHoYo-Shaders
+Pinned source: fb942ecc30d9ed3889f5afb0dfb3a23c13601a54
+
+assets/original_shader.blend contains the original editable node graphs converted
+by Blender 5.2. All images and preview objects were removed; image nodes retain
+the original reference names. assets/original_controls.blend contains the
+original procedural lighting controls and head reference objects.
+upstream_mapping.py extracts the original V3_MaterialDataApplier dictionaries.
+tools/fetch_upstream.py, build_shader_library.py and build_upstream_mappings.py
+describe how these assets and mappings are obtained and prepared. See
+assets/upstream.json for input versions and SHA256 provenance.
+
+Hoyo-GI-Toon adapts the current Blender API and scopes the original setup to each
+imported character. It does not distribute game character models, textures,
+material dumps or private validation projects. Local game assets are read from
+the selected character package.

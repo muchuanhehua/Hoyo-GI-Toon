@@ -12,7 +12,7 @@ TEXTURE_KEYS = {
     "ramp": ("_PackedShadowRampTex", "_ShadowRamp", "_RampTex"),
     "face_sdf": ("_FaceSdfMap", "_FaceMapTex"),
     "metal": ("_MTMap",),
-    "pupil": ("_PupilDiffuseTex", "_PupilTex", "_PupilDiffuseTex1", "_PupilTex1"),
+    "specular_ramp": ("_MTSpecularRamp",),
 }
 
 
@@ -53,6 +53,7 @@ class MaterialAssets:
     floats: dict = field(default_factory=dict)
     colors: dict = field(default_factory=dict)
     texture_settings: dict = field(default_factory=dict)
+    texenvs: dict = field(default_factory=dict)
     json_path: Path | None = None
 
     def color(self, key, fallback):
@@ -102,6 +103,18 @@ class AssetCatalog:
             image = self.image(base + "_Diffuse")
             if image:
                 result.textures["diffuse"] = image
+        # GenshinAvatarTextureImporter binds Body diffuse/lightmap to Pupil;
+        # the exported Pupil JSON can reference a placeholder Hair texture.
+        if name.rsplit('_Mat_',1)[-1] == 'Pupil':
+            body = self.resolve(name.rsplit('_Mat_',1)[0] + '_Mat_Body')
+            for role in ('diffuse', 'lightmap', 'ramp'):
+                if role in body.textures:
+                    result.textures[role] = body.textures[role]
+        # The original wizard selects a Hair shader for clothing which uses
+        # Hair textures. Use the referenced texture, not a fixed character list.
+        diffuse = result.textures.get("diffuse")
+        if diffuse and result.role not in {"face", "eye", "brow"} and "_tex_hair" in diffuse.stem.casefold():
+            result.role = "hair"
         return result
 
     def _read_json(self, path, result):
@@ -114,6 +127,7 @@ class AssetCatalog:
         result.floats = property_dict(props.get("m_Floats", {}))
         result.colors = property_dict(props.get("m_Colors", {}))
         envs = property_dict(props.get("m_TexEnvs", {}))
+        result.texenvs = envs
         for role, keys in TEXTURE_KEYS.items():
             for key in keys:
                 entry = envs.get(key, {})
@@ -131,15 +145,3 @@ class AssetCatalog:
                 result.textures[role] = image
                 result.texture_settings[role] = entry
                 break
-        # New pupil materials expose several expression variants. Select the
-        # explicitly enabled variant when exported; otherwise use the first slot.
-        if result.role == "eye":
-            for key, entry in envs.items():
-                if not ("pupil" in key.lower() and "diffuse" in key.lower()):
-                    continue
-                reference = entry.get("m_Texture", {})
-                image = self.image(reference.get("Name", "")) if reference.get("Name") else None
-                if image:
-                    result.textures["pupil"] = image
-                    result.texture_settings["pupil"] = entry
-                    break
