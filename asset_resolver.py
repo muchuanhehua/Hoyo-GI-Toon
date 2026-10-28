@@ -115,6 +115,21 @@ class AssetCatalog:
         diffuse = result.textures.get("diffuse")
         if diffuse and result.role not in {"face", "eye", "brow"} and "_tex_hair" in diffuse.stem.casefold():
             result.role = "hair"
+        # The V3 Body shader contains both ramp branches, even in a Hair
+        # material. Bind each branch to its own map, as the original importer
+        # does, rather than assigning one material's ramp to every branch.
+        prefix = name.rsplit("_Mat_", 1)[0]
+        for part in ("Body", "Hair"):
+            role = part.lower() + "_ramp"
+            if (part == "Hair") == (result.role == "hair") and "ramp" in result.textures:
+                result.textures[role] = result.textures["ramp"]
+                continue
+            related_path = self.unique(self.materials.get((prefix + "_Mat_" + part).casefold(), []), part + " ramp")
+            if related_path:
+                related = MaterialAssets(prefix + "_Mat_" + part, part.lower())
+                self._read_json(related_path, related)
+                if "ramp" in related.textures:
+                    result.textures[role] = related.textures["ramp"]
         return result
 
     def _read_json(self, path, result):

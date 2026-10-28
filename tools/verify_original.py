@@ -14,11 +14,12 @@ import bpy
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / ".verification/original"
-OUT.mkdir(parents=True, exist_ok=True)
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", action="append", type=Path, required=True)
+parser.add_argument("--output-dir", type=Path)
 args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
+OUT = (args.output_dir or ROOT / ".verification/original").resolve()
+OUT.mkdir(parents=True, exist_ok=True)
 
 
 def normalized(value):

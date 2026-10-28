@@ -5,7 +5,7 @@ import uuid
 import bpy
 from bpy.app.handlers import persistent
 from mathutils import Vector
-from .asset_resolver import AssetCatalog
+from .asset_resolver import AssetCatalog, source_name
 from . import importers, outlines, shaders
 
 _REFRESHING = False
@@ -41,7 +41,9 @@ def _make_rig(root, collection, imported, library):
         raise ValueError("原版 Head Origin 缺少 Child Of 约束")
     constraint.target = armature
     constraint.subtarget = heads[0].name
-    constraint.inverse_matrix = (armature.matrix_world @ heads[0].matrix).inverted()
+    bpy.context.view_layer.update()
+    with bpy.context.temp_override(object=head, active_object=head):
+        bpy.ops.constraint.childof_set_inverse(constraint=constraint.name, owner="OBJECT")
     settings.light = controls["Light Direction"]
     settings.head = head
     bpy.context.view_layer.update()
@@ -150,6 +152,11 @@ def build(filepath, context):
                 original = slot.material
                 if original is None:
                     raise ValueError(f"{mesh.name} 的材质槽为空")
+                # The original replacer leaves unrecognized attachments (for
+                # example Flycloak materials shipped with Amber) untouched.
+                name = source_name(original.name)
+                if not name.startswith("Avatar_") or "_Mat_" not in name:
+                    continue
                 key = original.as_pointer()
                 if key not in built:
                     assets = catalog.resolve(original.name)
@@ -162,8 +169,11 @@ def build(filepath, context):
                 snap = settings.slots.add()
                 snap.mesh, snap.index, snap.original, snap.generated = mesh, index, original, built[key]
                 slot.material = built[key]
-            _light_vectors(mesh, root, controls)
-            outlines.build(mesh, root)
+            if any(slot.material.get("hgt_owner") == settings.uid for slot in mesh.material_slots):
+                _light_vectors(mesh, root, controls)
+                outlines.build(mesh, root)
+        if not built:
+            raise ValueError("模型中没有可匹配的原神角色材质，请保留 Avatar_*_Mat_* 材质名称")
         library.finish()
         settings.building = False
         context.scene.render.engine = "BLENDER_EEVEE"

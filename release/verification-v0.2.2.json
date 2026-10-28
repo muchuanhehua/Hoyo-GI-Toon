@@ -1,0 +1,139 @@
+{
+  "models": [
+    {
+      "model": "奥黛塔",
+      "format": "FBX",
+      "meshes": 10,
+      "bindings": 8,
+      "source_preserved": true,
+      "shape_keys_preserved": true,
+      "refresh_idempotent": true,
+      "material_restore": true,
+      "visual_content_checks": true
+    },
+    {
+      "model": "尼可",
+      "format": "FBX",
+      "meshes": 12,
+      "bindings": 9,
+      "source_preserved": true,
+      "shape_keys_preserved": true,
+      "refresh_idempotent": true,
+      "material_restore": true,
+      "visual_content_checks": true
+    }
+  ],
+  "lifecycle": {
+    "two_character_isolation": true,
+    "local_asset_boundaries": true,
+    "head_shadow_tracking": true,
+    "nonuniform_scale_update": true,
+    "failed_import_rollback": true,
+    "save_reload": true,
+    "original_post_processing": true,
+    "legacy_scene_unchanged": true
+  },
+  "core_sha256": {
+    "__init__.py": "153642f3d3e6a72c8edb78a3a73e0cb410dc43590c1f7746aa7b61c9afa2e1b4",
+    "asset_resolver.py": "08a48ce90906f19166b14201a5701812d1e70e029d3ed9fe796a2b3ba76e529e",
+    "importers.py": "176498a940b891f0a3a9ed8aee62500058373edaa2192cf2f49e44c12e2660cd",
+    "properties.py": "1f2c961712006eec7c0c7823d7bc0bdaad304b037cdc1837ef5c7191e8079e4a",
+    "shaders.py": "b95d97b5b16da61167747378ace9b5771966f351626b9f1e34c4a5aa6cb3971c",
+    "outlines.py": "e017d96a9e0bdd02c546f8d039f130c75ea2a9bc6f65355ff2ea0236dc86f0ee",
+    "workflow.py": "d82d99ea452986ec651bf2bdfefd66cbeeedc54a9d9aa7b9baa452b3bd307667",
+    "panels.py": "d8ca5302737e778774843f90a7e545afea9ad2548bd83d16257b0ee1add1527f",
+    "post_processing.py": "685051deb60412fd054dfff69b338b28c8be5ec584ad62cc817024edd8ddef21",
+    "upstream_mapping.py": "3da1b73d944c8456ed626ce28b1e5ff26f3f8becf30bebf89aa0236bea8a5f32",
+    "assets/original_shader.blend": "432d37d79150a5a87e88c1bdacbd5bd633d509f393b370de132df744d59e0e96",
+    "assets/original_controls.blend": "2666d5c527de8e082dc3d9e2ae1a84a9c74b0aeb59b8eefba811005783bf4b68",
+    "assets/upstream.json": "681dd4d06ab370a2a2cd654ffaac676764eb817de9e81e32ae3390c1fb30e41f"
+  },
+  "original_conformance": {
+    "upstream_graphs_equal": true,
+    "groups": 36,
+    "materials": 4,
+    "game_assets_excluded": true,
+    "models": [
+      {
+        "model": "奥黛塔",
+        "structure_preserved": true,
+        "oracle_socket_checks": 816,
+        "upstream_render_max_error": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "model": "尼可",
+        "structure_preserved": true,
+        "oracle_socket_checks": 873,
+        "upstream_render_max_error": [
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "scope": "Pinned original v3.4 graphs and original v3 material applier; same adapter and controls for render comparison"
+  },
+  "independent_workflow": {
+    "comparison_passed": true,
+    "pixel_exact": false,
+    "render_acceptance_limits": {
+      "max": 0.015687274509803922,
+      "mean": 1e-05,
+      "changed_fraction": 0.0001
+    },
+    "same_local_lookup_inputs": true,
+    "v3_material_names_compatibility": true,
+    "outlines_disabled": false
+  },
+  "older_models": [
+    {
+      "model": "安柏",
+      "render_errors": [
+        {
+          "angle": 0.65,
+          "max": 0.0156862735748291,
+          "mean": 1.1668487331917277e-06,
+          "changed_fraction": 4.9591064453125e-05
+        },
+        {
+          "angle": -1.0,
+          "max": 0.0156862735748291,
+          "mean": 1.1010264415745041e-06,
+          "changed_fraction": 4.8065185546875e-05
+        }
+      ],
+      "control_matrix_errors": {
+        "Head Origin": 0.0,
+        "Head Forward": 0.0,
+        "Head Up": 0.0,
+        "Light Direction": 0.0
+      }
+    },
+    {
+      "model": "刻晴",
+      "render_errors": [
+        {
+          "angle": 0.65,
+          "max": 0.003921568393707275,
+          "mean": 2.094343543035393e-08,
+          "changed_fraction": 0.0
+        },
+        {
+          "angle": -1.0,
+          "max": 0.003921568393707275,
+          "mean": 2.094343543035393e-08,
+          "changed_fraction": 0.0
+        }
+      ],
+      "control_matrix_errors": {
+        "Head Origin": 0.0,
+        "Head Forward": 0.0,
+        "Head Up": 0.0,
+        "Light Direction": 0.0
+      }
+    }
+  ],
+  "scope": "固定原版 v3.4 节点与参数映射；原始库和打包库使用相同装配器对照，不代表游戏画面完整复现"
+}

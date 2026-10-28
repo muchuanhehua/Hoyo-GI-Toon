@@ -146,8 +146,10 @@ class ShaderLibrary:
                     role, data = "normal", True
                 elif "Lightmap" in name and not name.startswith("Face_"):
                     role, data = "lightmap", True
-                elif name.endswith("Shadow_Ramp"):
-                    role = "ramp"
+                elif name == "Body_Shadow_Ramp":
+                    role = "body_ramp"
+                elif name == "Hair_Shadow_Ramp":
+                    role = "hair_ramp"
                 elif name == "MetalMap":
                     role = "metal"
                 elif tree.get("hgt_upstream") == "Genshin Specular" and name == "Image Texture":
@@ -204,7 +206,10 @@ class ShaderLibrary:
         outline = self.materials["HoYoverse - Genshin Outlines"].copy()
         outline.name = material.name + " Outlines"
         outline["hgt_owner"], outline["hgt_source"] = self.uid, assets.source
-        self._bind_textures(outline, assets)
+        # The original outline importer skips Face; its face-shader branch
+        # supplies the outline color without diffuse/lightmap image nodes.
+        if kind != "Face":
+            self._bind_textures(outline, assets)
         outline_node = outline.node_tree.nodes["Outlines"]
         apply_mapping(outline_node, OUTLINE_MAPPING, assets)
         if kind == "Face":

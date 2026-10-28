@@ -36,6 +36,7 @@ def main():
     evidence = json.loads((ROOT / ".verification/original/fbx-verification.json").read_text(encoding="utf-8"))
     lifecycle = json.loads((ROOT / ".verification/original/lifecycle.json").read_text(encoding="utf-8"))
     original = json.loads((ROOT / ".verification/original/original-conformance.json").read_text(encoding="utf-8"))
+    independent = json.loads((ROOT / ".verification/original/independent/upstream-workflow.json").read_text(encoding="utf-8"))
     if len(evidence["models"]) != 2 or not all(lifecycle.values()):
         raise ValueError("Actual two-model and lifecycle verification is required")
     for name, expected in evidence["core_sha256"].items():
@@ -43,6 +44,11 @@ def main():
             raise ValueError("Source changed after verification: " + name)
     if original['core_sha256'] != evidence['core_sha256'] or not original['upstream_graphs_equal']:
         raise ValueError("Current-source original conformance verification is required")
+    if independent["core_sha256"] != evidence["core_sha256"] or not independent["comparison_passed"]:
+        raise ValueError("Current-source independent original workflow comparison is required")
+    if (len(independent["models"]) != 2 or not independent["same_local_lookup_inputs"]
+            or not independent["v3_material_names_compatibility"] or independent["outlines_disabled"]):
+        raise ValueError("Two-character comparison with matched inputs and outlines is required")
     if len(original['models']) != 2 or any(not m['structure_preserved'] or max(m['upstream_render_max_error']) > 1/255+1e-6 for m in original['models']):
         raise ValueError("Original model/render comparison is incomplete")
     if not all(m["visual_content_checks"] and m["source_preserved"] and m["material_restore"] for m in evidence["models"]):
@@ -73,6 +79,8 @@ def main():
     summary = {"models":[{k:m[k] for k in ("model", "format", "meshes", "bindings", "source_preserved", "shape_keys_preserved", "refresh_idempotent", "material_restore", "visual_content_checks")} for m in evidence["models"]],
                "lifecycle":lifecycle, "core_sha256":evidence["core_sha256"],
                "original_conformance":{k:v for k,v in original.items() if k != 'core_sha256'},
+               "independent_workflow":{key:independent[key] for key in ("comparison_passed", "pixel_exact", "render_acceptance_limits", "same_local_lookup_inputs", "v3_material_names_compatibility", "outlines_disabled")},
+               "older_models":[{key:model[key] for key in ("model", "render_errors", "control_matrix_errors")} for model in independent["models"]],
                "scope":"固定原版 v3.4 节点与参数映射；原始库和打包库使用相同装配器对照，不代表游戏画面完整复现"}
     (release / f"verification-v{manifest['version']}.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     print("HGT_BUILD", package.name, digest, len(payload), flush=True)

@@ -39,6 +39,16 @@ WIZARD = (
     "setup_wizard/geometry_nodes_setup/lighting_panel_names.py",
     "setup_wizard/replace_default_materials_setup/game_default_material_replacers.py",
     "setup_wizard/config_ui.json",
+    "setup_wizard/import_order.py",
+    "setup_wizard/domain/game_types.py",
+    "setup_wizard/domain/shader_identifier_service.py",
+    "setup_wizard/domain/shader_material_name_keywords.py",
+    "setup_wizard/domain/shader_material.py",
+    "setup_wizard/domain/star_cloak_types.py",
+    "setup_wizard/domain/vfx_shader_types.py",
+    "setup_wizard/texture_import_setup/original_texture_locator_utils.py",
+    "setup_wizard/material_import_setup/empty_names.py",
+    "setup_wizard/outline_import_setup/outline_node_groups.py",
 )
 
 

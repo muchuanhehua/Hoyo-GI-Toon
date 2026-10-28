@@ -5,6 +5,7 @@
 - 遵循上级 `../AGENTS.md`；本项目是独立的原神角色渲染插件，不继承 MAVR 或 Kimodo 的项目授权与验证结果。
 - 用户于 2026-10-28 明确要求在本目录开发、通过 GitHub 交付，并为本地 Blender 配置远程更新。
 - 用户随后明确纠正实现方向：先复刻参考仓库及其配套原版 Shader 的结构、材质和处理流程，不自行设计替代着色或扩展效果。固定上游版本，直接使用其原生节点库；仅适配当前 Blender API、角色归属与既定简洁入口。
+- 用户明确要求后续需要 Blender 的验证自行在后台完成，并增加较旧角色交叉验证；已授权本项目后台启动、导入与渲染。验证工程独立保存，不改当前前台工程。
 - 首版只完成 FBX 角色流程，实际跑通后再接入 PMX；两种格式始终使用同一个导入入口，以文件后缀分派适配器。
 - 按当前稳定 Blender API 开发。版本信息保留在扩展元数据和维护资料中，不在产品面板反复展示。
 - 面板简洁实用，不展示“默认”“自动”“XX 已提供”等无须用户决策的信息。只有缺失、歧义和错误需要提示，常用外观参数直接提供调节。
@@ -31,4 +32,6 @@
 - 历史 v0.1.0 ZIP SHA256 为 `e57a724fc0f64346198696df2acd0b46fee05aee8e5785b9f4502fb209721112`，初次远程安装与新进程核验通过；旧安装证据保存在 `.verification/installed.json` 与 `installed-fresh-process.json`。
 - 本地模块为 `bl_ext.Hoyo_GI_Toon.hoyo_gi_toon`。配置入口为 `tools/configure_installed.py`；`--check-only` 只读核验已安装文件与持久配置。
 - 当前发布为 v0.2.1，固定标签源码 `fbf24f70f1d14a62f3f048b776773777f814d991`，安装包 SHA256 为 `bdcacd9965cdb61d1e9854bc9436a08a8833f3ce6cb5cee9099243bf269c39d3`。19 个安装文件与标签源码逐一一致。v0.2.0 及 v0.1.0 均保留。
-- v0.2.1 已从公开更新源安装，本地启用和新进程 19 文件核验通过；当前安装证据在 `.verification/original/installed.json` 与 `installed-fresh-process.json`。当前 Blender 的远程通道断开，未完成当前会话热加载；不将新进程核验表述为当前会话已加载新版。
+- v0.2.1 已从公开更新源安装，本地启用和新进程 19 文件核验通过。此前已另开前台进程，实际使用已安装 v0.2.1 导入奥黛塔并渲染，预览保存在 `.verification/preview-odette-20261028/`。
+- v0.2.1 的原版验证证据现保存在 `.verification/releases/v0.2.1-original/`；`.verification/original/` 用于当前候选版本，不用旧包结果代替本次运行。
+- 0.2.2 增加安柏、刻晴初始服装验证，原版独立代码对照入口为 `tools/verify_upstream_workflow.py`。参考侧使用 `--compat-v3-names --local-inputs`，条件与误差限值见 `docs/upstream-baseline.md`；保留实际像素误差，不以数据一致性冒充完整旧向导或游戏画面复现。

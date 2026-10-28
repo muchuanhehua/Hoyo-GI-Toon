@@ -5,7 +5,7 @@
     {
       "schema_version": "1.0.0",
       "id": "hoyo_gi_toon",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "name": "Hoyo-GI-Toon",
       "tagline": "原神角色导入、卡通材质、描边与调光",
       "maintainer": "muchuanhehua",
@@ -23,9 +23,9 @@
       "permissions": {
         "files": "读取所选角色及本地贴图与材质参数，保存渲染结果"
       },
-      "archive_url": "https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/v0.2.1/release/hoyo_gi_toon-0.2.1.zip",
-      "archive_size": 652451,
-      "archive_hash": "sha256:bdcacd9965cdb61d1e9854bc9436a08a8833f3ce6cb5cee9099243bf269c39d3"
+      "archive_url": "https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/v0.2.2/release/hoyo_gi_toon-0.2.2.zip",
+      "archive_size": 654905,
+      "archive_hash": "sha256:24e142dc60d9bb17514afb01c001c0ff18b355ed853c4df96688c84fb61746ce"
     }
   ]
 }

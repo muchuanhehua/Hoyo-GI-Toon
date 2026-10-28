@@ -9,10 +9,13 @@ import bpy
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", action="append", required=True)
+parser.add_argument("--output-dir", type=Path)
 args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
 if len(args.model) != 2:
     raise ValueError("Provide two different FBX assets")
 project = Path(__file__).resolve().parents[1]
+out = (args.output_dir or project / ".verification/original").resolve()
+out.mkdir(parents=True, exist_ok=True)
 spec = importlib.util.spec_from_file_location("hoyo_gi_toon", project / "__init__.py", submodule_search_locations=[str(project)])
 addon = importlib.util.module_from_spec(spec)
 sys.modules[spec.name] = addon
@@ -108,9 +111,9 @@ addon.panels.post_processing.configure(bpy.context.scene,second)
 assert len(bpy.context.scene.compositing_node_group.nodes)==node_count
 bpy.context.scene.render.resolution_x=256
 bpy.context.scene.render.resolution_y=320
-bpy.context.scene.render.filepath=str(project / '.verification/original/post-processing.png')
+bpy.context.scene.render.filepath=str(out / 'post-processing.png')
 bpy.ops.render.render(write_still=True)
-scene_file = project / ".verification/original/two-characters.blend"
+scene_file = out / "two-characters.blend"
 bpy.ops.wm.save_as_mainfile(filepath=str(scene_file), relative_remap=False)
 bpy.ops.wm.open_mainfile(filepath=str(scene_file))
 roots = [o for o in bpy.context.scene.objects if o.hgt_character.managed]
@@ -121,6 +124,6 @@ report = {"two_character_isolation": True, "local_asset_boundaries": True,
           "head_shadow_tracking": True, "nonuniform_scale_update": True,
           "failed_import_rollback": True, "save_reload": True, "original_post_processing":True,
           "legacy_scene_unchanged":True}
-(project / ".verification/original/lifecycle.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+(out / "lifecycle.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 print("HGT_LIFECYCLE", json.dumps(report), flush=True)
 addon.unregister()

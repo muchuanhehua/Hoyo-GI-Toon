@@ -11,9 +11,10 @@ import numpy as np
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=Path, action="append", required=True)
 parser.add_argument("--render", action="store_true")
+parser.add_argument("--output-dir", type=Path)
 args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
 project = Path(__file__).resolve().parents[1]
-out = project / ".verification/original"
+out = (args.output_dir or project / ".verification/original").resolve()
 out.mkdir(parents=True, exist_ok=True)
 spec = importlib.util.spec_from_file_location("hoyo_gi_toon", project / "__init__.py", submodule_search_locations=[str(project)])
 addon = importlib.util.module_from_spec(spec)
@@ -45,7 +46,15 @@ for model in args.model:
               "meshes": len(meshes), "bindings": len(settings.bindings),
               "shape_keys": source_keys, "refresh_idempotent": True,
               "source_preserved": True, "textures": [], "renders": []}
+    attachments = [s.material for mesh in meshes for s in mesh.material_slots
+                   if s.material and s.material.name.startswith("Flycloak_")]
+    for material in attachments:
+        assert not material.get("hgt_owner"), "Original accessory material was replaced"
+    record["preserved_accessory_materials"] = sorted({m.name for m in attachments})
     for binding in settings.bindings:
+        assert all(n.image.alpha_mode == "CHANNEL_PACKED"
+                   for t in addon.workflow.shaders.walk(binding.generated.node_tree)
+                   for n in t.nodes if n.type == "TEX_IMAGE" and n.image), "Texture alpha mode changed"
         record["textures"].append({"material": binding.source_name,
             "images": [n.image.name for t in addon.workflow.shaders.walk(binding.generated.node_tree)
                        for n in t.nodes if n.type == "TEX_IMAGE" and n.image]})
@@ -64,7 +73,8 @@ for model in args.model:
             pixels = np.asarray(rendered.pixels[:], dtype=np.float32).reshape((-1, 4))
             visible = pixels[:,3] > 0.5
             assert visible.mean() > 0.05, "Render is blank"
-            assert (np.ptp(pixels[visible,:3], axis=1) > 0.02).mean() > 0.5, "Packed texture RGB was lost"
+            # White clothing and skin can occupy most pixels in valid renders.
+            assert (np.ptp(pixels[visible,:3], axis=1) > 0.02).mean() > 0.05, "Packed texture RGB was lost"
             assert ((pixels[visible,0] > 0.9) & (pixels[visible,2] > 0.9) & (pixels[visible,1] < 0.1)).mean() < 0.01, "Missing texture magenta"
             bpy.data.images.remove(rendered)
             record["renders"].append(image.name)

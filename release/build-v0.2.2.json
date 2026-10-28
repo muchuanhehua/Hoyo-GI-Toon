@@ -1,0 +1,42 @@
+{
+  "version": "0.2.2",
+  "archive": "hoyo_gi_toon-0.2.2.zip",
+  "sha256": "24e142dc60d9bb17514afb01c001c0ff18b355ed853c4df96688c84fb61746ce",
+  "bytes": 654905,
+  "payload": {
+    "CHANGELOG.md": "6b402c30fb3e4669b6cedc9ba22aa93803b23a36405f37314324a65d5235b834",
+    "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "NOTICE": "1d7fcdf8c27724f440d2b55c263a6352935b33f7289187fbfc0f2b8064d5cf62",
+    "README.md": "6cb0fa20e477e06d69b539e54a4002ef416d05cff555f219fd48cff0816ae686",
+    "__init__.py": "153642f3d3e6a72c8edb78a3a73e0cb410dc43590c1f7746aa7b61c9afa2e1b4",
+    "asset_resolver.py": "08a48ce90906f19166b14201a5701812d1e70e029d3ed9fe796a2b3ba76e529e",
+    "assets/original_controls.blend": "2666d5c527de8e082dc3d9e2ae1a84a9c74b0aeb59b8eefba811005783bf4b68",
+    "assets/original_shader.blend": "432d37d79150a5a87e88c1bdacbd5bd633d509f393b370de132df744d59e0e96",
+    "assets/upstream.json": "681dd4d06ab370a2a2cd654ffaac676764eb817de9e81e32ae3390c1fb30e41f",
+    "blender_manifest.toml": "81c18f71d7723f39e0e315a596d8c0b259dd847948bdb8b3641d98073524cf7c",
+    "docs/upstream-baseline.md": "b3fe272847d73d1caef26fff42441388b46170f7d7f16165635cf4f307a5258e",
+    "importers.py": "176498a940b891f0a3a9ed8aee62500058373edaa2192cf2f49e44c12e2660cd",
+    "outlines.py": "e017d96a9e0bdd02c546f8d039f130c75ea2a9bc6f65355ff2ea0236dc86f0ee",
+    "panels.py": "d8ca5302737e778774843f90a7e545afea9ad2548bd83d16257b0ee1add1527f",
+    "post_processing.py": "685051deb60412fd054dfff69b338b28c8be5ec584ad62cc817024edd8ddef21",
+    "properties.py": "1f2c961712006eec7c0c7823d7bc0bdaad304b037cdc1837ef5c7191e8079e4a",
+    "shaders.py": "b95d97b5b16da61167747378ace9b5771966f351626b9f1e34c4a5aa6cb3971c",
+    "upstream_mapping.py": "3da1b73d944c8456ed626ce28b1e5ff26f3f8becf30bebf89aa0236bea8a5f32",
+    "workflow.py": "d82d99ea452986ec651bf2bdfefd66cbeeedc54a9d9aa7b9baa452b3bd307667"
+  },
+  "core_sha256": {
+    "__init__.py": "153642f3d3e6a72c8edb78a3a73e0cb410dc43590c1f7746aa7b61c9afa2e1b4",
+    "asset_resolver.py": "08a48ce90906f19166b14201a5701812d1e70e029d3ed9fe796a2b3ba76e529e",
+    "importers.py": "176498a940b891f0a3a9ed8aee62500058373edaa2192cf2f49e44c12e2660cd",
+    "properties.py": "1f2c961712006eec7c0c7823d7bc0bdaad304b037cdc1837ef5c7191e8079e4a",
+    "shaders.py": "b95d97b5b16da61167747378ace9b5771966f351626b9f1e34c4a5aa6cb3971c",
+    "outlines.py": "e017d96a9e0bdd02c546f8d039f130c75ea2a9bc6f65355ff2ea0236dc86f0ee",
+    "workflow.py": "d82d99ea452986ec651bf2bdfefd66cbeeedc54a9d9aa7b9baa452b3bd307667",
+    "panels.py": "d8ca5302737e778774843f90a7e545afea9ad2548bd83d16257b0ee1add1527f",
+    "post_processing.py": "685051deb60412fd054dfff69b338b28c8be5ec584ad62cc817024edd8ddef21",
+    "upstream_mapping.py": "3da1b73d944c8456ed626ce28b1e5ff26f3f8becf30bebf89aa0236bea8a5f32",
+    "assets/original_shader.blend": "432d37d79150a5a87e88c1bdacbd5bd633d509f393b370de132df744d59e0e96",
+    "assets/original_controls.blend": "2666d5c527de8e082dc3d9e2ae1a84a9c74b0aeb59b8eefba811005783bf4b68",
+    "assets/upstream.json": "681dd4d06ab370a2a2cd654ffaac676764eb817de9e81e32ae3390c1fb30e41f"
+  }
+}
