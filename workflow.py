@@ -6,7 +6,7 @@ import bpy
 from bpy.app.handlers import persistent
 from mathutils import Vector
 from .asset_resolver import AssetCatalog, source_name
-from . import asset_tracking, importers, lighting, outlines, rendering, shaders
+from . import asset_tracking, importers, lighting, outlines, rendering, shaders, surface_layers
 
 _REFRESHING = False
 
@@ -72,7 +72,7 @@ def assemble(batch, context):
                 entry.original_view_hidden = obj.hide_get()
                 # Named effect overlays are retained with their original data.
                 # Their visibility is restored together with the render assembly.
-                if source_name(obj.name).casefold() in {"effectmesh", "eyestar"}:
+                if surface_layers.is_effect_overlay(obj):
                     obj.hide_render = True
                     obj.hide_set(True)
         visible = [e.object for e in settings.meshes if not e.object.hide_render]
@@ -93,9 +93,9 @@ def assemble(batch, context):
                 raise ValueError(f"{mesh.name} 的材质槽为空，请检查 FBX 材质")
             asset_tracking.derive_mesh(entry, settings.uid)
             for index, original in candidates:
+                assets = catalog.resolve(original.name, original)
                 key = original.as_pointer()
                 if key not in built:
-                    assets = catalog.resolve(original.name, original)
                     generated, outline = library.build_material(assets)
                     built[key] = generated
                     binding = settings.bindings.add()
@@ -105,6 +105,8 @@ def assemble(batch, context):
                 snap.mesh, snap.index, snap.original, snap.generated = mesh, index, original, built[key]
                 # An OBJECT-linked source slot also has to be recorded and restored.
                 mesh.material_slots[index].material = built[key]
+                if built[key].get("hgt_expression_mask"):
+                    surface_layers.mark_expression_faces(entry, index, assets)
             lighting.attach(mesh, root, controls)
             outlines.build(mesh, root)
         if not built:

@@ -13,6 +13,9 @@ TEXTURE_KEYS = {
     "face_sdf": ("_FaceSdfMap", "_FaceMapTex"),
     "metal": ("_MTMap",),
     "specular_ramp": ("_MTSpecularRamp",),
+    "eye_layer_1": ("_ParallaxLayer1Tex",),
+    "eye_layer_2": ("_ParallaxLayer2Tex",),
+    "eye_layer_3": ("_ParallaxLayer3Tex",),
 }
 
 
@@ -115,14 +118,6 @@ class AssetCatalog:
             if image:
                 result.textures["diffuse"] = image
                 result.evidence["diffuse"] = "exact material texture name"
-        # GenshinAvatarTextureImporter binds Body diffuse/lightmap to Pupil;
-        # the exported Pupil JSON can reference a placeholder Hair texture.
-        if name.rsplit('_Mat_',1)[-1] == 'Pupil':
-            body = self.resolve(name.rsplit('_Mat_',1)[0] + '_Mat_Body')
-            for role in ('diffuse', 'lightmap', 'ramp'):
-                if role in body.textures:
-                    result.textures[role] = body.textures[role]
-                    result.evidence[role] = "Pupil uses the character Body texture region"
         # The original wizard selects a Hair shader for clothing which uses
         # Hair textures. Use the referenced texture, not a fixed character list.
         diffuse = result.textures.get("diffuse")
@@ -212,7 +207,8 @@ class AssetCatalog:
                 if image is None:
                     # A selected material's main texture is a required reference;
                     # optional shader-specific detail maps may not be exported.
-                    if role == "diffuse":
+                    enabled_eye_layer = role.startswith("eye_layer_") and result.floats.get("_ParallaxLayer" + role[-1], 0)
+                    if role == "diffuse" or enabled_eye_layer:
                         raise AssetError(f"{result.source} 缺少贴图：{name}")
                     continue
                 result.textures[role] = image

@@ -3,6 +3,7 @@ from pathlib import Path
 import bpy
 from .asset_tracking import data_pointers, new_data
 from .upstream_mapping import ADDITIONAL_MAPPING, ALPHA_MAPPING, FACE_MAPPING, MATERIAL_MAPPING, OUTLINE_MAPPING
+from . import eye_layers, surface_layers
 
 LIBRARY_PATH = Path(__file__).parent / "assets/original_shader.blend"
 CONTROLS_PATH = Path(__file__).parent / "assets/original_controls.blend"
@@ -86,6 +87,7 @@ class ShaderLibrary:
         settings.global_properties = self.groups["Global Material Properties"]
         settings.light_vectors = self.groups["Light Vectors"]
         settings.outline_graph = self.groups["HoYoverse - Genshin Impact Outlines"]
+        surface_layers.filter_outline_surfaces(settings.outline_graph)
         # Same links made by the original LightingPanel v3.4 setup.
         tree = settings.global_properties
         output = tree.nodes["Global Properties"]
@@ -204,6 +206,11 @@ class ShaderLibrary:
             material.use_raytrace_refraction = True
         self._private_textures(material.node_tree, {})
         self._bind_textures(material, assets)
+        diffuse_nodes = [node for tree in walk(material.node_tree) for node in tree.nodes
+                         if node.type == 'TEX_IMAGE' and node.get('hgt_texture_role') == 'diffuse']
+        layers = eye_layers.compose(diffuse_nodes, assets, load_image, self.uid)
+        if layers:
+            material['hgt_eye_layers'] = layers
         node = material.node_tree.nodes["Face Shader" if kind == "Face" else "Body Shader"]
         applied = apply_mapping(node, FACE_MAPPING if kind == "Face" else MATERIAL_MAPPING, assets)
         if kind != "Face":
@@ -232,6 +239,9 @@ class ShaderLibrary:
             outline_node.inputs["Use Face Shader"].default_value = 1
         if int(assets.floats.get("_MainTexAlphaUse", 0)) == 1:
             outline_node.inputs["Use Alpha"].default_value = 1
+        if kind == "Face" and surface_layers.uses_default_expression(assets):
+            surface_layers.mask_material(material)
+            surface_layers.mask_material(outline)
         return material, outline
 
     def finish(self):

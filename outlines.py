@@ -9,7 +9,9 @@ PART_PAIRS = {"Hair":"Hair", "Body":"Body", "Face":"Face", "Dress":"Dress", "Dre
 
 
 def build(mesh, root):
-    if mesh.name.split('.')[0] in {"Brow", "Pupil"}:
+    # Eye/eyelid surfaces already carry their painted contour. An inverted
+    # hull around these overlapping layers draws spurious lines on the cheeks.
+    if mesh.name.split('.')[0] in {"Brow", "Pupil", "Face_Eye"}:
         return None
     bindings = {b.generated:b.outline for b in root.hgt_character.bindings}
     materials = list(dict.fromkeys(s.material for s in mesh.material_slots if s.material in bindings))

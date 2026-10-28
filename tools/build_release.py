@@ -10,10 +10,10 @@ import tomllib
 import zipfile
 
 ROOT=Path(__file__).resolve().parents[1]
-PAYLOAD={"__init__.py","asset_resolver.py","asset_tracking.py","importers.py","lighting.py","outlines.py",
-         "panels.py","post_processing.py","properties.py","rendering.py","shaders.py","upstream_mapping.py","workflow.py",
+PAYLOAD={"__init__.py","asset_resolver.py","asset_tracking.py","eye_layers.py","importers.py","lighting.py","outlines.py",
+         "panels.py","post_processing.py","properties.py","rendering.py","shaders.py","surface_layers.py","upstream_mapping.py","workflow.py",
          "assets/original_shader.blend","assets/original_controls.blend","assets/upstream.json",
-         "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE","docs/upstream-baseline.md"}
+         "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE","docs/upstream-baseline.md","docs/basic-rendering.md"}
 
 
 def sha(data):

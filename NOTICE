@@ -25,6 +25,8 @@ Better FBX operator integration follows the interface documented in
 PaoloESAN/gacha-setup (local reference 3.8.3, utils/better_fbx_utils.py):
 https://github.com/PaoloESAN/gacha-setup
 Better FBX itself is a separately installed dependency and is not bundled.
+eye_layers.py follows the alpha composition of the native PupilaTodo group in
+Gacha Setup's GI shader resource, binding source JSON layer references separately.
 
 Per-character ownership and resource isolation were informed by
 AstraMorningstar/Morningstar-Festivity-render-assistant (local reference 1.0.2.1,

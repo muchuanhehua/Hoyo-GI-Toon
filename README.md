@@ -23,6 +23,8 @@
 
 模型网格、骨架与配套文件保留。渲染材质和属性使用派生数据，输出在临时场景中执行，已有相机、灯光和合成链保持独立。当前按整份 FBX 处理，附属对象保留。
 
+基础渲染保留材质实际贴图引用，按源标记处理特效和默认未启用的表情覆盖层。实现与参考对照见 [基础渲染装配](docs/basic-rendering.md)。
+
 ## 交付
 
 源码与安装包见 [GitHub](https://github.com/muchuanhehua/Hoyo-GI-Toon) 和 [Releases](https://github.com/muchuanhehua/Hoyo-GI-Toon/releases)。
