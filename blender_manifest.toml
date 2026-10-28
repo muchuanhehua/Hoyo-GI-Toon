@@ -1,0 +1,17 @@
+schema_version = "1.0.0"
+id = "hoyo_gi_toon"
+version = "0.1.0"
+name = "Hoyo-GI-Toon"
+tagline = "原神角色导入、卡通材质、描边与调光"
+maintainer = "muchuanhehua"
+type = "add-on"
+website = "https://github.com/muchuanhehua/Hoyo-GI-Toon"
+blender_version_min = "5.2.0"
+license = ["SPDX:GPL-3.0-or-later"]
+tags = ["Material", "Import-Export", "Render"]
+
+[permissions]
+files = "读取所选角色及本地贴图与材质参数，保存渲染结果"
+
+[build]
+paths_exclude_pattern = ["__pycache__/", ".git/", ".verification/", ".runtime/", ".build/", "tools/", "tests/", "release/", "design/", "AGENTS.md", ".gitignore", ".gitattributes"]

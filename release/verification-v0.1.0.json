@@ -1,0 +1,45 @@
+{
+  "models": [
+    {
+      "model": "奥黛塔",
+      "format": "FBX",
+      "meshes": 10,
+      "bindings": 8,
+      "source_preserved": true,
+      "shape_keys_preserved": true,
+      "refresh_idempotent": true,
+      "material_restore": true,
+      "visual_content_checks": true
+    },
+    {
+      "model": "尼可",
+      "format": "FBX",
+      "meshes": 12,
+      "bindings": 9,
+      "source_preserved": true,
+      "shape_keys_preserved": true,
+      "refresh_idempotent": true,
+      "material_restore": true,
+      "visual_content_checks": true
+    }
+  ],
+  "lifecycle": {
+    "two_character_isolation": true,
+    "local_asset_boundaries": true,
+    "head_shadow_tracking": true,
+    "nonuniform_scale_update": true,
+    "failed_import_rollback": true,
+    "save_reload": true
+  },
+  "core_sha256": {
+    "__init__.py": "69ff0718c1f81e45299b82439025ff67f6d02606bb8b8a8473620040993fa1c0",
+    "asset_resolver.py": "5639d7e513f999ac65c23702b249ca1d6e60198a7cb5703b9c9b1891b39f9239",
+    "importers.py": "176498a940b891f0a3a9ed8aee62500058373edaa2192cf2f49e44c12e2660cd",
+    "properties.py": "ddd032f1e96362888addc69787e8e235e9899a43f9809b23b21e7ebab1a57a1b",
+    "shaders.py": "4021aaaaa26cf2adeb3b0e2a3a84430cac5dec825b8941d30271f101a3435729",
+    "outlines.py": "1de95f76bfb7d6bf19da3c69cc15239731f1f65a4b01fc54aa8a2f2659ac1cb2",
+    "workflow.py": "527e3ab81142615370046ccac615fff893b61a0b6dc914beb507f1e3fda5d364",
+    "panels.py": "74bd6b2478eef576587bd6431b1e2f78d1d005a24144d0fa98b9020eaf941376"
+  },
+  "scope": "基础着色与工作流检查，不代表完整游戏材质还原"
+}

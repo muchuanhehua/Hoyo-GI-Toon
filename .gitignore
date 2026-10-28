@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.verification/
+.runtime/
+.build/
+*.blend
+*.blend[0-9]
+*.fbx
+*.pmx
+*.png
+*.jpg
+*.jpeg
+*.tga
+*.dds
+*.exr
+*.log
+!assets/

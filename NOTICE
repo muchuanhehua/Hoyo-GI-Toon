@@ -1,0 +1,12 @@
+Hoyo-GI-Toon
+Copyright (C) 2026 muchuanhehua
+
+Distributed under GPL-3.0-or-later. See LICENSE.
+
+Workflow references:
+- https://github.com/michael-gh1/Addons-And-Tools-For-Blender-miHoYo-Shaders
+- https://github.com/festivities/Blender-miHoYo-Shaders
+
+This project builds its own Blender node graphs. It does not bundle the above
+projects' shader blend files or any game character models, textures, material
+dumps, or other game assets. Local assets remain subject to their own terms.
