@@ -57,7 +57,7 @@ def main():
               "bytes": package.stat().st_size, "payload": payload, "core_sha256": evidence["core_sha256"]}
     (release / f"build-v{manifest['version']}.json").write_text(json.dumps(record, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     item = {k:v for k,v in manifest.items() if k != "build"}
-    item.update(archive_url=f"https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/download/v{manifest['version']}/{package.name}",
+    item.update(archive_url=f"https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/v{manifest['version']}/release/{package.name}",
                 archive_size=package.stat().st_size, archive_hash="sha256:"+digest)
     (release / "index.json").write_text(json.dumps({"version":"v1", "blocklist":[], "data":[item]}, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     summary = {"models":[{k:m[k] for k in ("model", "format", "meshes", "bindings", "source_preserved", "shape_keys_preserved", "refresh_idempotent", "material_restore", "visual_content_checks")} for m in evidence["models"]],

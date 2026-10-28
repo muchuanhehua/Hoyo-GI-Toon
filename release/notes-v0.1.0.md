@@ -2,7 +2,7 @@ Hoyo-GI-Toon 首版：选择 FBX 后读取本地配套材质 JSON 与贴图，�
 
 已使用奥黛塔、尼可的原始游戏 FBX 验证彩色渲染、形态键保留、材质恢复、双角色参数隔离、头部阴影跟随、失败回滚与保存重开。
 
-安装 `hoyo_gi_toon-0.1.0.zip`，或在 Blender 扩展仓库中添加：
+下载并安装 [hoyo_gi_toon-0.1.0.zip](https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/v0.1.0/release/hoyo_gi_toon-0.1.0.zip)，或在 Blender 扩展仓库中添加：
 
 `https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/main/release/index.json`
 
