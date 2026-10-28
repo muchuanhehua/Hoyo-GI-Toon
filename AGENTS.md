@@ -26,3 +26,6 @@
 - 本地配置仅新增或更新本项目远程扩展仓库，不覆盖其他插件配置，不关闭或改写用户当前工程。
 - 用户指定奥黛塔、尼可的本地原始游戏 FBX 交叉验证。当前已完成导入、配套贴图、彩色输出、原材质恢复与形态键保留；双角色参数隔离、头部阴影跟随、失败回滚与保存重开通过。证据为忽略的 `.verification/fbx-verification.json` 和 `lifecycle.json`；脱敏摘要随发布保存。
 - 当前只交付基础卡通渲染，玻璃、瞳孔多层视差、角色专属特效、透发与丝袜细节未完整还原；不将基础工作流通过等同于逐项游戏材质还原。PMX 后续接入。
+- 公开仓库为 `https://github.com/muchuanhehua/Hoyo-GI-Toon`；v0.1.0 已发布，标签源码为 `933d9c5ddfc0243414991ccc9ea576b87eacd8db`。远程索引指向该标签下的 ZIP，源代码与 13 个安装文件逐一一致。
+- v0.1.0 ZIP SHA256 为 `e57a724fc0f64346198696df2acd0b46fee05aee8e5785b9f4502fb209721112`，公开下载内容已核验。本地模块为 `bl_ext.Hoyo_GI_Toon.hoyo_gi_toon`；远程安装、启用和新进程偏好设置核验通过，保留原有插件与远程仓库配置。
+- 安装证据保存在忽略的 `.verification/installed.json` 与 `installed-fresh-process.json`。配置入口为 `tools/configure_installed.py`；`--check-only` 只读核验已安装文件与持久配置。
