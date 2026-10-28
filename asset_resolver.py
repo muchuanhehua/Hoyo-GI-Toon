@@ -40,8 +40,11 @@ def property_dict(value):
     if isinstance(value, dict):
         return value
     if isinstance(value, list):
-        return {item["Key"] if "Key" in item else item["first"]:
-                item["Value"] if "Value" in item else item["second"] for item in value}
+        try:
+            return {item["Key"] if "Key" in item else item["first"]:
+                    item["Value"] if "Value" in item else item["second"] for item in value}
+        except (KeyError, TypeError) as exc:
+            raise AssetError("材质参数列表缺少 Key/Value 或 first/second") from exc
     raise AssetError("材质参数结构无法识别")
 
 
@@ -55,6 +58,7 @@ class MaterialAssets:
     texture_settings: dict = field(default_factory=dict)
     texenvs: dict = field(default_factory=dict)
     json_path: Path | None = None
+    evidence: dict = field(default_factory=dict)
 
     def color(self, key, fallback):
         value = self.colors.get(key)
@@ -76,6 +80,8 @@ class AssetCatalog:
         for path in sorted(self.root.rglob("*")):
             if not path.is_file() or path.is_symlink():
                 continue
+            if not path.resolve().is_relative_to(self.root):
+                continue
             if path.suffix.lower() in IMAGE_SUFFIXES:
                 self.images.setdefault(path.stem.casefold(), []).append(path)
             elif path.suffix.lower() == ".json":
@@ -92,17 +98,23 @@ class AssetCatalog:
     def image(self, name):
         return self.unique(self.images.get(Path(name).stem.casefold(), []), name)
 
-    def resolve(self, material_name):
+    def resolve(self, material_name, material=None):
         name = source_name(material_name)
         result = MaterialAssets(name, role_for(name))
         path = self.unique(self.materials.get(name.casefold(), []), f"材质 {name}")
         if path:
             self._read_json(path, result)
+        if "diffuse" not in result.textures and material:
+            image = self._source_diffuse(material)
+            if image:
+                result.textures["diffuse"] = image
+                result.evidence["diffuse"] = "imported material Base Color"
         if "diffuse" not in result.textures and result.role != "effect":
             base = re.sub("_Mat_", "_Tex_", name, flags=re.IGNORECASE)
             image = self.image(base + "_Diffuse")
             if image:
                 result.textures["diffuse"] = image
+                result.evidence["diffuse"] = "exact material texture name"
         # GenshinAvatarTextureImporter binds Body diffuse/lightmap to Pupil;
         # the exported Pupil JSON can reference a placeholder Hair texture.
         if name.rsplit('_Mat_',1)[-1] == 'Pupil':
@@ -110,6 +122,7 @@ class AssetCatalog:
             for role in ('diffuse', 'lightmap', 'ramp'):
                 if role in body.textures:
                     result.textures[role] = body.textures[role]
+                    result.evidence[role] = "Pupil uses the character Body texture region"
         # The original wizard selects a Hair shader for clothing which uses
         # Hair textures. Use the referenced texture, not a fixed character list.
         diffuse = result.textures.get("diffuse")
@@ -123,6 +136,7 @@ class AssetCatalog:
             role = part.lower() + "_ramp"
             if (part == "Hair") == (result.role == "hair") and "ramp" in result.textures:
                 result.textures[role] = result.textures["ramp"]
+                result.evidence[role] = result.evidence.get("ramp", "material ramp")
                 continue
             related_path = self.unique(self.materials.get((prefix + "_Mat_" + part).casefold(), []), part + " ramp")
             if related_path:
@@ -130,14 +144,52 @@ class AssetCatalog:
                 self._read_json(related_path, related)
                 if "ramp" in related.textures:
                     result.textures[role] = related.textures["ramp"]
+                    result.evidence[role] = f"{part} material JSON ramp"
+        if "diffuse" not in result.textures and result.role != "effect":
+            raise AssetError(f"{name} 缺少基础色贴图，请将配套贴图放在 FBX 所在资产包内")
         return result
+
+    def _source_diffuse(self, material):
+        """Follow only Base Color links; normal/light maps are never guessed as color."""
+        if not material.node_tree:
+            return None
+        nodes = material.node_tree.nodes
+        outputs = [n for n in nodes if n.type == "OUTPUT_MATERIAL" and n.is_active_output]
+        stack = [link.from_node for n in outputs for link in n.inputs["Surface"].links]
+        shaders, seen = [], set()
+        while stack:
+            node = stack.pop()
+            if node.as_pointer() in seen:
+                continue
+            seen.add(node.as_pointer())
+            if node.type == "BSDF_PRINCIPLED":
+                shaders.append(node)
+            else:
+                stack.extend(link.from_node for s in node.inputs if s.type == "SHADER" for link in s.links)
+        choices = set()
+        for node in shaders:
+            for link in node.inputs["Base Color"].links:
+                texture = link.from_node
+                if texture.type != "TEX_IMAGE" or not texture.image or not texture.image.filepath:
+                    continue
+                # A loaded image may be packed, but it still needs a local package file
+                # so generated materials never edit the imported image settings.
+                import bpy
+                path = Path(bpy.path.abspath(texture.image.filepath)).resolve()
+                if path.is_file() and path.is_relative_to(self.root):
+                    choices.add(path)
+        return self.unique(sorted(choices), f"{material.name} Base Color")
 
     def _read_json(self, path, result):
         try:
             data = json.loads(path.read_text(encoding="utf-8-sig"))
         except (OSError, UnicodeError, json.JSONDecodeError) as exc:
             raise AssetError(f"无法读取材质参数：{path.name}，{exc}") from exc
+        if not isinstance(data, dict):
+            raise AssetError(f"材质参数必须是 JSON 对象：{path.name}")
         props = data.get("m_SavedProperties", data)
+        if not isinstance(props, dict):
+            raise AssetError(f"材质 m_SavedProperties 结构错误：{path.name}")
         result.json_path = path
         result.floats = property_dict(props.get("m_Floats", {}))
         result.colors = property_dict(props.get("m_Colors", {}))
@@ -146,8 +198,14 @@ class AssetCatalog:
         for role, keys in TEXTURE_KEYS.items():
             for key in keys:
                 entry = envs.get(key, {})
+                if not isinstance(entry, dict):
+                    raise AssetError(f"{path.name} 的 {key} 贴图参数结构错误")
                 reference = entry.get("m_Texture", {})
+                if not isinstance(reference, dict):
+                    raise AssetError(f"{path.name} 的 {key} 贴图引用结构错误")
                 name = reference.get("Name", "")
+                if not isinstance(name, str):
+                    raise AssetError(f"{path.name} 的 {key} 贴图名称不是文本")
                 if not name or reference.get("IsNull"):
                     continue
                 image = self.image(name)
@@ -159,4 +217,5 @@ class AssetCatalog:
                     continue
                 result.textures[role] = image
                 result.texture_settings[role] = entry
+                result.evidence[role] = f"{path.name}: {key} → {name}"
                 break

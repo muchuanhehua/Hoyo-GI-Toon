@@ -10,6 +10,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 PAYLOAD = {"__init__.py", "asset_resolver.py", "importers.py", "properties.py", "shaders.py",
+           "asset_tracking.py", "lighting.py",
            "outlines.py", "workflow.py", "panels.py", "post_processing.py", "upstream_mapping.py",
            "assets/original_shader.blend", "assets/original_controls.blend", "assets/upstream.json",
            "blender_manifest.toml", "README.md", "CHANGELOG.md", "LICENSE", "NOTICE",
@@ -23,6 +24,7 @@ def sha(data):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--blender", type=Path, required=True)
+    parser.add_argument("--verification", type=Path, required=True)
     args = parser.parse_args()
     manifest = tomllib.loads((ROOT / "blender_manifest.toml").read_text(encoding="utf-8"))
     for name in PAYLOAD:
@@ -33,26 +35,24 @@ def main():
                                 any(isinstance(t, ast.Name) and t.id == "bl_info" for t in n.targets)))
     if ".".join(map(str, info["version"])) != manifest["version"]:
         raise ValueError("Version metadata mismatch")
-    evidence = json.loads((ROOT / ".verification/original/fbx-verification.json").read_text(encoding="utf-8"))
-    lifecycle = json.loads((ROOT / ".verification/original/lifecycle.json").read_text(encoding="utf-8"))
-    original = json.loads((ROOT / ".verification/original/original-conformance.json").read_text(encoding="utf-8"))
-    independent = json.loads((ROOT / ".verification/original/independent/upstream-workflow.json").read_text(encoding="utf-8"))
-    if len(evidence["models"]) != 2 or not all(lifecycle.values()):
-        raise ValueError("Actual two-model and lifecycle verification is required")
-    for name, expected in evidence["core_sha256"].items():
+    evidence = json.loads(args.verification.read_text(encoding="utf-8"))
+    required = {"fresh_package_process", "register_unregister", "save_reload", "undo_redo"}
+    integration = evidence.get("integration_checks", {})
+    if evidence.get("scope") != "01–08" or not all(integration.get(k) is True for k in required):
+        raise ValueError("需要 08 集成验证记录；01–05 模块记录不能作为发布依据")
+    hashes = {**evidence["source_sha256"], **evidence["resource_sha256"]}
+    runtime = {name for name in PAYLOAD if name.endswith(".py") or name.startswith("assets/")}
+    if set(hashes) != runtime:
+        raise ValueError("Verification does not cover the exact runtime payload")
+    for name, expected in hashes.items():
         if sha((ROOT/name).read_bytes()) != expected:
             raise ValueError("Source changed after verification: " + name)
-    if original['core_sha256'] != evidence['core_sha256'] or not original['upstream_graphs_equal']:
-        raise ValueError("Current-source original conformance verification is required")
-    if independent["core_sha256"] != evidence["core_sha256"] or not independent["comparison_passed"]:
-        raise ValueError("Current-source independent original workflow comparison is required")
-    if (len(independent["models"]) != 2 or not independent["same_local_lookup_inputs"]
-            or not independent["v3_material_names_compatibility"] or independent["outlines_disabled"]):
-        raise ValueError("Two-character comparison with matched inputs and outlines is required")
-    if len(original['models']) != 2 or any(not m['structure_preserved'] or max(m['upstream_render_max_error']) > 1/255+1e-6 for m in original['models']):
-        raise ValueError("Original model/render comparison is incomplete")
-    if not all(m["visual_content_checks"] and m["source_preserved"] and m["material_restore"] for m in evidence["models"]):
-        raise ValueError("Model verification incomplete")
+    flags = ("source_data_unchanged", "derived_geometry_unchanged", "original_mesh_refs_restored",
+             "head_follow", "repeat_assembly", "restore_reassembly", "shared_data_preserved")
+    if len(evidence["models"]) < 2 or not all(all(m.get(k) is True for k in flags) for m in evidence["models"]):
+        raise ValueError("Data protection verification is incomplete")
+    if sum(len(m.get("renders", [])) for m in evidence["models"]) < 4 or not all(evidence["lifecycle"].values()):
+        raise ValueError("Render and lifecycle verification is incomplete")
     release = ROOT / "release"
     release.mkdir(exist_ok=True)
     package = release / f"{manifest['id']}-{manifest['version']}.zip"
@@ -70,18 +70,16 @@ def main():
     digest = sha(package.read_bytes())
     payload = {name:sha((ROOT/name).read_bytes()) for name in sorted(PAYLOAD)}
     record = {"version": manifest["version"], "archive": package.name, "sha256": digest,
-              "bytes": package.stat().st_size, "payload": payload, "core_sha256": evidence["core_sha256"]}
+              "bytes": package.stat().st_size, "payload": payload, "core_sha256": hashes}
     (release / f"build-v{manifest['version']}.json").write_text(json.dumps(record, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     item = {k:v for k,v in manifest.items() if k != "build"}
     item.update(archive_url=f"https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/v{manifest['version']}/release/{package.name}",
                 archive_size=package.stat().st_size, archive_hash="sha256:"+digest)
     (release / "index.json").write_text(json.dumps({"version":"v1", "blocklist":[], "data":[item]}, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    summary = {"models":[{k:m[k] for k in ("model", "format", "meshes", "bindings", "source_preserved", "shape_keys_preserved", "refresh_idempotent", "material_restore", "visual_content_checks")} for m in evidence["models"]],
-               "lifecycle":lifecycle, "core_sha256":evidence["core_sha256"],
-               "original_conformance":{k:v for k,v in original.items() if k != 'core_sha256'},
-               "independent_workflow":{key:independent[key] for key in ("comparison_passed", "pixel_exact", "render_acceptance_limits", "same_local_lookup_inputs", "v3_material_names_compatibility", "outlines_disabled")},
-               "older_models":[{key:model[key] for key in ("model", "render_errors", "control_matrix_errors")} for model in independent["models"]],
-               "scope":"固定原版 v3.4 节点与参数映射；原始库和打包库使用相同装配器对照，不代表游戏画面完整复现"}
+    fields = ("name", "objects", "meshes", "armatures", "materials", *flags)
+    summary = {"models":[{k:m[k] for k in fields} for m in evidence["models"]],
+               "lifecycle":evidence["lifecycle"], "core_sha256":hashes,
+               "integration_checks":integration, "scope":"基础 FBX 导入、数据保护与原生角色渲染"}
     (release / f"verification-v{manifest['version']}.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     print("HGT_BUILD", package.name, digest, len(payload), flush=True)
 

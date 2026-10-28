@@ -1,6 +1,7 @@
-"""Assemble the pinned original shader graphs; do not approximate their math."""
+"""Assemble native Festivity shader paths with per-material texture isolation."""
 from pathlib import Path
 import bpy
+from .asset_tracking import data_pointers, new_data
 from .upstream_mapping import ADDITIONAL_MAPPING, ALPHA_MAPPING, FACE_MAPPING, MATERIAL_MAPPING, OUTLINE_MAPPING
 
 LIBRARY_PATH = Path(__file__).parent / "assets/original_shader.blend"
@@ -21,16 +22,18 @@ def walk(tree, seen=None):
             yield from walk(node.node_tree, seen)
 
 
-def load_image(path, data=False):
+def load_image(path, data=False, owner=""):
     colorspace = "Non-Color" if data else "sRGB"
     key = str(path.resolve()).casefold()
     image = next((i for i in bpy.data.images if i.get("hgt_file") == key
+                  and i.get("hgt_owner") == owner
                   and i.colorspace_settings.name == colorspace and i.alpha_mode == "CHANNEL_PACKED"), None)
     if image is None:
         image = bpy.data.images.load(str(path), check_existing=False)
         image.colorspace_settings.name = colorspace
         image.alpha_mode = "CHANNEL_PACKED"
         image["hgt_file"] = key
+        image["hgt_owner"] = owner
     return image
 
 
@@ -71,6 +74,10 @@ class ShaderLibrary:
             target.node_groups = source.node_groups
         self.materials = {m["hgt_upstream"]:m for m in target.materials}
         self.groups = {g["hgt_upstream"]:g for g in target.node_groups}
+        for tree in (*self.groups.values(), *(m.node_tree for m in self.materials.values())):
+            undefined = [node.name for node in tree.nodes if node.bl_idname == "NodeUndefined"]
+            if undefined:
+                raise ValueError(f"材质资源包含不可用节点：{tree.name} / {', '.join(undefined)}")
         for item in (*self.materials.values(), *self.groups.values()):
             item["hgt_owner"] = self.uid
             item.use_fake_user = False
@@ -93,13 +100,18 @@ class ShaderLibrary:
                     tree.links.new(source, output.inputs[socket_name])
 
     def controls(self, collection):
+        before = data_pointers()
         with bpy.data.libraries.load(str(CONTROLS_PATH), link=False) as (source, target):
             target.objects = source.objects
+        for values in new_data(before).values():
+            for item in values:
+                item["hgt_owner"] = self.uid
         controls = {}
         for obj in target.objects:
             key = obj["hgt_upstream"]
             controls[key] = obj
             obj["hgt_owner"] = self.uid
+            obj["hgt_helper"] = True
             obj.name = f"HGT • {self.root.name} • {key}"
             obj.use_fake_user = False
             obj.hide_render = True
@@ -160,7 +172,7 @@ class ShaderLibrary:
                     role, data = "lightmap", True
                 path = assets.textures.get(role) if role else None
                 if path:
-                    node.image = load_image(path, data)
+                    node.image = load_image(path, data, self.uid)
                     node["hgt_texture_role"] = role
         node = material.node_tree.nodes.get("Face Shader")
         if node:
@@ -185,6 +197,9 @@ class ShaderLibrary:
         material["hgt_owner"], material["hgt_source"], material["hgt_role"] = self.uid, assets.source, assets.role
         material["hgt_json"] = str(assets.json_path or "")
         material["hgt_template"] = kind
+        import json
+        material["hgt_texture_matches"] = json.dumps({role: {"file": str(path), "basis": assets.evidence.get(role, "")}
+                                                     for role, path in assets.textures.items()}, ensure_ascii=False)
         if assets.source.rsplit('_Mat_', 1)[-1] in {"Face", "Eye", "Pupil"}:
             material.use_raytrace_refraction = True
         self._private_textures(material.node_tree, {})
@@ -206,6 +221,7 @@ class ShaderLibrary:
         outline = self.materials["HoYoverse - Genshin Outlines"].copy()
         outline.name = material.name + " Outlines"
         outline["hgt_owner"], outline["hgt_source"] = self.uid, assets.source
+        self._private_textures(outline.node_tree, {})
         # The original outline importer skips Face; its face-shader branch
         # supplies the outline color without diffuse/lightmap image nodes.
         if kind != "Face":

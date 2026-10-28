@@ -1,12 +1,12 @@
 """Build and update a scoped character, preserving the imported source data."""
-import math
 from pathlib import Path
+import json
 import uuid
 import bpy
 from bpy.app.handlers import persistent
 from mathutils import Vector
 from .asset_resolver import AssetCatalog, source_name
-from . import importers, outlines, shaders
+from . import asset_tracking, importers, lighting, outlines, shaders
 
 _REFRESHING = False
 
@@ -18,54 +18,6 @@ def bounds(objects):
     low = Vector(tuple(min(p[i] for p in points) for i in range(3)))
     high = Vector(tuple(max(p[i] for p in points) for i in range(3)))
     return low, high
-
-
-def light_direction(settings):
-    a, e = settings.light_azimuth, settings.light_elevation
-    return Vector((math.sin(a) * math.cos(e), -math.cos(a) * math.cos(e), math.sin(e)))
-
-
-def _make_rig(root, collection, imported, library):
-    settings = root.hgt_character
-    armatures = [obj for obj in imported if obj.type == "ARMATURE"]
-    if len(armatures) != 1:
-        raise ValueError("角色需要唯一骨架；请单独导出角色后导入")
-    armature = armatures[0]
-    heads = [b for b in armature.pose.bones if b.name.lower().split()[-1] == "head"]
-    if len(heads) != 1:
-        raise ValueError("无法确定唯一头骨，请保留原神角色的 Head 骨骼名称")
-    controls = library.controls(collection)
-    head = controls["Head Origin"]
-    constraint = head.constraints.get("Child Of")
-    if constraint is None:
-        raise ValueError("原版 Head Origin 缺少 Child Of 约束")
-    constraint.target = armature
-    constraint.subtarget = heads[0].name
-    bpy.context.view_layer.update()
-    with bpy.context.temp_override(object=head, active_object=head):
-        bpy.ops.constraint.childof_set_inverse(constraint=constraint.name, owner="OBJECT")
-    settings.light = controls["Light Direction"]
-    settings.head = head
-    bpy.context.view_layer.update()
-    return controls
-
-
-def _light_vectors(mesh, root, controls):
-    modifier = mesh.modifiers.new("HGT • Light Vectors", "NODES")
-    modifier.node_group = root.hgt_character.light_vectors
-    for name in ("Light Direction", "Head Origin", "Head Forward", "Head Up"):
-        shaders.set_input(modifier, name, controls[name])
-    for name, key in (("Ambient", "Ambient"), ("Lit", "Lit"), ("Shadow", "Shadow"),
-                      ("Rim Lit", "RimLit"), ("Fresnel", "Fresnel"), ("Soft Lit", "SoftLit"),
-                      ("Soft Shadow", "SoftShadow"), ("Rim Shadow", "RimShadow")):
-        shaders.set_input(modifier, name + " Color Wheel", controls["ColorWheel-" + key])
-        shaders.set_input(modifier, name + " Color Picker", controls["ColorPicker-" + key])
-    for axis in ("X", "Y"):
-        shaders.set_input(modifier, f"Rim {axis} Size Origin", controls[f"Origin-Rim{axis}"])
-        shaders.set_input(modifier, f"Rim {axis} Size Slider", controls[f"Slider-Rim{axis}"])
-    for socket in modifier.node_group.interface.items_tree:
-        if socket.item_type == "SOCKET" and socket.in_out == "OUTPUT" and socket.name != "Geometry":
-            getattr(modifier.properties.outputs, socket.identifier).attribute_name = socket.default_attribute_name
 
 
 def ensure_camera(root, collection, scene):
@@ -87,94 +39,96 @@ def ensure_camera(root, collection, scene):
 
 
 def build(filepath, context):
-    catalog = AssetCatalog(filepath)
-    if context.object and context.object.mode != "OBJECT":
-        raise ValueError("请先退出编辑或姿态模式，再导入角色")
-    # Import into an owned collection so any failed transaction can be removed
-    # without touching objects or material slots that were already in the scene.
-    previous_objects = {obj.as_pointer() for obj in bpy.data.objects}
-    previous_materials = {mat.as_pointer() for mat in bpy.data.materials}
-    kinds = ("node_groups", "meshes", "armatures", "lights", "cameras", "images", "actions")
-    previous_data = {kind: {item.as_pointer() for item in getattr(bpy.data, kind)} for kind in kinds}
-    selected = tuple(context.selected_objects)
-    active = context.view_layer.objects.active
-    scene = context.scene
-    previous_scene = (scene.render.engine, scene.view_settings.view_transform, scene.render.film_transparent,
-                      scene.render.image_settings.file_format, scene.render.image_settings.color_mode,
-                      scene.camera, scene.hgt_target)
-    collection = bpy.data.collections.new(Path(filepath).stem)
-    context.scene.collection.children.link(collection)
+    transaction = asset_tracking.DataTransaction(context)
     try:
-        imported = importers.import_character(filepath)
-        root = bpy.data.objects.new(Path(filepath).stem, None)
+        batch = importers.import_character(filepath, context)
+        return assemble(batch, context)
+    except Exception:
+        transaction.rollback()
+        raise
+
+
+def assemble(batch, context):
+    # Repeating assembly for the same batch updates its controls, not its data IDs.
+    owners = {obj.get("hgt_owner") for obj in batch.objects if obj.get("hgt_owner")}
+    if len(owners) == 1:
+        root = next((obj for obj in context.scene.objects
+                     if obj.hgt_character.uid in owners), None)
+        if root and root.hgt_character.managed:
+            refresh_character(root)
+            return root
+    else:
+        root = None
+    catalog = AssetCatalog(batch.source)
+    transaction = asset_tracking.DataTransaction(context)
+    if root:
+        collection = next(c for c in root.users_collection if c.get("hgt_owner") == root.hgt_character.uid)
+        root.hgt_character.meshes.clear()
+    else:
+        collection = bpy.data.collections.new(Path(batch.source).stem)
+        context.scene.collection.children.link(collection)
+        root = bpy.data.objects.new(Path(batch.source).stem, None)
         collection.objects.link(root)
-        settings = root.hgt_character
-        settings.building = True
-        settings.managed = True
-        settings.uid = uuid.uuid4().hex
-        settings.source_file = str(Path(filepath).resolve())
-        collection["hgt_owner"] = settings.uid
-        for obj in imported:
+    original_collections = {obj: tuple(obj.users_collection) for obj in batch.objects}
+    original_tags = {obj: obj.get("hgt_owner") for obj in batch.objects}
+    settings = root.hgt_character
+    settings.building = True
+    settings.uid = settings.uid or uuid.uuid4().hex
+    settings.source_file = batch.source
+    root["hgt_import"] = json.dumps({"operator": batch.operator, "parameters": batch.parameters})
+    collection["hgt_owner"] = settings.uid
+    try:
+        for obj in batch.objects:
             for old in tuple(obj.users_collection):
                 old.objects.unlink(obj)
             collection.objects.link(obj)
-            if obj.parent is None:
-                matrix = obj.matrix_world.copy()
-                obj.parent = root
-                obj.matrix_world = matrix
             obj["hgt_owner"] = settings.uid
             if obj.type == "MESH":
                 entry = settings.meshes.add()
                 entry.object = obj
                 entry.original_hidden = obj.hide_render
                 entry.original_view_hidden = obj.hide_get()
-                # Spawn/skill meshes are retained, but excluded from a still
-                # character preview until their effect timeline is supported.
-                if "effectmesh" in obj.name.casefold() or obj.name.casefold().startswith("eff_") or obj.name.casefold().startswith("eyestar"):
+                # Named effect overlays are retained with their original data.
+                # Their visibility is restored together with the render assembly.
+                if source_name(obj.name).casefold() in {"effectmesh", "eyestar"}:
                     obj.hide_render = True
                     obj.hide_set(True)
         visible = [e.object for e in settings.meshes if not e.object.hide_render]
         low, high = bounds(visible)
         settings.height = max(0.01, high.z - low.z)
         library = shaders.ShaderLibrary(root)
-        controls = _make_rig(root, collection, imported, library)
+        controls = lighting.build(root, collection, batch.objects, library)
         built = {}
         for entry in settings.meshes:
             mesh = entry.object
             if mesh.hide_render:
                 continue
-            if not mesh.data.uv_layers.get("UV1"):
-                mesh.data.uv_layers.new(name="UV1")
-            color = mesh.data.color_attributes.active_color
-            if color:
-                color.name = "Col"
-            for index, slot in enumerate(mesh.material_slots):
-                original = slot.material
-                if original is None:
-                    raise ValueError(f"{mesh.name} 的材质槽为空")
-                # The original replacer leaves unrecognized attachments (for
-                # example Flycloak materials shipped with Amber) untouched.
-                name = source_name(original.name)
-                if not name.startswith("Avatar_") or "_Mat_" not in name:
-                    continue
+            candidates = [(i, s.material) for i, s in enumerate(mesh.material_slots)
+                          if s.material and is_character_material(s.material)]
+            if not candidates:
+                continue
+            if any(slot.material is None for slot in mesh.material_slots):
+                raise ValueError(f"{mesh.name} 的材质槽为空，请检查 FBX 材质")
+            asset_tracking.derive_mesh(entry, settings.uid)
+            for index, original in candidates:
                 key = original.as_pointer()
                 if key not in built:
-                    assets = catalog.resolve(original.name)
+                    assets = catalog.resolve(original.name, original)
                     generated, outline = library.build_material(assets)
                     built[key] = generated
                     binding = settings.bindings.add()
-                    binding.source, binding.generated = original, generated
-                    binding.outline = outline
+                    binding.source, binding.generated, binding.outline = original, generated, outline
                     binding.source_name, binding.role = assets.source, assets.role
                 snap = settings.slots.add()
                 snap.mesh, snap.index, snap.original, snap.generated = mesh, index, original, built[key]
-                slot.material = built[key]
-            if any(slot.material.get("hgt_owner") == settings.uid for slot in mesh.material_slots):
-                _light_vectors(mesh, root, controls)
-                outlines.build(mesh, root)
+                # An OBJECT-linked source slot also has to be recorded and restored.
+                mesh.material_slots[index].material = built[key]
+            lighting.attach(mesh, root, controls)
+            outlines.build(mesh, root)
         if not built:
-            raise ValueError("模型中没有可匹配的原神角色材质，请保留 Avatar_*_Mat_* 材质名称")
+            raise ValueError("没有可匹配的原神角色材质，请保留 Avatar_*_Mat_* 材质名称")
         library.finish()
+        settings.managed = True
         settings.building = False
         context.scene.render.engine = "BLENDER_EEVEE"
         context.scene.view_settings.view_transform = "Standard"
@@ -190,25 +144,37 @@ def build(filepath, context):
         context.view_layer.objects.active = root
         return root
     except Exception:
-        for obj in list(bpy.data.objects):
-            if obj.as_pointer() not in previous_objects:
-                bpy.data.objects.remove(obj, do_unlink=True)
-        for mat in list(bpy.data.materials):
-            if mat.as_pointer() not in previous_materials:
-                bpy.data.materials.remove(mat)
-        for kind in kinds:
-            items = getattr(bpy.data, kind)
-            for item in list(items):
-                if item.as_pointer() not in previous_data[kind]:
-                    items.remove(item, do_unlink=True)
-        bpy.data.collections.remove(collection)
-        (scene.render.engine, scene.view_settings.view_transform, scene.render.film_transparent,
-         scene.render.image_settings.file_format, scene.render.image_settings.color_mode,
-         scene.camera, scene.hgt_target) = previous_scene
-        for obj in selected:
-            obj.select_set(True)
-        context.view_layer.objects.active = active
+        # Reattach imported IDs before removing the render transaction's collection.
+        for entry in settings.meshes:
+            asset_tracking.restore_mesh(entry)
+            if entry.object:
+                entry.object.hide_render = entry.original_hidden
+                entry.object.hide_set(entry.original_view_hidden)
+        for snap in settings.slots:
+            if snap.mesh and snap.index < len(snap.mesh.material_slots):
+                snap.mesh.material_slots[snap.index].material = snap.original
+        for obj, collections in original_collections.items():
+            for old in tuple(obj.users_collection):
+                old.objects.unlink(obj)
+            for old in collections:
+                old.objects.link(obj)
+            if original_tags[obj] is None:
+                del obj["hgt_owner"]
+            else:
+                obj["hgt_owner"] = original_tags[obj]
+        settings.slots.clear()
+        settings.bindings.clear()
+        settings.controls.clear()
+        settings.global_properties = settings.light_vectors = settings.outline_graph = None
+        settings.light = settings.head = None
+        settings.managed = settings.building = False
+        transaction.rollback()
         raise
+
+
+def is_character_material(material):
+    name = source_name(material.name)
+    return name.startswith("Avatar_") and "_Mat_" in name
 
 
 def refresh_character(root, depsgraph=None):
@@ -220,12 +186,7 @@ def refresh_character(root, depsgraph=None):
         return
     _REFRESHING = True
     try:
-        direction = light_direction(settings)
-        if settings.light:
-            rotation = direction.to_track_quat("-Z", "Y").to_euler()
-            if any(abs(settings.light.rotation_euler[i] - rotation[i]) > 1e-6 for i in range(3)):
-                settings.light.rotation_euler = rotation
-        shaders.set_controls(root)
+        lighting.update(root)
         for entry in settings.meshes:
             if entry.object:
                 outlines.update(entry.object, root)
@@ -237,6 +198,7 @@ def restore(root):
     settings = root.hgt_character
     if not settings.managed:
         raise ValueError("请选择 Hoyo-GI-Toon 角色")
+    settings.building = True
     for snap in settings.slots:
         if snap.mesh and snap.index < len(snap.mesh.material_slots):
             slot = snap.mesh.material_slots[snap.index]
@@ -248,13 +210,18 @@ def restore(root):
             continue
         mesh.hide_render = entry.original_hidden
         mesh.hide_set(entry.original_view_hidden)
-        for modifier in list(mesh.modifiers):
+        for modifier in tuple(mesh.modifiers):
             if modifier.type == "NODES" and modifier.node_group and modifier.node_group.get("hgt_owner") == settings.uid:
-                tree = modifier.node_group
                 mesh.modifiers.remove(modifier)
-                if tree and tree.users == 0:
-                    bpy.data.node_groups.remove(tree)
+        asset_tracking.restore_mesh(entry)
+    settings.slots.clear()
+    settings.bindings.clear()
+    settings.controls.clear()
+    settings.global_properties = settings.light_vectors = settings.outline_graph = None
+    settings.light = settings.head = None
     settings.managed = False
+    settings.building = False
+    asset_tracking.remove_render_data(settings.uid)
 
 
 @persistent

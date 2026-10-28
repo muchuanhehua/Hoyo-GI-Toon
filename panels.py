@@ -27,7 +27,8 @@ class HGT_OT_import_character(Operator, ImportHelper):
 
 class HGT_OT_restore(Operator):
     bl_idname = "hgt.restore_materials"
-    bl_label = "恢复原材质"
+    bl_label = "恢复导入状态"
+    bl_description = "恢复导入时的网格、材质和显示状态"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod

@@ -33,11 +33,27 @@
       "bytes": 1290596
     }
   ],
-  "library_sha256": "432d37d79150a5a87e88c1bdacbd5bd633d509f393b370de132df744d59e0e96",
+  "library_sha256": "a298539803090c585345b732bb0c330d510df59ce90942aa37c8fe4b28c22fd2",
   "changes": [
-    "Converted by Blender 5.2",
+    "Selected native base-rendering paths",
     "Removed all images and preview objects; nodes keep original image-name references"
   ],
+  "native_paths": {
+    "base": [
+      "Body",
+      "Hair",
+      "Face",
+      "Alpha",
+      "Genshin Specular",
+      "Metallic Matcap"
+    ],
+    "lighting": [
+      "Light Vectors",
+      "Face Factor",
+      "Fresnel"
+    ],
+    "outlines": "HoYoverse - Genshin Impact Outlines"
+  },
   "texture_references": [
     {
       "tree": "Face Factor",
@@ -117,7 +133,6 @@
     "Body Shadow Ramp",
     "Color Multipliers",
     "ColorWheel Vectors",
-    "Depth-based Rim",
     "Dot Creation",
     "Face Factor",
     "Genshin Alpha",
@@ -147,7 +162,7 @@
     "sRGB -> Linear",
     "UV Lerp"
   ],
-  "controls_sha256": "2666d5c527de8e082dc3d9e2ae1a84a9c74b0aeb59b8eefba811005783bf4b68",
+  "controls_sha256": "d7149f6040356c466e0e3eca69fb37e3bde05e64792b7efaaa043acacb41ae14",
   "controls_source": {
     "repository": "michael-gh1/Addons-And-Tools-For-Blender-miHoYo-Shaders",
     "commit": "fb942ecc30d9ed3889f5afb0dfb3a23c13601a54",

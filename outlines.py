@@ -1,4 +1,4 @@
-"""Connect the original material-aware outline geometry node, without new math."""
+"""Material-aware native outline modifiers; the imported mesh remains intact."""
 from .shaders import input_value, set_input
 
 PAIRS = ("Hair", "Body", "Face", "Dress", "Dress 2", "Other")
@@ -15,10 +15,12 @@ def build(mesh, root):
     materials = list(dict.fromkeys(s.material for s in mesh.material_slots if s.material in bindings))
     if len(materials) > len(PAIRS):
         raise ValueError(f"{mesh.name} 超出原版描边的六个材质分区")
-    modifier = mesh.modifiers.new("HGT • Outlines", "NODES")
-    modifier.node_group = root.hgt_character.outline_graph
+    graph = root.hgt_character.outline_graph
+    modifier = next((m for m in mesh.modifiers if m.type == "NODES" and m.node_group == graph), None)
+    modifier = modifier or mesh.modifiers.new("HGT • Outlines", "NODES")
+    modifier.node_group = graph
     set_input(modifier, "Base Geometry", True)
-    set_input(modifier, "Use Vertex Colors?", True)
+    set_input(modifier, "Use Vertex Colors?", bool(mesh.data.color_attributes.get("Col")))
     color = input_value(modifier, "Vertex Colors")
     color.type = "ATTRIBUTE"
     color.attribute_name = "Col"

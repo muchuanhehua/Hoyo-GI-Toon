@@ -1,8 +1,11 @@
-"""Keep original node graphs, remove preview models and all embedded textures."""
+"""Compile native Festivity paths, without preview models or embedded textures."""
 import hashlib
 import json
 from pathlib import Path
+import sys
 import bpy
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from native_shader_paths import select_native_paths
 
 ROOT = Path(__file__).resolve().parents[1]
 reference = ROOT / ".verification/upstream/shader"
@@ -15,6 +18,7 @@ for material in bpy.data.materials:
     material["hgt_upstream"] = material.name
 for group in bpy.data.node_groups:
     group["hgt_upstream"] = group.name
+native_paths = select_native_paths()
 trees = list(bpy.data.node_groups) + [m.node_tree for m in bpy.data.materials if m.node_tree]
 references = []
 for tree in trees:
@@ -40,7 +44,8 @@ provenance = {"shader_repository":"https://github.com/festivities/Blender-miHoYo
               "wizard_commit":"fb942ecc30d9ed3889f5afb0dfb3a23c13601a54",
               "sources":[r for r in records if r["path"].endswith(".blend")],
               "library_sha256":hashlib.sha256(output.read_bytes()).hexdigest(),
-              "changes":["Converted by Blender 5.2", "Removed all images and preview objects; nodes keep original image-name references"],
+              "changes":["Selected native base-rendering paths", "Removed all images and preview objects; nodes keep original image-name references"],
+              "native_paths":native_paths,
               "texture_references":references,
               "materials":[m.name for m in bpy.data.materials],
               "node_groups":[g.name for g in bpy.data.node_groups]}

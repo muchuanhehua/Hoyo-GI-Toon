@@ -28,6 +28,9 @@ class HGTSlotSnapshot(PropertyGroup):
 
 class HGTMeshReference(PropertyGroup):
     object: PointerProperty(type=bpy.types.Object)
+    original_data: PointerProperty(type=bpy.types.Mesh)
+    render_data: PointerProperty(type=bpy.types.Mesh)
+    original_material_links: StringProperty()
     original_hidden: BoolProperty()
     original_view_hidden: BoolProperty()
 
