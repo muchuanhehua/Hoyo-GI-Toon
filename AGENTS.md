@@ -28,5 +28,7 @@
 - 用户指定奥黛塔、尼可的本地原始游戏 FBX 交叉验证。v0.1.0 的基础着色验证保存在 `.verification/fbx-verification.json` 和 `lifecycle.json`，仅作旧版历史证据。
 - v0.2.0 改用 Festivity v3.4 原版节点和 Setup Wizard v3 参数映射。当前验证保存在 `.verification/original/`，包括 `fbx-verification.json`、`lifecycle.json`、`original-conformance.json`。原版结构核对与同装配器渲染比较不等于完整原版安装向导运行，更不等于游戏画面逐项复现。PMX 后续接入。
 - 公开仓库为 `https://github.com/muchuanhehua/Hoyo-GI-Toon`；历史 v0.1.0 标签源码为 `933d9c5ddfc0243414991ccc9ea576b87eacd8db`，旧包与标签不覆盖。
-- v0.1.0 ZIP SHA256 为 `e57a724fc0f64346198696df2acd0b46fee05aee8e5785b9f4502fb209721112`，公开下载内容已核验。本地模块为 `bl_ext.Hoyo_GI_Toon.hoyo_gi_toon`；远程安装、启用和新进程偏好设置核验通过，保留原有插件与远程仓库配置。
-- 安装证据保存在忽略的 `.verification/installed.json` 与 `installed-fresh-process.json`。配置入口为 `tools/configure_installed.py`；`--check-only` 只读核验已安装文件与持久配置。
+- 历史 v0.1.0 ZIP SHA256 为 `e57a724fc0f64346198696df2acd0b46fee05aee8e5785b9f4502fb209721112`，初次远程安装与新进程核验通过；旧安装证据保存在 `.verification/installed.json` 与 `installed-fresh-process.json`。
+- 本地模块为 `bl_ext.Hoyo_GI_Toon.hoyo_gi_toon`。配置入口为 `tools/configure_installed.py`；`--check-only` 只读核验已安装文件与持久配置。
+- 当前发布为 v0.2.1，固定标签源码 `fbf24f70f1d14a62f3f048b776773777f814d991`，安装包 SHA256 为 `bdcacd9965cdb61d1e9854bc9436a08a8833f3ce6cb5cee9099243bf269c39d3`。19 个安装文件与标签源码逐一一致。v0.2.0 及 v0.1.0 均保留。
+- v0.2.1 已从公开更新源安装，本地启用和新进程 19 文件核验通过；当前安装证据在 `.verification/original/installed.json` 与 `installed-fresh-process.json`。当前 Blender 的远程通道断开，未完成当前会话热加载；不将新进程核验表述为当前会话已加载新版。
