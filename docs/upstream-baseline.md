@@ -39,6 +39,10 @@ Better FBX 与 MMD Tools 为独立安装依赖，按所选文件格式调用公�
 | `workflow.build / assemble / restore` | 资产根对象、装配或恢复结果 | 编排上述模块；同批重复装配复用根对象和已建资源 |
 | `rendering.prepare / frame_camera / preview` | 自有相机与视图预览 | 按有姿态且已勾选的表面构图，保留原始修改器和用户相机 |
 | `rendering.start / finish` | PNG、完成或取消结果 | 临时场景独立设置尺寸与透明背景，检查真实文件和 PNG 尺寸后清理资源 |
+| `framing.frame / points` | 全身、半身、头像与当前姿态构图 | 临时求值副本保留原形变和表面筛选，原生光向／描边实例不作为构图几何；手动机位保留 |
+| `presentation.background / floor` | 临时背景、地面及灯光资源 | 仅加入输出场景，完成或失败后按任务清理 |
+| `expressions.initialize / set_gaze / reset` | 已有派生形态键和可移除眼骨约束 | 源形态键、动作、骨架和 MMD 元数据保留；不加入逐角色预设 |
+| `project_io.stamp / relink / on_load` | 资源摘要、路径重关联与工程记录迁移 | 验证同一源文件后修正路径，保留网格和原材质 ID；旧工程不自动更换着色 |
 | `post_processing.configure` | 渲染副本的后期节点 | 保留原合成链，最终 Alpha 在输出模块统一恢复 |
 | `panels` | 导入、外观、光照、输出和渲染操作 | 一个导入入口，常用参数直接展示，其余折叠；错误使用 Blender 原生报告 |
 
@@ -55,6 +59,8 @@ Better FBX 与 MMD Tools 为独立安装依赖，按所选文件格式调用公�
 `tools/verify_material_pipeline.py` 检查跨格式材质近景矩阵，并通过 `verification_materials.py` 直接加载 Gacha Setup 的原生 PupilaTodo 进行同输入合成对照。源贴图变换、法线强度、剔除与 Alpha 使用实际渲染夹具检查；这些结果证明对应模块有效，不代表整套参考插件或游戏渲染已完全等价。覆盖范围见 [22–34 材质核对](../design/material-coverage.md)。
 
 `tools/build_release.py candidate` 生成并校验候选包。整体验收后，`release` 子命令只将已验证的候选字节推广为发布包并更新索引，历史 ZIP 不覆盖。
+
+`tools/verify_workflow.py` 检查真实 FBX／PMX 构图、表情与视线、姿态跟随、展示资源隔离、保存重开、资源移动和错误回滚，并记录导入、装配、反复刷新与构图耗时。`verify_interface.py --workflow` 检查实际 UI、撤销重做、注入取消回调后的部分文件清理、旧 PNG 保留和再次实际出图。原生 Esc／状态栏按钮属于最终人工操作验收，隐藏窗口的模拟事件不记作真实输入验证。使用流程见 [构图与出图](workflow.md)。
 
 ## 接入要求
 

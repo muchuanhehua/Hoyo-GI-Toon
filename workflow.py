@@ -5,7 +5,7 @@ import uuid
 import bpy
 from bpy.app.handlers import persistent
 from .asset_resolver import AssetCatalog, source_name
-from . import asset_tracking, importers, lighting, outlines, rendering, shaders, surface_layers, eye_surfaces, subjects
+from . import asset_tracking, importers, lighting, outlines, rendering, shaders, surface_layers, eye_surfaces, subjects, expressions, project_io
 
 _REFRESHING = False
 
@@ -125,6 +125,8 @@ def assemble(batch, context):
         if not built:
             raise ValueError("没有可匹配的角色材质，请检查所选模型的原材质")
         library.finish()
+        expressions.initialize(root)
+        project_io.stamp(root)
         settings.managed = True
         settings.building = False
         rendering.prepare(context.scene, root, collection)
@@ -157,6 +159,8 @@ def assemble(batch, context):
         settings.slots.clear()
         settings.bindings.clear()
         settings.controls.clear()
+        settings.expressions.clear()
+        settings.expressions_version = 0
         subjects.clear(root)
         settings.global_properties = settings.light_vectors = settings.outline_graph = None
         settings.light = settings.head = None
@@ -180,6 +184,10 @@ def refresh_character(root, depsgraph=None):
     _REFRESHING = True
     try:
         subjects.apply(root)
+        expressions.apply_values(root)
+        if settings.look_camera:
+            scene = next((s for s in bpy.data.scenes if root.name in s.objects and s.hgt_target == root), bpy.context.scene)
+            expressions.update_gaze(root, scene)
         lighting.update(root)
         for entry in settings.meshes:
             if entry.object:
@@ -193,6 +201,9 @@ def restore(root):
     if not settings.managed:
         raise ValueError("请选择 Hoyo-GI-Toon 角色")
     settings.building = True
+    expressions.reset(root)
+    settings.expressions.clear()
+    settings.expressions_version = 0
     for snap in settings.slots:
         if snap.mesh and snap.index < len(snap.mesh.material_slots):
             slot = snap.mesh.material_slots[snap.index]

@@ -1,11 +1,11 @@
-"""One import, two appearance sliders, folded lighting/output and one render."""
+"""Import, frame and render; detailed controls stay folded."""
 import traceback
 from pathlib import Path
 import bpy
-from bpy.props import CollectionProperty, IntProperty, StringProperty
-from bpy.types import Menu, Operator, Panel
+from bpy.props import CollectionProperty, EnumProperty, IntProperty, StringProperty
+from bpy.types import Menu, Operator, Panel, UIList
 from bpy_extras.io_utils import ImportHelper
-from . import rendering, workflow, subjects
+from . import rendering, workflow, subjects, framing, presentation, expressions, project_io
 from .properties import HGTPartEdit, PART_ROLES
 
 
@@ -104,6 +104,9 @@ class HGT_OT_render(Operator):
         context.window_manager.event_timer_remove(self._timer)
         try:
             path = rendering.finish(self._job)
+        except rendering.RenderCancelled:
+            self.report({'INFO'}, '渲染已取消')
+            return {'CANCELLED'}
         except (ValueError, RuntimeError, OSError) as exc:
             return report_error(self, exc)
         self.report({"INFO"}, "已保存：" + path)
@@ -157,10 +160,197 @@ class HGT_MT_tools(Menu):
     bl_label = "角色操作"
 
     def draw(self, context):
+        if not target(context):
+            return
         self.layout.operator("hgt.material_info", icon="MATERIAL")
+        self.layout.operator('hgt.relink_resources', icon='FILE_REFRESH')
         if target(context).hgt_character.parts_version:
             self.layout.operator('hgt.manage_parts', icon='OUTLINER_COLLECTION')
         self.layout.operator("hgt.restore_materials", icon="LOOP_BACK")
+
+
+class HGT_OT_set_shot(Operator):
+    bl_idname = 'hgt.set_shot'
+    bl_label = '调整构图'
+    bl_options = {'REGISTER', 'UNDO'}
+    shot: EnumProperty(items=[('FULL', '全身', ''), ('HALF', '半身', ''), ('HEAD', '头像', '')])
+
+    @classmethod
+    def poll(cls, context):
+        return bool(target(context) and not context.scene.hgt_output.rendering)
+
+    def execute(self, context):
+        try:
+            root = target(context)
+            context.scene.hgt_output.camera = root.hgt_character.camera
+            root.hgt_character.shot = self.shot
+            rendering.frame_camera(context.scene, root)
+            rendering.preview(context, root)
+        except (ValueError, RuntimeError) as exc:
+            return report_error(self, exc)
+        return {'FINISHED'}
+
+
+class HGT_OT_view_angle(Operator):
+    bl_idname = 'hgt.view_angle'
+    bl_label = '选择视角'
+    bl_options = {'REGISTER', 'UNDO'}
+    angle: EnumProperty(items=[('FRONT', '正面', ''), ('TURN', '斜侧', ''), ('SIDE', '侧面', ''), ('BACK', '背面', '')])
+
+    @classmethod
+    def poll(cls, context):
+        return HGT_OT_set_shot.poll(context)
+
+    def execute(self, context):
+        root = target(context)
+        context.scene.hgt_output.camera = root.hgt_character.camera
+        root.hgt_character.view_azimuth = {'FRONT': 0, 'TURN': .6, 'SIDE': 1.570796, 'BACK': 3.14159}[self.angle]
+        rendering.frame_camera(context.scene, root)
+        return {'FINISHED'}
+
+
+class HGT_OT_light_preset(Operator):
+    bl_idname = 'hgt.light_preset'
+    bl_label = '选择光照'
+    bl_options = {'REGISTER', 'UNDO'}
+    preset: EnumProperty(items=[(key, value[0], '') for key, value in presentation.LIGHTS.items()])
+
+    @classmethod
+    def poll(cls, context):
+        return HGT_OT_set_shot.poll(context)
+
+    def execute(self, context):
+        settings = target(context).hgt_character
+        _, settings.light_azimuth, settings.light_elevation = presentation.LIGHTS[self.preset]
+        return {'FINISHED'}
+
+
+class HGT_OT_output_size(Operator):
+    bl_idname = 'hgt.output_size'
+    bl_label = '选择图片尺寸'
+    bl_options = {'REGISTER', 'UNDO'}
+    preset: EnumProperty(items=[(key, value[0], '') for key, value in presentation.SIZES.items()])
+
+    @classmethod
+    def poll(cls, context):
+        return HGT_OT_set_shot.poll(context)
+
+    def execute(self, context):
+        settings = context.scene.hgt_output
+        _, settings.width, settings.height = presentation.SIZES[self.preset]
+        root = target(context)
+        if settings.camera == root.hgt_character.camera and framing.is_auto(root):
+            rendering.frame_camera(context.scene, root)
+        return {'FINISHED'}
+
+
+class HGT_OT_reset_display(Operator):
+    bl_idname = 'hgt.reset_display'
+    bl_label = '恢复初始展示'
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return HGT_OT_set_shot.poll(context)
+
+    def execute(self, context):
+        root = target(context);settings = root.hgt_character
+        settings.building = True
+        try:
+            settings.light_azimuth = settings.light_elevation = .35
+            settings.show_floor = False;settings.view_azimuth = settings.view_elevation = 0
+            settings.frame_margin = .15;settings.shot = 'FULL'
+            context.scene.hgt_output.transparent = True
+            context.scene.hgt_output.background_color = (.04, .055, .08)
+        finally:
+            settings.building = False
+        context.scene.hgt_output.camera = settings.camera
+        workflow.refresh_character(root);rendering.frame_camera(context.scene, root)
+        return {'FINISHED'}
+
+
+class HGT_OT_look_camera(Operator):
+    bl_idname = 'hgt.look_camera'
+    bl_label = '看向相机'
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return bool(HGT_OT_set_shot.poll(context) and expressions.eye_bones(target(context)))
+
+    def execute(self, context):
+        try:
+            root = target(context)
+            expressions.set_gaze(root, context.scene, not root.hgt_character.look_camera)
+            context.view_layer.update()
+        except (ValueError, RuntimeError) as exc:
+            return report_error(self, exc)
+        return {'FINISHED'}
+
+
+class HGT_OT_reset_expressions(Operator):
+    bl_idname = 'hgt.reset_expressions'
+    bl_label = '重置表情'
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return HGT_OT_set_shot.poll(context)
+
+    def execute(self, context):
+        expressions.reset(target(context))
+        return {'FINISHED'}
+
+
+class HGT_OT_relink(Operator, ImportHelper):
+    bl_idname = 'hgt.relink_resources'
+    bl_label = '重新定位资源'
+    bl_description = '选择移动后的原模型，校验并更新资源路径'
+    bl_options = {'REGISTER', 'UNDO'}
+    filename_ext = '.fbx'
+    filter_glob: StringProperty(default='*.fbx;*.pmx', options={'HIDDEN'})
+
+    @classmethod
+    def poll(cls, context):
+        return HGT_OT_set_shot.poll(context)
+
+    def execute(self, context):
+        try:
+            project_io.relink(target(context), self.filepath)
+        except (ValueError, RuntimeError, OSError) as exc:
+            return report_error(self, exc)
+        return {'FINISHED'}
+
+
+class HGT_OT_extensions(Operator):
+    bl_idname = 'hgt.open_extensions'
+    bl_label = '管理扩展'
+
+    def execute(self, context):
+        bpy.ops.screen.userpref_show()
+        context.preferences.active_section = 'EXTENSIONS'
+        return {'FINISHED'}
+
+
+class HGT_OT_help(Operator):
+    bl_idname = 'hgt.help'
+    bl_label = '使用说明'
+
+    def execute(self, context):
+        bpy.ops.wm.url_open(url='https://github.com/muchuanhehua/Hoyo-GI-Toon#使用流程')
+        return {'FINISHED'}
+
+
+class HGT_UL_expressions(UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        row = layout.row(align=True)
+        row.label(text=item.label)
+        row.prop(item, 'value', text='', slider=True)
+
+    def filter_items(self, context, data, propname):
+        text = self.filter_name.casefold()
+        return [self.bitflag_filter_item if not text or text in item.label.casefold() or text in item.name.casefold()
+                else 0 for item in getattr(data, propname)], []
 
 
 class HGT_OT_toggle_part(Operator):
@@ -182,7 +372,7 @@ class HGT_OT_toggle_part(Operator):
             if part is None:raise ValueError('部件不存在，请重新选择角色')
             previous=part.included
             subjects.set_part(root,self.key,not part.included)
-            if context.scene.hgt_output.camera==root.hgt_character.camera:
+            if context.scene.hgt_output.camera==root.hgt_character.camera and framing.is_auto(root):
                 rendering.frame_camera(context.scene,root)
         except (ValueError,RuntimeError) as exc:
             if previous is not None and part.included!=previous:
@@ -233,7 +423,7 @@ class HGT_OT_manage_parts(Operator):
                 raise ValueError('请至少选择一个可出图的部件')
             applied=True
             subjects.apply(root,force=True)
-            if context.scene.hgt_output.camera==settings.camera:
+            if context.scene.hgt_output.camera==settings.camera and framing.is_auto(root):
                 rendering.frame_camera(context.scene,root)
         except (ValueError,RuntimeError) as exc:
             for part in settings.parts:
@@ -280,13 +470,18 @@ class HGT_PT_main(Panel):
 
     def draw(self, context):
         layout = self.layout
-        layout.enabled = not context.scene.hgt_output.rendering
+        if context.scene.hgt_output.rendering:
+            layout.template_running_jobs()
+            return
         row = layout.row(align=True)
         row.operator("hgt.import_character", icon="IMPORT")
         root = target(context)
         if root:
             row.menu("HGT_MT_tools", text="", icon="DOWNARROW_HLT")
         if not root:
+            row = layout.row(align=True)
+            row.operator('hgt.open_extensions', icon='PREFERENCES')
+            row.operator('hgt.help', icon='HELP')
             return
         roots = [o for o in context.scene.objects if o.hgt_character.managed]
         if len(roots) > 1:
@@ -294,6 +489,9 @@ class HGT_PT_main(Panel):
         column = layout.column(align=True)
         for name in ("shadow_position", "outline"):
             column.prop(root.hgt_character, name, slider=True)
+        row = layout.row(align=True)
+        for value, label in (('FULL', '全身'), ('HALF', '半身'), ('HEAD', '头像')):
+            row.operator('hgt.set_shot', text=label, depress=root.hgt_character.shot == value).shot = value
         layout.separator(factor=.5)
         row = layout.row(align=True)
         row.operator("hgt.render", icon="RENDER_STILL")
@@ -302,7 +500,7 @@ class HGT_PT_main(Panel):
 
 
 class HGT_PT_lighting(Panel):
-    bl_label = "光照"
+    bl_label = "展示"
     bl_idname = "HGT_PT_lighting"
     bl_parent_id = "HGT_PT_main"
     bl_space_type = "VIEW_3D"
@@ -316,8 +514,65 @@ class HGT_PT_lighting(Panel):
     def draw(self, context):
         column = self.layout.column(align=True)
         column.enabled = not context.scene.hgt_output.rendering
+        row = column.row(align=True)
+        for key, value in presentation.LIGHTS.items():
+            row.operator('hgt.light_preset', text=value[0]).preset = key
         for name in ("light_azimuth", "light_elevation"):
             column.prop(target(context).hgt_character, name)
+        column.prop(context.scene.hgt_output, 'transparent')
+        if not context.scene.hgt_output.transparent:
+            column.prop(context.scene.hgt_output, 'background_color')
+        column.prop(target(context).hgt_character, 'show_floor')
+        column.operator('hgt.reset_display', icon='LOOP_BACK')
+
+
+class HGT_PT_view(Panel):
+    bl_label = '构图'
+    bl_idname = 'HGT_PT_view'
+    bl_parent_id = 'HGT_PT_main'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return bool(target(context))
+
+    def draw(self, context):
+        layout = self.layout;layout.enabled = not context.scene.hgt_output.rendering
+        settings = target(context).hgt_character
+        row = layout.row(align=True)
+        for key, label in (('FRONT', '正面'), ('TURN', '斜侧'), ('SIDE', '侧面'), ('BACK', '背面')):
+            row.operator('hgt.view_angle', text=label).angle = key
+        for name in ('view_azimuth', 'view_elevation', 'frame_margin'):
+            layout.prop(settings, name)
+        layout.prop(context.scene.hgt_output, 'camera')
+        if context.scene.hgt_output.camera == settings.camera:
+            layout.operator('hgt.frame_camera', icon='VIEW_CAMERA')
+
+
+class HGT_PT_expressions(Panel):
+    bl_label = '表情'
+    bl_idname = 'HGT_PT_expressions'
+    bl_parent_id = 'HGT_PT_main'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        root = target(context)
+        return bool(root and (root.hgt_character.expressions or expressions.eye_bones(root)))
+
+    def draw(self, context):
+        layout = self.layout;layout.enabled = not context.scene.hgt_output.rendering
+        settings = target(context).hgt_character
+        if settings.expressions:
+            layout.template_list('HGT_UL_expressions', '', settings, 'expressions', settings, 'active_expression', rows=3)
+        row = layout.row(align=True)
+        if expressions.eye_bones(target(context)):
+            row.operator('hgt.look_camera', depress=settings.look_camera, icon='HIDE_OFF')
+        row.operator('hgt.reset_expressions', icon='LOOP_BACK')
 
 
 class HGT_PT_output(Panel):
@@ -336,20 +591,21 @@ class HGT_PT_output(Panel):
         layout = self.layout
         layout.enabled = not context.scene.hgt_output.rendering
         settings = context.scene.hgt_output
-        layout.prop(settings, "camera")
-        if settings.camera == target(context).hgt_character.camera:
-            layout.operator("hgt.frame_camera", icon="VIEW_CAMERA")
+        row = layout.row(align=True)
+        for key, value in presentation.SIZES.items():
+            row.operator('hgt.output_size', text=value[0]).preset = key
         row = layout.row(align=True)
         row.prop(settings, "width")
         row.prop(settings, "height")
         layout.prop(settings, "filepath")
-        layout.prop(settings, "transparent")
         layout.prop(settings, "post_processing")
 
 
-CLASSES = (HGT_OT_import_character, HGT_OT_restore, HGT_OT_frame, HGT_OT_render, HGT_OT_view_render, HGT_OT_material_info,
+CLASSES = (HGT_UL_expressions, HGT_OT_set_shot, HGT_OT_view_angle, HGT_OT_light_preset, HGT_OT_output_size,
+           HGT_OT_reset_display, HGT_OT_look_camera, HGT_OT_reset_expressions, HGT_OT_relink, HGT_OT_extensions, HGT_OT_help,
+           HGT_OT_import_character, HGT_OT_restore, HGT_OT_frame, HGT_OT_render, HGT_OT_view_render, HGT_OT_material_info,
            HGT_OT_toggle_part, HGT_OT_manage_parts,
-           HGT_MT_tools, HGT_PT_main, HGT_PT_parts, HGT_PT_lighting, HGT_PT_output)
+           HGT_MT_tools, HGT_PT_main, HGT_PT_view, HGT_PT_lighting, HGT_PT_expressions, HGT_PT_parts, HGT_PT_output)
 
 
 def register():

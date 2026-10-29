@@ -7,64 +7,17 @@ import struct
 import uuid
 import bpy
 from bpy.app.handlers import persistent
-from mathutils import Vector
-from . import post_processing, subjects, lighting
+from . import post_processing, subjects, lighting, framing, presentation, project_io, expressions
 
 _JOBS = {}
 
 
 def character_bounds(root):
-    subjects.apply(root)
-    meshes = [entry.object for entry in root.hgt_character.meshes
-              if entry.object and entry.render_data and not entry.object.hide_render]
-    # Frame posed base geometry. Render/view-dependent outline geometry must not
-    # determine the camera, and the character's modifiers stay untouched.
-    probes = []
-    try:
-        for obj in meshes:
-            probe = obj.copy()
-            probe.name = "HGT Framing"
-            for modifier in tuple(probe.modifiers):
-                if (modifier.type == "NODES" and modifier.node_group and modifier.node_group.get("hgt_owner")
-                        and not modifier.node_group.get('hgt_subject_filter')):
-                    probe.modifiers.remove(modifier)
-            bpy.context.scene.collection.objects.link(probe)
-            probes.append(probe)
-        bpy.context.view_layer.update()
-        graph = bpy.context.evaluated_depsgraph_get()
-        points = [obj.matrix_world @ Vector(corner) for obj in probes
-                  for corner in obj.evaluated_get(graph).bound_box]
-    finally:
-        if probes:
-            bpy.data.batch_remove(ids=set(probes))
-    if not points:
-        raise ValueError("角色没有可用于构图的网格")
-    low = Vector(tuple(min(p[i] for p in points) for i in range(3)))
-    high = Vector(tuple(max(p[i] for p in points) for i in range(3)))
-    if high.z - low.z < 1e-5:
-        raise ValueError("角色尺寸无效，请检查导入模型")
-    return low, high
+    return framing.bounds(root)
 
 
 def frame_camera(scene, root):
-    camera = scene.hgt_output.camera
-    if camera is None or camera.type != "CAMERA":
-        raise ValueError("请在输出中选择相机")
-    if camera != root.hgt_character.camera:
-        raise ValueError("请选择本角色的相机后重新构图；其他相机可直接用于渲染")
-    bpy.context.view_layer.update()
-    low, high = character_bounds(root)
-    center = (low + high) * .5
-    height = high.z - low.z
-    aspect = scene.hgt_output.width / scene.hgt_output.height
-    camera.data.type = "ORTHO"
-    camera.data.sensor_fit = "VERTICAL"
-    camera.data.ortho_scale = max(height, (high.x - low.x) / aspect) * 1.15
-    camera.data.clip_start = max(.001, height * .001)
-    camera.data.clip_end = max(100, height * 10)
-    camera.location = center + Vector((0, -height * 3, 0))
-    camera.rotation_euler = (center - camera.location).to_track_quat("-Z", "Y").to_euler()
-    bpy.context.view_layer.update()
+    framing.frame(scene, root)
 
 
 def prepare(scene, root, collection):
@@ -79,10 +32,17 @@ def prepare(scene, root, collection):
         settings.camera = camera
     scene.hgt_output.camera = camera
     frame_camera(scene, root)
-    if not scene.hgt_output.filepath:
+    configure_output(scene, root)
+
+
+def configure_output(scene, root):
+    if not scene.hgt_output.filepath or scene.hgt_output.filepath == scene.hgt_output.last_auto_path:
         base = Path(bpy.data.filepath).parent if bpy.data.filepath else Path.home() / "Pictures" / "Hoyo-GI-Toon"
+        if base.resolve().is_relative_to(Path(root.hgt_character.source_file).resolve().parent):
+            base = Path.home() / 'Pictures' / 'Hoyo-GI-Toon'
         name = re.sub(r'[<>:"/\\|?*]', "_", root.name).strip(" .") or "角色"
         scene.hgt_output.filepath = str(base / f"{name}.png")
+        scene.hgt_output.last_auto_path = scene.hgt_output.filepath
 
 
 def preview(context, root):
@@ -113,7 +73,14 @@ def output_path(scene):
         raise ValueError("请选择 PNG 保存路径")
     if path.exists() and path.is_dir():
         raise ValueError("保存位置需要包含文件名，例如 角色.png")
-    return path.resolve()
+    path = path.resolve()
+    automatic = scene.hgt_output.last_auto_path
+    if automatic and path == Path(bpy.path.abspath(automatic)).resolve():
+        original = path;index = 1
+        while path.exists():
+            path = original.with_stem(f'{original.stem}_{index:03d}')
+            index += 1
+    return path
 
 
 @dataclass
@@ -124,20 +91,13 @@ class RenderJob:
     size: tuple
     resources: set = field(default_factory=set)
     state: str = "running"
-    previous_file: tuple | None = None
-
-
-def _file_signature(path):
-    if not path.is_file():
-        return None
-    stat = path.stat()
-    return stat.st_mtime_ns, stat.st_size
+    temporary: Path | None = None
 
 
 def _validate_png(job):
-    if not job.path.is_file() or _file_signature(job.path) == job.previous_file:
+    if not job.temporary.is_file():
         raise RuntimeError("渲染结束但图片未保存，请检查输出路径和目录权限")
-    with job.path.open("rb") as stream:
+    with job.temporary.open("rb") as stream:
         header = stream.read(24)
     if len(header) != 24 or header[:8] != b"\x89PNG\r\n\x1a\n" or header[12:16] != b"IHDR":
         raise RuntimeError("保存的文件不是有效 PNG")
@@ -167,6 +127,7 @@ def _proxy(scene, root, path):
     proxy = scene.copy()
     proxy.name = "HGT Render • " + uuid.uuid4().hex[:8]
     job = RenderJob(scene, proxy, path, (scene.hgt_output.width, scene.hgt_output.height))
+    job.temporary = path.with_name('.hgt-' + uuid.uuid4().hex + '.png')
     job.resources.add(proxy)
     try:
         proxy.camera = scene.hgt_output.camera
@@ -189,6 +150,7 @@ def _proxy(scene, root, path):
         for obj in sorted(objects, key=lambda item: item.name_full):
             collection.objects.link(obj)
         _attachment_light(job, root, collection)
+        presentation.floor(job, root, collection)
         proxy.render.engine = "BLENDER_EEVEE"
         proxy.view_settings.view_transform = "Standard"
         proxy.view_settings.look = 'None'
@@ -204,13 +166,14 @@ def _proxy(scene, root, path):
         proxy.render.use_file_extension = True
         proxy.render.use_sequencer = False
         proxy.render.use_compositing = scene.render.use_compositing or scene.hgt_output.post_processing
-        proxy.render.filepath = str(path)
+        proxy.render.filepath = str(job.temporary)
         if scene.compositing_node_group:
             proxy.compositing_node_group = _copy_compositor(scene.compositing_node_group, scene, proxy, job.resources)
         if scene.hgt_output.post_processing:
             post_processing.configure(proxy, root, job.resources)
         if proxy.compositing_node_group:
             _render_alpha(proxy)
+        presentation.background(job)
         return job
     except Exception:
         bpy.data.batch_remove(ids=job.resources)
@@ -259,19 +222,22 @@ def start(scene, root, invoke=False):
         raise ValueError("请等待当前渲染结束")
     if not root or not root.hgt_character.managed:
         raise ValueError("请先导入模型")
+    project_io.validate(root)
     if root.hgt_character.parts_version:
         subjects.validate(root)
         subjects.apply(root)
     camera = scene.hgt_output.camera
     if camera is None or camera.type != "CAMERA" or camera.name not in scene.objects:
         raise ValueError("请在输出中选择当前场景的相机")
-    if camera == root.hgt_character.camera:
+    if camera == root.hgt_character.camera and framing.is_auto(root):
         frame_camera(scene, root)
+    expressions.apply_values(root)
+    expressions.update_gaze(root, scene)
+    bpy.context.view_layer.update()
     path = output_path(scene)
     protect_assets(scene, path)
     path.parent.mkdir(parents=True, exist_ok=True)
     job = _proxy(scene, root, path)
-    job.previous_file = _file_signature(path)
     key = job.proxy.name
     _JOBS[key] = job
     scene.hgt_output.rendering = True
@@ -296,14 +262,17 @@ def _cleanup(key):
     job = _JOBS.pop(key)
     job.source.hgt_output.rendering = False
     bpy.data.batch_remove(ids=job.resources)
+    job.temporary.unlink(missing_ok=True)
 
 
 def finish(key):
     job = _JOBS[key]
     try:
         if job.state == "cancelled":
-            raise RuntimeError("渲染已取消")
+            raise RenderCancelled('渲染已取消')
         _validate_png(job)
+        # A cancelled or failed render never replaces an existing output file.
+        job.temporary.replace(job.path)
         job.source.hgt_output.last_render = str(job.path)
         return str(job.path)
     finally:
@@ -326,7 +295,13 @@ def protect_assets(scene, path):
 
 
 def job_state(key):
+    if key not in _JOBS:
+        raise RuntimeError('渲染任务已结束，请重新渲染')
     return _JOBS[key].state
+
+
+class RenderCancelled(RuntimeError):
+    pass
 
 
 @persistent

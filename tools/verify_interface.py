@@ -3,6 +3,7 @@ import argparse
 import ctypes
 import json
 import os
+import struct
 from pathlib import Path
 import shutil
 import sys
@@ -24,6 +25,7 @@ parser.add_argument('--candidate',type=Path)
 parser.add_argument('--mmd-tools',type=Path)
 parser.add_argument('--tab-click',type=int,nargs=2)
 parser.add_argument('--subjects',action='store_true')
+parser.add_argument('--workflow',action='store_true')
 parser.add_argument('--model-index',type=int)
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:])
 project=Path(__file__).resolve().parents[1]
@@ -34,6 +36,9 @@ index=json.loads(args.assets_index.read_text(encoding='utf-8'))
 report={'package_sha256':file_hash(args.candidate) if args.candidate else None,'integration_checks':{},'screenshots':[]}
 report['subject_checks']={}
 phase=-1
+capture_index=0
+panel_captures=[('view-panel.png',318),('display-panel.png',349),
+                ('expressions-panel.png',379),('output-panel.png',411)]
 started=time.monotonic()
 
 
@@ -128,6 +133,58 @@ def finish(error=None):
     bpy.ops.wm.quit_blender()
 
 
+def check_workflow_operators():
+    root=find_root();initial=root.hgt_character.shot
+    assert bpy.ops.ed.undo_push(message='Before framing')=={'FINISHED'}
+    assert bpy.ops.hgt.set_shot(shot='HEAD')=={'FINISHED'}
+    assert bpy.ops.ed.undo_push(message='Head framing')=={'FINISHED'}
+    assert bpy.ops.ed.undo()=={'FINISHED'}
+    assert find_root().hgt_character.shot==initial
+    assert bpy.ops.ed.redo()=={'FINISHED'}
+    assert find_root().hgt_character.shot=='HEAD'
+    assert bpy.ops.ed.undo()=={'FINISHED'}
+    root=find_root();settings=root.hgt_character
+    values=settings.light_azimuth,settings.light_elevation
+    assert bpy.ops.ed.undo_push(message='Before lighting')=={'FINISHED'}
+    assert bpy.ops.hgt.light_preset(preset='SIDE')=={'FINISHED'}
+    assert bpy.ops.ed.undo_push(message='Side light')=={'FINISHED'}
+    assert bpy.ops.ed.undo()=={'FINISHED'}
+    settings=find_root().hgt_character
+    assert (settings.light_azimuth,settings.light_elevation)==values
+    assert bpy.ops.ed.redo()=={'FINISHED'}
+    assert abs(find_root().hgt_character.light_azimuth+1)<1e-6
+    assert bpy.ops.ed.undo()=={'FINISHED'}
+    root=find_root();settings=root.hgt_character
+    item=settings.expressions[0];name=item.name;value=item.value
+    assert bpy.ops.ed.undo_push(message='Before expression')=={'FINISHED'}
+    item.value=.65;bpy.context.view_layer.update()
+    assert bpy.ops.ed.undo_push(message='Expression changed')=={'FINISHED'}
+    assert bpy.ops.ed.undo()=={'FINISHED'}
+    assert find_root().hgt_character.expressions[name].value==value
+    assert bpy.ops.ed.redo()=={'FINISHED'}
+    assert abs(find_root().hgt_character.expressions[name].value-.65)<1e-5
+    assert bpy.ops.ed.undo()=={'FINISHED'}
+    root=find_root()
+    if addon.panels.HGT_OT_look_camera.poll(bpy.context):
+        assert bpy.ops.ed.undo_push(message='Before gaze')=={'FINISHED'}
+        assert bpy.ops.hgt.look_camera()=={'FINISHED'}
+        assert bpy.ops.ed.undo_push(message='Gaze enabled')=={'FINISHED'}
+        assert bpy.ops.ed.undo()=={'FINISHED'}
+        assert not find_root().hgt_character.look_camera
+        assert bpy.ops.ed.redo()=={'FINISHED'}
+        assert find_root().hgt_character.look_camera and len(find_root().hgt_character.gaze_bones)==2
+        assert bpy.ops.ed.undo()=={'FINISHED'}
+        report['gaze_undo_redo']=True
+    report['integration_checks']['workflow_undo_redo']=True
+    root=find_root()
+    assert bpy.ops.hgt.output_size(preset='SQUARE')=={'FINISHED'}
+    assert (bpy.context.scene.hgt_output.width,bpy.context.scene.hgt_output.height)==(1024,1024)
+    assert bpy.ops.hgt.view_angle(angle='TURN')=={'FINISHED'}
+    assert abs(root.hgt_character.view_azimuth-.6)<1e-5
+    assert bpy.ops.hgt.reset_display()=={'FINISHED'}
+    report['integration_checks']['ui_workflow_controls']=True
+
+
 hide_own_window()
 runtime=out/'_runtime'
 better,_=copy_better(args.better_fbx,runtime)
@@ -152,8 +209,15 @@ def screenshot(name):
     report['screenshots'].append(name)
 
 
+def click_panel(y):
+    x,y=660,window.height-y
+    window.event_simulate(type='MOUSEMOVE',value='NOTHING',x=x,y=y)
+    window.event_simulate(type='LEFTMOUSE',value='PRESS',x=x,y=y)
+    window.event_simulate(type='LEFTMOUSE',value='RELEASE',x=x,y=y)
+
+
 def step():
-    global phase,render_start,uid,dialog_state
+    global phase,render_start,uid,dialog_state,capture_index
     try:
         hide_own_window()
         if time.monotonic()-started>180: raise TimeoutError('Hidden interface verification timed out')
@@ -209,6 +273,9 @@ def step():
                     bpy.utils.unregister_class(part_panel)
                     part_panel.bl_options=set()
                     bpy.utils.register_class(part_panel)
+                if args.workflow:
+                    check_workflow_operators()
+                    root=find_root();scene=bpy.context.scene
                 scene.hgt_output.width,scene.hgt_output.height=384,576
                 scene.hgt_output.filepath=str(out/'ui-render.png')
                 scene.hgt_target=root
@@ -240,10 +307,24 @@ def step():
                 return 2.0
             if phase==1:
                 screenshot('panel.png')
-                output_panel=addon.panels.HGT_PT_output
-                bpy.utils.unregister_class(output_panel)
-                output_panel.bl_options=set()
-                bpy.utils.register_class(output_panel)
+                if args.workflow:
+                    click_panel(panel_captures[0][1]);phase=14
+                else:
+                    click_panel(411);phase=17
+                return .5
+            if phase==14:
+                label,y=panel_captures[capture_index]
+                screenshot(label);click_panel(y);phase=15
+                return .5
+            if phase==15:
+                capture_index+=1
+                if capture_index<len(panel_captures):
+                    click_panel(panel_captures[capture_index][1]);phase=14
+                else:
+                    report['integration_checks']['ui_workflow_panels_opened']=True
+                    click_panel(411);phase=17
+                return .5
+            if phase==17:
                 if args.subjects:
                     dialog_state=part_state(find_root())
                     assert bpy.ops.hgt.manage_parts('INVOKE_DEFAULT')=={'RUNNING_MODAL'}
@@ -262,12 +343,45 @@ def step():
                 phase=2
                 return .5
             if phase==2:
+                if args.workflow and not report['integration_checks'].get('ui_cancel_signal_cleanup'):
+                    scene=bpy.context.scene
+                    scene.hgt_output.filepath=str(out/'cancelled.png')
+                    (out/'cancelled.png').write_bytes(b'previous output must survive')
+                    report['before_cancel_last_render']=scene.hgt_output.last_render
+                    def cancelled(*a,**kw):
+                        proxy=bpy.data.scenes[kw['scene']]
+                        path=Path(proxy.render.filepath)
+                        # A partial writer result must never reach the final path.
+                        path.write_bytes(b'\x89PNG\r\n\x1a\n'+struct.pack('>I',13)+b'IHDR'+struct.pack('>II',
+                            scene.hgt_output.width,scene.hgt_output.height))
+                        addon.rendering.render_cancel(proxy)
+                        return {'RUNNING_MODAL'}
+                    fake=SimpleNamespace(app=bpy.app,context=bpy.context,data=bpy.data,path=bpy.path,
+                        ops=SimpleNamespace(render=SimpleNamespace(render=cancelled)))
+                    with patch.object(addon.rendering,'bpy',fake):
+                        assert bpy.ops.hgt.render()=={'RUNNING_MODAL'}
+                    phase=21
+                    return .1
+                bpy.context.scene.hgt_output.width,bpy.context.scene.hgt_output.height=384,576
+                bpy.context.scene.hgt_output.filepath=str(out/'ui-render.png')
                 screenshot('output-panel.png')
                 bpy.ops.wm.save_as_mainfile(filepath=str(out/'ui-preview.blend'),relative_remap=False)
                 assert bpy.ops.hgt.render()=={'RUNNING_MODAL'}
                 render_start=time.monotonic()
                 phase=3
                 return .3
+            if phase==21:
+                if bpy.context.scene.hgt_output.rendering or bpy.app.is_job_running('RENDER'):
+                    return .2
+                assert not addon.rendering._JOBS
+                assert (out/'cancelled.png').read_bytes()==b'previous output must survive'
+                assert bpy.context.scene.hgt_output.last_render==report['before_cancel_last_render']
+                assert not list(out.glob('.hgt-*.png'))
+                report['cancel_method']='injected_render_cancel_callback_with_partial_file'
+                report['native_cancel_input']='pending_user_operation_acceptance'
+                report['integration_checks']['ui_cancel_signal_cleanup']=True
+                phase=2
+                return .2
             if phase==3:
                 if bpy.context.scene.hgt_output.rendering or bpy.app.is_job_running('RENDER'):
                     return .3

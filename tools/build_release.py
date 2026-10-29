@@ -14,9 +14,10 @@ ROOT=Path(__file__).resolve().parents[1]
 PAYLOAD={"__init__.py","asset_resolver.py","asset_tracking.py","eye_layers.py","importers.py","lighting.py","outlines.py",
          "mmd_importer.py","pmx_materials.py",
          "material_protocol.py","node_graph.py","normal_maps.py","eye_surfaces.py","textiles.py","reflections.py","sampling.py",
+         "framing.py","presentation.py","expressions.py","project_io.py",
          "panels.py","post_processing.py","properties.py","rendering.py","shaders.py","subjects.py","surface_layers.py","upstream_mapping.py","workflow.py",
          "assets/original_shader.blend","assets/original_controls.blend","assets/upstream.json",
-         "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE","docs/upstream-baseline.md","docs/basic-rendering.md","docs/pmx-rendering.md","docs/subjects.md"}
+         "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE","docs/upstream-baseline.md","docs/basic-rendering.md","docs/pmx-rendering.md","docs/subjects.md","docs/workflow.md"}
 
 
 def sha(data):
@@ -38,7 +39,9 @@ def validate_evidence(evidence,integration=False):
     if integration:
         required={'fresh_package_process','register_unregister','save_reload','undo_redo','ui_render_save',
                   'camera_framing','scene_preserved','transparent_alpha','post_alpha','errors_and_cleanup','ui_errors','png_preview'}
-        if evidence.get('scope') not in {'01–08','01–15','01–21','01–34'} or not all(evidence.get('integration_checks',{}).get(key) is True for key in required):
+        if evidence.get('scope')=='01–34 / 39–49':
+            required.update({'workflow_undo_redo','ui_workflow_controls','ui_cancel_signal_cleanup'})
+        if evidence.get('scope') not in {'01–08','01–15','01–21','01–34','01–34 / 39–49'} or not all(evidence.get('integration_checks',{}).get(key) is True for key in required):
             raise ValueError('08 integration evidence is required')
     return hashes
 
@@ -119,6 +122,20 @@ def validate_archive(path):
     return {name:sha((ROOT/name).read_bytes()) for name in sorted(PAYLOAD)}
 
 
+def validate_workflow(evidence, hashes, integration=False):
+    if evidence.get('scope')!='39–49' or evidence.get('source_sha256')!={k:v for k,v in hashes.items() if k.endswith('.py')}:
+        raise ValueError('Workflow verification does not match this runtime')
+    models=evidence.get('models',[])
+    flags=('source_data_unchanged','mmd_metadata_preserved','manual_camera_preserved','preset_response',
+           'expressions','gaze','pose_follow','reset_restored','background_floor','temporary_resources_clean')
+    if {m['format'] for m in models}!={'fbx','pmx'} or not all(all(m.get(k) is True for k in flags) for m in models):
+        raise ValueError('Real FBX and PMX workflow verification is incomplete')
+    if not evidence.get('checks') or not all(evidence['checks'].values()):
+        raise ValueError('Workflow lifecycle or relocation verification failed')
+    if integration and not evidence.get('package_sha256'):
+        raise ValueError('Installed workflow package verification is required')
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('action',choices=('candidate','release'))
@@ -127,6 +144,7 @@ def main():
     parser.add_argument('--pmx-verification',type=Path)
     parser.add_argument('--subjects-verification',type=Path)
     parser.add_argument('--materials-verification',type=Path)
+    parser.add_argument('--workflow-verification',type=Path)
     args=parser.parse_args()
     manifest=tomllib.loads((ROOT/'blender_manifest.toml').read_text(encoding='utf-8'))
     for name in PAYLOAD:
@@ -156,6 +174,12 @@ def main():
         if args.action=='release' and materials.get('package_sha256')!=evidence.get('package_sha256'):
             raise ValueError('Material verification must use the same candidate')
     candidate_dir=ROOT/'.build/candidate'
+    if tuple(map(int,manifest['version'].split('.'))) >= (1,0,0):
+        if not args.workflow_verification:raise ValueError('Workflow verification is required')
+        workflow=json.loads(args.workflow_verification.read_text(encoding='utf-8'))
+        validate_workflow(workflow,hashes,integration=args.action=='release')
+        if args.action=='release' and workflow.get('package_sha256')!=evidence.get('package_sha256'):
+            raise ValueError('Workflow verification must use the same candidate')
     candidate_dir.mkdir(parents=True,exist_ok=True)
     name=f"{manifest['id']}-{manifest['version']}.zip"
     candidate=candidate_dir/name
@@ -198,6 +222,8 @@ def main():
         summary['materials']={'checks':materials['checks'],'fixtures':materials['fixtures'],
                               'models':[{k:m[k] for k in ('name','format','source_data_unchanged','views')} for m in materials['models']],
                               'visual_acceptance':'pending_user_review'}
+    if args.workflow_verification:
+        summary['workflow']=workflow
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print('HGT_RELEASE_RECORD',name,record['sha256'],flush=True)
 

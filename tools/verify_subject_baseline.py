@@ -1,13 +1,16 @@
 """Compare the unchanged 0.5.3 shading and load its existing projects."""
 import argparse
+import ast
 import json
 from pathlib import Path
 import sys
+import zipfile
 
 sys.dont_write_bytecode=True
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import bpy
 import numpy as np
+from mathutils import Vector
 from verification_runtime import copy_better,load_mmd,load_addon,install_candidate,file_hash,unload_addon
 from verification_data import mesh_data
 
@@ -27,6 +30,14 @@ addon=install_candidate(args.candidate,out) if args.candidate else load_addon(ar
 payload=Path(addon.__file__).resolve().parent
 report={'package_sha256':file_hash(args.candidate) if args.candidate else None,
         'source_sha256':{p.name:file_hash(p) for p in payload.glob('*.py')},'comparisons':[],'checks':{}}
+camera_reference=project/'release/hoyo_gi_toon-0.5.3.zip'
+with zipfile.ZipFile(camera_reference) as archive:
+    reference_tree=ast.parse(archive.read('rendering.py').decode('utf-8'))
+camera_code=ast.Module(body=[node for node in reference_tree.body if isinstance(node,ast.FunctionDef)
+    and node.name in {'character_bounds','frame_camera'}],type_ignores=[])
+reference_namespace={'bpy':bpy,'Vector':Vector}
+exec(compile(camera_code,'published-0.5.3-framing','exec'),reference_namespace)
+report['camera_reference_sha256']=file_hash(camera_reference)
 fbx=json.loads(args.fbx_index.read_text(encoding='utf-8'))['models'][3]
 pmx=json.loads(args.pmx_index.read_text(encoding='utf-8'))['models'][2]
 
@@ -37,11 +48,16 @@ def pixels(path):
     return result
 
 
-def render(root,path):
+def render(root,path,reference_camera=False):
     scene=bpy.context.scene
     scene.hgt_target=root;scene.hgt_output.camera=root.hgt_character.camera
     scene.hgt_output.width,scene.hgt_output.height=480,720
     scene.hgt_output.transparent=True;scene.hgt_output.post_processing=False
+    if reference_camera:
+        # Compare shading with the exact published camera, independently of
+        # the new framing feature. Keep every pixel/alpha threshold intact.
+        reference_namespace['frame_camera'](scene,root)
+        root.hgt_character.auto_frame=False
     scene.hgt_output.filepath=str(path);addon.rendering.start(scene,root)
     return pixels(path)
 
@@ -58,7 +74,7 @@ def compare(before,after):
 for format,model in [('fbx',fbx),('pmx',pmx)]:
     bpy.ops.wm.read_homefile(use_empty=True,use_factory_startup=True)
     root=addon.workflow.build(model['path'],bpy.context)
-    path=out/(format+'-fresh.png');current=render(root,path)
+    path=out/(format+'-fresh.png');current=render(root,path,reference_camera=True)
     if args.reference:
         metrics=compare(pixels(args.reference/(format+'-fresh.png')),current)
         report['comparisons'].append({'source_format':format,'unchanged_shading':True,'pixels':metrics})
