@@ -75,6 +75,8 @@ class MaterialAssets:
     evidence: dict = field(default_factory=dict)
     unresolved: dict = field(default_factory=dict)
     features: dict = field(default_factory=dict)
+    source_format: str = 'fbx'
+    pmx: dict = field(default_factory=dict)
 
     def color(self, key, fallback):
         value = self.colors.get(key)

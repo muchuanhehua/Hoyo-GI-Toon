@@ -1,6 +1,6 @@
 # 模块来源与接入标准
 
-Hoyo-GI-Toon 通过独立模块组合基础 FBX 渲染流程，参考插件按功能取用，通过本项目接口连接。
+Hoyo-GI-Toon 通过独立模块组合 FBX、PMX 基础渲染流程，参考插件按功能取用，通过本项目接口连接。
 
 ## 来源与选用
 
@@ -14,13 +14,15 @@ Hoyo-GI-Toon 通过独立模块组合基础 FBX 渲染流程，参考插件按�
 | 输出与后期 | 晨星的场景资源归属，Hoyo-GI-Toon 现有输出逻辑 | 相机、图片输出、已有合成链的保留与透明通道 |
 | 后台验证 | Gacha Setup 的结果清单与完成检查，项目验证脚本 | 独立进程、明确完成结果、数据与渲染证据 |
 
-Better FBX 为独立安装依赖，通过 `better_import.fbx` 调用。其余参考实现按模块适配，不要求安装整套参考插件。
+Better FBX 与 MMD Tools 为独立安装依赖，按所选文件格式调用公开导入接口。其余参考实现按模块适配，不要求安装整套参考插件。
 
 ## 模块接口
 
 | 文件与入口 | 结果 | 边界 |
 |---|---|---|
 | `importers.import_character(filepath, context)` | `ImportBatch`：本次新增 ID、Operator、参数 | 先核对实际 RNA，再传递文件与数据保留参数；检查完成状态和网格 |
+| `mmd_importer.import_model` | MMD 模型根、骨架及修复前后记录 | 公开导入/修复接口，只处理本次导入实例 |
+| `pmx_materials.Catalog.resolve / build` | PMX 语义描述与渲染材质 | 原 Toon、Sphere、Alpha、双面与描边语义进入共用接口 |
 | `asset_tracking.derive_mesh / restore_mesh` | 派生网格、原 Mesh 引用、材质链接方式 | UV 与顶点色适配只作用于副本；原始形态键和属性保留 |
 | `asset_tracking.DataTransaction / remove_render_data` | 失败回滚、按归属清理 | 沿真实 ID 引用保留外部已使用的资源，不进行全场景清理 |
 | `AssetCatalog.resolve(name, material)` | `MaterialAssets`：用途、参数、贴图与匹配依据 | JSON 优先，结合导入材质 Base Color 与精确名称；限定所选资产包 |

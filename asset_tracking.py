@@ -1,5 +1,5 @@
 """Import batches, reversible render data and scoped failure cleanup."""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import bpy
 
 DATA_KINDS = ("objects", "collections", "meshes", "armatures", "materials", "node_groups",
@@ -22,7 +22,8 @@ def scene_state(context):
               (scene.render, "fps"), (scene.render, "fps_base"),
               (scene.render, "engine"), (scene.view_settings, "view_transform"),
               (scene.render, "film_transparent"), (scene.render.image_settings, "file_format"),
-              (scene.render.image_settings, "color_mode"), (scene, "camera"), (scene, "hgt_target"))
+              (scene.render.image_settings, "color_mode"), (scene, "camera"), (scene, "hgt_target"),
+              (scene, 'mmd_validation_results'))
     if hasattr(scene, "hgt_output"):
         fields += tuple((scene.hgt_output, name) for name in
                         ("camera", "width", "height", "transparent", "filepath", "post_processing"))
@@ -43,8 +44,16 @@ class DataTransaction:
         self.state = scene_state(context)
         self.selected = tuple(context.selected_objects)
         self.active = context.view_layer.objects.active
+        self.had_physics_world = context.scene.rigidbody_world is not None
 
     def rollback(self):
+        # MMD can create an embedded physics world, which is not a removable
+        # ID in bpy.data. Restore the absence of that world on a failed import.
+        if not self.had_physics_world and self.context.scene.rigidbody_world is not None:
+            with bpy.context.temp_override(scene=self.context.scene):
+                result = bpy.ops.rigidbody.world_remove()
+            if result != {'FINISHED'}:
+                raise RuntimeError('无法回滚本次导入创建的物理环境')
         created = new_data(self.before)
         # Batch removal resolves dependencies, including shape-key data, in one operation.
         bpy.data.batch_remove(ids={item for values in created.values() for item in values})
@@ -62,6 +71,10 @@ class ImportBatch:
     data: dict
     parameters: dict
     operator: str = "better_import.fbx"
+    source_format: str = 'fbx'
+    model_root: object = None
+    armature: object = None
+    repair: dict = field(default_factory=dict)
 
     @property
     def objects(self):
@@ -82,10 +95,10 @@ def derive_mesh(entry, uid):
     derived["hgt_owner"] = uid
     obj.data = derived
     entry.render_data = derived
-    if not derived.uv_layers.get("UV1"):
-        uv = derived.uv_layers.new(name="UV1")
-        source = entry.original_data.uv_layers.active
-        if source:
+    source = entry.original_data.uv_layers.active
+    for name in ("UV0", "UV1"):
+        if source and not derived.uv_layers.get(name):
+            uv = derived.uv_layers.new(name=name)
             # Preserve UV seams; the extra channel is a render alias of the source UV.
             values = [0.0] * (len(source.data) * 2)
             source.data.foreach_get("uv", values)

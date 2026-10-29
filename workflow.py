@@ -41,7 +41,11 @@ def assemble(batch, context):
             return root
     else:
         root = None
-    catalog = AssetCatalog(batch.source)
+    if batch.source_format == 'pmx':
+        from .pmx_materials import Catalog
+        catalog = Catalog(batch.source)
+    else:
+        catalog = AssetCatalog(batch.source)
     transaction = asset_tracking.DataTransaction(context)
     if root:
         collection = next(c for c in root.users_collection if c.get("hgt_owner") == root.hgt_character.uid)
@@ -57,7 +61,10 @@ def assemble(batch, context):
     settings.building = True
     settings.uid = settings.uid or uuid.uuid4().hex
     settings.source_file = batch.source
-    root["hgt_import"] = json.dumps({"operator": batch.operator, "parameters": batch.parameters})
+    settings.source_format = batch.source_format
+    settings.source_root, settings.source_armature = batch.model_root, batch.armature
+    root["hgt_import"] = json.dumps({"operator": batch.operator, "parameters": batch.parameters,
+                                    "format": batch.source_format})
     collection["hgt_owner"] = settings.uid
     try:
         for obj in batch.objects:
@@ -70,7 +77,12 @@ def assemble(batch, context):
                 entry.object = obj
                 entry.original_hidden = obj.hide_render
                 entry.original_view_hidden = obj.hide_get()
-                entry.participation, entry.participation_basis = surface_layers.participation(obj)
+                if batch.source_format == 'pmx':
+                    helper = getattr(obj, 'mmd_type', '') in {'RIGID_BODY', 'JOINT'}
+                    entry.participation = 'helper' if helper else 'surface'
+                    entry.participation_basis = 'MMD object type'
+                else:
+                    entry.participation, entry.participation_basis = surface_layers.participation(obj)
                 # Preview participation never deletes geometry or changes its rig.
                 # Permanent Avatar surfaces keep rendering even if named EffectMesh.
                 if entry.participation != 'surface':
@@ -87,14 +99,17 @@ def assemble(batch, context):
             if mesh.hide_render:
                 continue
             candidates = [(i, s.material) for i, s in enumerate(mesh.material_slots)
-                          if s.material and is_character_material(s.material)]
+                          if s.material and (batch.source_format == 'pmx' or is_character_material(s.material))]
             if not candidates:
                 continue
             if any(slot.material is None for slot in mesh.material_slots):
-                raise ValueError(f"{mesh.name} 的材质槽为空，请检查 FBX 材质")
+                raise ValueError(f"{mesh.name} 的材质槽为空，请检查模型材质")
             asset_tracking.derive_mesh(entry, settings.uid)
             for index, original in candidates:
                 assets = catalog.resolve(original.name, original)
+                if (assets.source_format == 'pmx' and assets.pmx['sphere_mode'] == '3'
+                        and entry.original_data.uv_layers.get('UV1') is None):
+                    raise ValueError(f'{original.name} 的 Sphere 子贴图需要原模型的附加 UV1')
                 key = original.as_pointer()
                 if key not in built:
                     generated, outline = library.build_material(assets)
@@ -113,7 +128,7 @@ def assemble(batch, context):
             lighting.attach(mesh, root, controls)
             outlines.build(mesh, root)
         if not built:
-            raise ValueError("没有可匹配的原神角色材质，请保留 Avatar_*_Mat_* 材质名称")
+            raise ValueError("没有可匹配的角色材质，请检查所选模型的原材质")
         library.finish()
         settings.managed = True
         settings.building = False

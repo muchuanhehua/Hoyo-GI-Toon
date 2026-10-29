@@ -44,6 +44,19 @@ def load_addon(folder, name='hoyo_gi_toon'):
     return addon
 
 
+def load_mmd(source, runtime):
+    """Unpack wheel data privately: OpenCC needs real files, not zip imports."""
+    source, runtime = Path(source).resolve(), Path(runtime).resolve()
+    dependencies = runtime / 'mmd_dependencies'
+    dependencies.mkdir(parents=True, exist_ok=True)
+    for wheel in (source/'wheels').glob('*.whl'):
+        with zipfile.ZipFile(wheel) as archive:
+            archive.extractall(dependencies)
+    sys.path.insert(0, str(dependencies))
+    sys.dont_write_bytecode = True
+    return load_addon(source, 'mmd_tools')
+
+
 def install_candidate(archive, output):
     import bpy
     configuration=Path(bpy.utils.user_resource('CONFIG')).resolve()

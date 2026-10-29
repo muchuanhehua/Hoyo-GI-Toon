@@ -25,6 +25,13 @@ Better FBX operator integration follows the interface documented in
 PaoloESAN/gacha-setup (local reference 3.8.3, utils/better_fbx_utils.py):
 https://github.com/PaoloESAN/gacha-setup
 Better FBX itself is a separately installed dependency and is not bundled.
+PMX import calls MMD Tools' public import and bone-repair operators; MMD Tools
+and its shared Toon textures remain separately installed dependencies.
+pmx_materials.py adapts material classification, neutral packed data, neutral
+shadow colors and additive coverage from Gacha Setup's utils/mmd_model_adapter.py.
+MMD head aliases and layered-eye handling are informed by Morningstar's
+_head_candidates and native eye/expression modules. Mixed-mesh outline batching
+uses the original native six-material graph on evaluated material partitions.
 eye_layers.py follows the alpha-composition principle of the native PupilaTodo
 group in Gacha Setup's GI shader resource. eye_surfaces.py uses connected surfaces
 and their depth to distinguish the clear eye surface, informed by Gacha Setup's

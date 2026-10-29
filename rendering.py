@@ -165,6 +165,22 @@ def _proxy(scene, root, path):
     job.resources.add(proxy)
     try:
         proxy.camera = scene.hgt_output.camera
+        # Scene.copy owns its master collection. Build this output's membership
+        # there, retaining all objects of the selected import without editing
+        # shared source collections or global object visibility.
+        for child in tuple(proxy.collection.children):
+            proxy.collection.children.unlink(child)
+        for obj in tuple(proxy.collection.objects):
+            proxy.collection.objects.unlink(obj)
+        collection = bpy.data.collections.new('HGT • Render Batch')
+        job.resources.add(collection)
+        proxy.collection.children.link(collection)
+        uid = root.hgt_character.uid
+        objects = {obj for obj in scene.objects if obj.get('hgt_owner') == uid
+                   or (obj.type == 'LIGHT' and not obj.get('hgt_owner'))}
+        objects.add(proxy.camera)
+        for obj in objects:
+            collection.objects.link(obj)
         proxy.render.engine = "BLENDER_EEVEE"
         proxy.view_settings.view_transform = "Standard"
         proxy.view_settings.look = 'None'

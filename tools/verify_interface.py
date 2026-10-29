@@ -12,13 +12,14 @@ import traceback
 sys.dont_write_bytecode=True
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import bpy
-from verification_runtime import copy_better,load_addon,install_candidate,file_hash,unload_addon
+from verification_runtime import copy_better,load_mmd,load_addon,install_candidate,file_hash,unload_addon
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--assets-index',type=Path,required=True)
 parser.add_argument('--better-fbx',type=Path,required=True)
 parser.add_argument('--output-dir',type=Path,required=True)
 parser.add_argument('--candidate',type=Path)
+parser.add_argument('--mmd-tools',type=Path)
 parser.add_argument('--tab-click',type=int,nargs=2)
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:])
 project=Path(__file__).resolve().parents[1]
@@ -62,6 +63,7 @@ def finish(error=None):
 hide_own_window()
 runtime=out/'_runtime'
 better,_=copy_better(args.better_fbx,runtime)
+mmd=load_mmd(args.mmd_tools,runtime) if args.mmd_tools else None
 addon=install_candidate(args.candidate,out) if args.candidate else load_addon(project)
 bpy.ops.wm.read_homefile(use_empty=True,use_factory_startup=True)
 bpy.context.preferences.view.show_splash=False
@@ -95,7 +97,9 @@ def step():
                 return .5
             if phase==0:
                 assert bpy.ops.ed.undo_push(message='HGT empty scene')=={'FINISHED'}
+                if mmd: better.unregister()
                 assert bpy.ops.hgt.import_character(filepath=index['models'][1]['path'])=={'FINISHED'}
+                if mmd: better.register()
                 uid=find_root().hgt_character.uid
                 assert bpy.ops.ed.undo_push(message='HGT imported')=={'FINISHED'}
                 assert bpy.ops.ed.undo()=={'FINISHED'}
@@ -120,11 +124,12 @@ def step():
                 except RuntimeError as exc: assert '模型文件不存在' in str(exc)
                 else: raise AssertionError('Missing-file operator did not report an error')
                 assert before==addon.workflow.asset_tracking.data_pointers()
-                better.unregister()
+                dependency=mmd if mmd else better
+                dependency.unregister()
                 try: bpy.ops.hgt.import_character(filepath=index['models'][0]['path'])
-                except RuntimeError as exc: assert 'Better FBX' in str(exc)
+                except RuntimeError as exc: assert ('MMD Tools' if mmd else 'Better FBX') in str(exc)
                 else: raise AssertionError('Missing-dependency operator did not report an error')
-                better.register()
+                dependency.register()
                 report['integration_checks']['ui_errors']=True
                 scene.hgt_output.width,scene.hgt_output.height=384,576
                 scene.hgt_output.filepath=str(out/'ui-render.png')
@@ -184,6 +189,7 @@ def step():
                 write_report()
                 unload_addon(addon)
                 better.unregister()
+                if mmd:mmd.unregister()
                 finish()
                 return None
     except Exception:

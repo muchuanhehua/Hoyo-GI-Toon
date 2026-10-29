@@ -24,10 +24,10 @@ def scalar(value):
     if isinstance(value, bpy.types.ID):
         return value.as_pointer()
     if hasattr(value, 'to_list'):
-        return value.to_list()
+        return scalar(value.to_list())
     if isinstance(value, (str, int, float, bool)) or value is None:
         return value
-    return list(value)
+    return [scalar(v) for v in value]
 
 
 def properties(item):
@@ -77,6 +77,7 @@ def source_snapshot(batch):
             'weights':digest([(v.index,[(g.group, g.weight) for g in v.groups]) for v in obj.data.vertices]) if obj.type=='MESH' else None,
             'groups':[(g.name,g.index,g.lock_weight) for g in obj.vertex_groups] if obj.type=='MESH' else [],
             'modifiers': [properties(m) for m in obj.modifiers if not (m.type=='NODES' and m.node_group and m.node_group.get('hgt_owner'))],
+            'constraints': [properties(c) for c in obj.constraints],
         }
     for mesh in batch.data.get('meshes', ()):
         result['meshes'][str(mesh.as_pointer())] = mesh_data(mesh)
@@ -101,4 +102,36 @@ def source_snapshot(batch):
         result['actions'][str(action.as_pointer())] = [(f.data_path,f.array_index,
                 [(list(k.co), k.interpolation, list(k.handle_left), list(k.handle_right)) for k in f.keyframe_points])
                 for bag in bags for f in bag.fcurves]
+    return result
+
+
+def mmd_snapshot(batch):
+    """MMD morphs, display references, rigid bodies, constraints and bone metadata."""
+    def rna(item):
+        result = {}
+        for prop in item.bl_rna.properties:
+            name = prop.identifier
+            if name in {'rna_type', 'id_data'}:
+                continue
+            value = getattr(item, name)
+            if prop.type == 'COLLECTION':
+                result[name] = [rna(child) for child in value]
+            elif prop.type == 'POINTER':
+                result[name] = scalar(value) if isinstance(value, bpy.types.ID) else None
+            else:
+                result[name] = scalar(value)
+        return result
+    result = {'objects': {}, 'materials': {}, 'poses': {}}
+    for obj in batch.objects:
+        result['objects'][obj.name] = {name: rna(getattr(obj, name)) for name in
+            ('mmd_root','mmd_rigid','mmd_joint') if hasattr(obj,name)}
+        if obj.rigid_body:
+            result['objects'][obj.name]['rigid_body'] = properties(obj.rigid_body)
+        if obj.rigid_body_constraint:
+            result['objects'][obj.name]['rigid_body_constraint'] = properties(obj.rigid_body_constraint)
+        if obj.type == 'ARMATURE':
+            result['poses'][obj.name] = {b.name: {'mmd':rna(b.mmd_bone),'basis':matrix(b.matrix_basis),
+                'constraints':[properties(c) for c in b.constraints]} for b in obj.pose.bones}
+    for material in batch.data.get('materials', ()):
+        result['materials'][material.name] = rna(material.mmd_material)
     return result

@@ -21,10 +21,10 @@ def report_error(operator, error):
 class HGT_OT_import_character(Operator, ImportHelper):
     bl_idname = "hgt.import_character"
     bl_label = "导入模型"
-    bl_description = "选择 FBX 并读取配套材质和贴图"
+    bl_description = "选择 FBX 或 PMX，并读取配套材质和贴图"
     bl_options = {"REGISTER", "UNDO"}
     filename_ext = ".fbx"
-    filter_glob: StringProperty(default="*.fbx", options={"HIDDEN"})
+    filter_glob: StringProperty(default="*.fbx;*.pmx", options={"HIDDEN"})
 
     def execute(self, context):
         try:

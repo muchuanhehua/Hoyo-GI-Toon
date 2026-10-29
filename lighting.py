@@ -11,10 +11,17 @@ def light_direction(settings):
 
 
 def build(root, collection, imported, library):
+    settings = root.hgt_character
+    def is_head(bone):
+        if settings.source_format != 'pmx':
+            return bone.name.casefold().split()[-1] == 'head'
+        names = (bone.name, bone.mmd_bone.name_j, bone.mmd_bone.name_e)
+        return any(name.strip().casefold() in {'head', '頭', '头', 'あたま', 'atama'} for name in names)
     heads = [(obj, bone) for obj in imported if obj.type == "ARMATURE"
-             for bone in obj.pose.bones if bone.name.casefold().split()[-1] == "head"]
+             and (settings.source_format != 'pmx' or obj == settings.source_armature)
+             for bone in obj.pose.bones if is_head(bone)]
     if len(heads) != 1:
-        raise ValueError("无法确定角色头骨，请保留唯一的 Head 骨骼名称")
+        raise ValueError("无法确定唯一头骨，请检查 Head / 頭 骨骼及 MMD 骨骼名称")
     armature, bone = heads[0]
     controls = library.controls(collection)
     head = controls["Head Origin"]

@@ -1,4 +1,4 @@
-"""The single model entry calls the installed Better FBX public operator."""
+"""One file entry routes FBX to Better FBX and PMX to native MMD Tools."""
 from pathlib import Path
 import bpy
 from .asset_tracking import DataTransaction, ImportBatch, new_data, restore_state
@@ -66,10 +66,14 @@ def import_character(filepath, context=None):
     path = Path(filepath).resolve()
     if not path.is_file():
         raise ValueError("模型文件不存在")
-    if path.suffix.lower() != ".fbx":
-        raise ValueError("请选择 FBX 模型")
+    extension = path.suffix.lower()
+    if extension not in {'.fbx', '.pmx'}:
+        raise ValueError('请选择 FBX 或 PMX 模型')
     if context.object and context.object.mode != "OBJECT":
         raise ValueError("请先退出编辑或姿态模式，再导入模型")
+    if extension == '.pmx':
+        from .mmd_importer import import_model
+        return import_model(path, context)
     operator = bpy.ops.better_import.fbx
     options = better_fbx_options(path, operator)
     transaction = DataTransaction(context)

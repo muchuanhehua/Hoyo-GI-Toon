@@ -184,6 +184,9 @@ class ShaderLibrary:
             node.inputs["[Loli/Boy/Girl/Male/Lady]"].default_value = face_type
 
     def build_material(self, assets):
+        if assets.source_format == 'pmx':
+            from . import pmx_materials
+            return pmx_materials.build(self, assets)
         diffuse_name = assets.textures.get("diffuse", Path("")).stem
         if assets.role in {"face", "eye", "brow"} and "_Tex_Face_" in diffuse_name:
             kind = "Face"
