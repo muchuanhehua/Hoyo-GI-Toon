@@ -1,0 +1,118 @@
+{
+  "scope": "01–15",
+  "version": "0.5.3",
+  "archive_sha256": "612f29b890caab2b5860fb5ab6ddec6225a391713dd2314029e66b1935780dcf",
+  "integration_checks": {
+    "camera_framing": true,
+    "scene_preserved": true,
+    "transparent_alpha": true,
+    "post_alpha": true,
+    "render_save": true,
+    "errors_and_cleanup": true,
+    "register_unregister": true,
+    "save_reload": true,
+    "fresh_package_process": true,
+    "undo_redo": true,
+    "ui_errors": true,
+    "ui_render_save": true
+  },
+  "core_sha256": {
+    "__init__.py": "433e698a350e1392cffff7ffdafdc8dcceaa36a52fc7a7054f6fb4998cd2d2a7",
+    "asset_resolver.py": "1c3672a1cd11067d660eec2205f2e4eb8d78cd01ee9b2ea368949e59d8814f4c",
+    "asset_tracking.py": "cd530dbc2919c5e095e55f719c496b1ee922d1017bdd9dccddc6f2f6a6baa3b8",
+    "eye_layers.py": "b93b0575f7ac8d404a68a806f6b3c3f0c86deeb959998832811d6cf086c3f2f5",
+    "eye_surfaces.py": "2124cb99bbf503ebe402d86837502489cfadac245995856e6d4a6885679bc78c",
+    "importers.py": "2a14736eff94c91a13554badf4ba1a6986f0b36733c7d973d4f8578ab260fb62",
+    "lighting.py": "96759ed315b056a4477bf49714182f8a97450ebf726d71bc9e6257bb063a031b",
+    "material_protocol.py": "6602ddbafc5912bf6439592dab94af84cc97ec6abf8006165fe0cde33dc33b26",
+    "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+    "node_graph.py": "52f529ac823f8fb2f1f5804ab41f3f00f715c872ae8975194484dacd707527c1",
+    "normal_maps.py": "4fb5b95ed846ef22ee7895bb127d43ebfa6514cab6334c98e43fc786a67e0f6f",
+    "outlines.py": "f28f782a511c69af3680f85cb2f3777955dcab2599f21f8bbab785781d021943",
+    "panels.py": "62a77567ae614cefec20d7c762eeeee68f9579938039fc3271cee062d638ce15",
+    "pmx_materials.py": "0a4fd2b8596d3ae9d52304d74fa6ec25d1c536933ac171e76de2d961d49f146a",
+    "post_processing.py": "cb200b98192aef16bb327dbd8f55d61f9a54ff909af6cb46556df1e7d9045979",
+    "properties.py": "0e97fb51677ac6fbbc92db0d0fdc0bfd0128ea11f449311932220afb7d44d4cf",
+    "reflections.py": "345a22b93a41aff8e613dd2a73c70c665eab1de43953fd141ff91224b8d6986d",
+    "rendering.py": "0d23d6cda6d665731973fc10f4f61ba090a594c1d01a0a52016e021b53b2b55a",
+    "shaders.py": "253fdecba4e899b5fef876f301d62de448f3edf4ef359aac5402fea925043821",
+    "surface_layers.py": "bea9507c65af219de7818b2f11d24900198d89f5b3e5984c4d8f4610921c49c2",
+    "textiles.py": "9a481cab063e1a97c154ea798dba77288a7d34155d1e1d48dd3585d7bde7f33d",
+    "upstream_mapping.py": "3da1b73d944c8456ed626ce28b1e5ff26f3f8becf30bebf89aa0236bea8a5f32",
+    "workflow.py": "f4eb423a670c503e79fe62936e444c102b5987cc1e2863662e227baee4c0817e",
+    "assets/original_controls.blend": "d7149f6040356c466e0e3eca69fb37e3bde05e64792b7efaaa043acacb41ae14",
+    "assets/original_shader.blend": "a298539803090c585345b732bb0c330d510df59ce90942aa37c8fe4b28c22fd2",
+    "assets/upstream.json": "ee8dacd35e3dc6ffcbe30543d0d4bfb20ee6b3ab2547e9de8ff6fca00735de20"
+  },
+  "models": [
+    {
+      "name": "安柏",
+      "objects": 72,
+      "meshes": 7,
+      "materials": 3,
+      "source_data_unchanged": true
+    },
+    {
+      "name": "刻晴",
+      "objects": 64,
+      "meshes": 6,
+      "materials": 4,
+      "source_data_unchanged": true
+    },
+    {
+      "name": "奥黛塔",
+      "objects": 61,
+      "meshes": 10,
+      "materials": 8,
+      "source_data_unchanged": true
+    },
+    {
+      "name": "尼可",
+      "objects": 66,
+      "meshes": 12,
+      "materials": 9,
+      "source_data_unchanged": true
+    }
+  ],
+  "pmx": {
+    "checks": {
+      "save_reload": true,
+      "empty_scene_failure_rollback": true,
+      "assembly_failure_rollback": true,
+      "two_imports_isolated": true,
+      "import_repair_failure_rollback": true,
+      "missing_mmd_dependency": true,
+      "register_unregister": true
+    },
+    "models": [
+      {
+        "name": "安柏",
+        "materials": 8,
+        "source_data_unchanged": true,
+        "mmd_metadata_unchanged": true,
+        "original_mesh_refs_restored": true
+      },
+      {
+        "name": "纳西妲",
+        "materials": 23,
+        "source_data_unchanged": true,
+        "mmd_metadata_unchanged": true,
+        "original_mesh_refs_restored": true
+      },
+      {
+        "name": "奥黛塔",
+        "materials": 39,
+        "source_data_unchanged": true,
+        "mmd_metadata_unchanged": true,
+        "original_mesh_refs_restored": true
+      }
+    ]
+  },
+  "formats": {
+    "mixed_formats": true,
+    "independent_render": true,
+    "restore_isolated": true,
+    "source_data_preserved": true,
+    "mmd_metadata_preserved": true
+  }
+}
