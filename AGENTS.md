@@ -35,6 +35,6 @@
 - 用户已授权本项目必要的 Blender 验证在后台自行完成。使用独立进程和工程，当前前台工程保持独立。
 - 私有资产索引为 `.verification/development/assets.json`；测试工程和原始证据均放在忽略的 `.verification/`，不进入发布仓库和安装包。
 - 每项交付记录实际代码范围、数据核对、图片或工程、已执行检查与用户验收结论。仅验证本次改动及其影响范围。
-- 已发布版本为 `0.2.2`。本轮计划的功能状态以开发记录为准，不使用既有版本的结果代替新流程验收。
+- 已发布版本为 `0.5.3`。本轮计划的功能状态以开发记录为准，不使用发布授权代替外观验收。
 - GitHub 仓库为 `https://github.com/muchuanhehua/Hoyo-GI-Toon`。扩展 ID 为 `hoyo_gi_toon`，本地模块为 `bl_ext.Hoyo_GI_Toon.hoyo_gi_toon`。
 - 发布索引为 `release/index.json`。安装包载荷变化递增版本；已发布标签和 ZIP 保持不变。完成最终用户验收后再发布和更新本地安装。

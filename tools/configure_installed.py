@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import sys
 import bpy
+import addon_utils
 
 URL = "https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/main/release/index.json"
 ROOT = Path(__file__).resolve().parents[1]
@@ -14,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--check-only", action="store_true")
+    parser.add_argument("--output-dir", type=Path)
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else [])
     prefs = bpy.context.preferences
     before_addons = set(prefs.addons.keys())
@@ -42,6 +44,9 @@ def main():
     installed = Path(addon.__file__).resolve().parent
     manifest = json.loads((ROOT / "release/index.json").read_text(encoding="utf-8"))["data"][0]
     record = json.loads((ROOT / f"release/build-v{manifest['version']}.json").read_text(encoding="utf-8"))
+    registered_version = '.'.join(map(str, addon_utils.module_bl_info(addon)['version']))
+    if registered_version != manifest['version']:
+        raise RuntimeError('已加载版本与发布版本不一致：' + registered_version)
     for name, expected in record["payload"].items():
         if hashlib.sha256((installed / name).read_bytes()).hexdigest() != expected:
             raise RuntimeError("安装文件与发布包不一致：" + name)
@@ -54,9 +59,14 @@ def main():
     if not args.check_only:
         bpy.ops.wm.save_userpref()
     report = {"version":manifest["version"], "module":module_name, "repository":URL,
+              "registered_version":registered_version,
               "directory":str(installed), "payload_files_verified":len(record["payload"]),
               "existing_preferences_preserved":True, "fresh_process":args.check_only}
-    output = ROOT / (".verification/original/installed-fresh-process.json" if args.check_only else ".verification/original/installed.json")
+    directory = (args.output_dir or ROOT / '.verification/original').resolve()
+    if not directory.is_relative_to(ROOT / '.verification'):
+        raise ValueError('安装验证记录须保存在项目 .verification 目录')
+    directory.mkdir(parents=True, exist_ok=True)
+    output = directory / ('installed-fresh-process.json' if args.check_only else 'installed.json')
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     print("HGT_INSTALLED", json.dumps(report, ensure_ascii=False), flush=True)
 
