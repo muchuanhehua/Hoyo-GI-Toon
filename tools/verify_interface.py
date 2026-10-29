@@ -21,6 +21,7 @@ parser.add_argument('--output-dir',type=Path,required=True)
 parser.add_argument('--candidate',type=Path)
 parser.add_argument('--mmd-tools',type=Path)
 parser.add_argument('--tab-click',type=int,nargs=2)
+parser.add_argument('--subjects',action='store_true')
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:])
 project=Path(__file__).resolve().parents[1]
 out=args.output_dir.resolve()
@@ -28,6 +29,7 @@ assert out.is_relative_to(project/'.verification')
 out.mkdir(parents=True,exist_ok=True)
 index=json.loads(args.assets_index.read_text(encoding='utf-8'))
 report={'package_sha256':file_hash(args.candidate) if args.candidate else None,'integration_checks':{},'screenshots':[]}
+report['subject_checks']={}
 phase=-1
 started=time.monotonic()
 
@@ -50,6 +52,69 @@ def write_report():
 
 def find_root():
     return next(obj for obj in bpy.context.scene.objects if obj.hgt_character.managed)
+
+
+def part_state(root):
+    return [(p.key,p.role,p.included,p.locked) for p in root.hgt_character.parts]
+
+
+def check_display(root):
+    # Let the normal depsgraph handler update undo/redo, without forcing masks.
+    bpy.context.view_layer.update()
+    for entry in root.hgt_character.meshes:
+        selected={p.key for p in root.hgt_character.parts if p.object==entry.object and p.included and not p.locked}
+        assert entry.object.hide_render==(not bool(selected))
+        if entry.render_data:
+            ids=entry.render_data.attributes['hgt_part_id'].data
+            visible=entry.render_data.attributes['hgt_part_visible'].data
+            assert all(v.value==(i.value in selected) for i,v in zip(ids,visible))
+            assert 'hgt_part_id' not in entry.original_data.attributes
+
+
+def check_subject_operators():
+    root=find_root()
+    original=part_state(root)
+    part=next(p for p in root.hgt_character.parts if not p.locked and p.role in {'WEAPON','GLIDER','EFFECT'})
+    key=part.key
+    scale=root.hgt_character.camera.data.ortho_scale
+    assert bpy.ops.ed.undo_push(message='HGT before attachment')=={'FINISHED'}
+    assert bpy.ops.hgt.toggle_part(key=key)=={'FINISHED'}
+    assert next(p for p in find_root().hgt_character.parts if p.key==key).included
+    assert bpy.ops.ed.undo_push(message='HGT attachment shown')=={'FINISHED'}
+    assert bpy.ops.ed.undo()=={'FINISHED'}
+    root=find_root();check_display(root)
+    assert part_state(root)==original
+    assert abs(root.hgt_character.camera.data.ortho_scale-scale)<1e-6
+    assert bpy.ops.ed.redo()=={'FINISHED'}
+    root=find_root();check_display(root)
+    assert next(p for p in root.hgt_character.parts if p.key==key).included
+    assert bpy.ops.ed.undo()=={'FINISHED'}
+    root=find_root();check_display(root)
+    assert part_state(root)==original
+    report['subject_checks']['toggle_undo_redo']=True
+    edits=[{'name':str(p.key),'key':p.key,'label':p.name,'role':'BODY' if p.key==key else p.role,
+            'included':True if p.key==key else p.included} for p in root.hgt_character.parts if not p.locked]
+    assert bpy.ops.ed.undo_push(message='HGT before grouping')=={'FINISHED'}
+    assert bpy.ops.hgt.manage_parts(parts=edits)=={'FINISHED'}
+    assert next(p for p in root.hgt_character.parts if p.key==key).role=='BODY'
+    assert bpy.ops.ed.undo_push(message='HGT grouped')=={'FINISHED'}
+    assert bpy.ops.ed.undo()=={'FINISHED'}
+    root=find_root();check_display(root)
+    assert part_state(root)==original
+    assert bpy.ops.ed.redo()=={'FINISHED'}
+    root=find_root();check_display(root)
+    assert next(p for p in root.hgt_character.parts if p.key==key).role=='BODY'
+    assert bpy.ops.ed.undo()=={'FINISHED'}
+    root=find_root();check_display(root)
+    assert part_state(root)==original
+    report['subject_checks']['group_undo_redo']=True
+    edits=[{'name':str(p.key),'key':p.key,'label':p.name,'role':p.role,'included':False}
+           for p in root.hgt_character.parts if not p.locked]
+    try:bpy.ops.hgt.manage_parts(parts=edits)
+    except RuntimeError as exc:assert '至少选择一个' in str(exc)
+    else:raise AssertionError('Empty selection was accepted')
+    assert part_state(root)==original
+    report['subject_checks']['empty_selection_rollback']=True
 
 
 def finish(error=None):
@@ -85,7 +150,7 @@ def screenshot(name):
 
 
 def step():
-    global phase,render_start,uid
+    global phase,render_start,uid,dialog_state
     try:
         hide_own_window()
         if time.monotonic()-started>180: raise TimeoutError('Hidden interface verification timed out')
@@ -97,9 +162,11 @@ def step():
                 return .5
             if phase==0:
                 assert bpy.ops.ed.undo_push(message='HGT empty scene')=={'FINISHED'}
-                if mmd: better.unregister()
-                assert bpy.ops.hgt.import_character(filepath=index['models'][1]['path'])=={'FINISHED'}
-                if mmd: better.register()
+                model=index['models'][0 if args.subjects else 1]
+                is_pmx=Path(model['path']).suffix.lower()=='.pmx'
+                if is_pmx: better.unregister()
+                assert bpy.ops.hgt.import_character(filepath=model['path'])=={'FINISHED'}
+                if is_pmx: better.register()
                 uid=find_root().hgt_character.uid
                 assert bpy.ops.ed.undo_push(message='HGT imported')=={'FINISHED'}
                 assert bpy.ops.ed.undo()=={'FINISHED'}
@@ -124,13 +191,21 @@ def step():
                 except RuntimeError as exc: assert '模型文件不存在' in str(exc)
                 else: raise AssertionError('Missing-file operator did not report an error')
                 assert before==addon.workflow.asset_tracking.data_pointers()
-                dependency=mmd if mmd else better
+                dependency=mmd if is_pmx else better
                 dependency.unregister()
                 try: bpy.ops.hgt.import_character(filepath=index['models'][0]['path'])
-                except RuntimeError as exc: assert ('MMD Tools' if mmd else 'Better FBX') in str(exc)
+                except RuntimeError as exc: assert ('MMD Tools' if is_pmx else 'Better FBX') in str(exc)
                 else: raise AssertionError('Missing-dependency operator did not report an error')
                 dependency.register()
                 report['integration_checks']['ui_errors']=True
+                if args.subjects:
+                    check_subject_operators()
+                    root=find_root()
+                    scene=bpy.context.scene
+                    part_panel=addon.panels.HGT_PT_parts
+                    bpy.utils.unregister_class(part_panel)
+                    part_panel.bl_options=set()
+                    bpy.utils.register_class(part_panel)
                 scene.hgt_output.width,scene.hgt_output.height=384,576
                 scene.hgt_output.filepath=str(out/'ui-render.png')
                 scene.hgt_target=root
@@ -166,8 +241,23 @@ def step():
                 bpy.utils.unregister_class(output_panel)
                 output_panel.bl_options=set()
                 bpy.utils.register_class(output_panel)
-                phase=2
+                if args.subjects:
+                    dialog_state=part_state(find_root())
+                    assert bpy.ops.hgt.manage_parts('INVOKE_DEFAULT')=={'RUNNING_MODAL'}
+                    phase=12
+                else:phase=2
                 return 1.0
+            if phase==12:
+                screenshot('group-dialog.png')
+                window.event_simulate(type='ESC',value='PRESS')
+                window.event_simulate(type='ESC',value='RELEASE')
+                phase=13
+                return .5
+            if phase==13:
+                assert part_state(find_root())==dialog_state
+                report['subject_checks']['dialog_cancel']=True
+                phase=2
+                return .5
             if phase==2:
                 screenshot('output-panel.png')
                 bpy.ops.wm.save_as_mainfile(filepath=str(out/'ui-preview.blend'),relative_remap=False)

@@ -8,6 +8,7 @@ Hoyo-GI-Toon 通过独立模块组合 FBX、PMX 基础渲染流程，参考插�
 |---|---|---|
 | Better FBX 接入 | Gacha Setup 3.8.3 的 `better_fbx_utils` | 公开 Operator 调用、参数核对和实际导入结果检查 |
 | 资产归属与资源隔离 | 晨星 Festivity 渲染助手 1.0.2.1 的 `character_system`，Hoyo-GI-Toon 现有事务逻辑 | 对象与资源归属、共享数据处理、引用重定向和恢复 |
+| 主体与附件管理 | 晨星 `character_system`、FBX 角色分组与 MMD 类型识别，Gacha Setup 原神导入流程 | 采用导入批次与骨架引用限定范围；显示筛选作用于派生网格，保留原网格与挂接 |
 | 资产解析与材质规则 | Gacha Setup 的原神分支，Hoyo-GI-Toon 的资源解析 | 材质 JSON、贴图角色、原材质引用及精确匹配 |
 | 基础着色与光照 | Festivity 原生可用节点、已选参考实现 | Body、Hair、Face、Light Vectors 与头部控制器 |
 | 描边 | 原生几何节点与材质参数映射 | 材质分区、描边颜色、宽度和修改器顺序 |
@@ -25,6 +26,7 @@ Better FBX 与 MMD Tools 为独立安装依赖，按所选文件格式调用公�
 | `pmx_materials.Catalog.resolve / build` | PMX 语义描述与渲染材质 | 原 Toon、Sphere、Alpha、双面与描边语义进入共用接口 |
 | `asset_tracking.derive_mesh / restore_mesh` | 派生网格、原 Mesh 引用、材质链接方式 | UV 与顶点色适配只作用于副本；原始形态键和属性保留 |
 | `asset_tracking.DataTransaction / remove_render_data` | 失败回滚、按归属清理 | 沿真实 ID 引用保留外部已使用的资源，不进行全场景清理 |
+| `subjects.initialize / classify / set_part / apply` | 统一部件记录、识别依据、派生面属性与可恢复显示 | 源材质槽、实际蒙皮骨与连通表面参与识别；未知用途保留显示，通过共用界面纠正 |
 | `AssetCatalog.resolve(name, material)` | `MaterialAssets`：用途、参数、贴图与匹配依据 | JSON 优先，结合导入材质 Base Color 与精确名称；限定所选资产包 |
 | `shaders.ShaderLibrary.build_material(assets)` | 渲染材质和对应描边材质 | Body、Hair、Face、基础眼部与 Alpha；含贴图路径按材质独立 |
 | `material_protocol.describe / normal_maps.apply` | 实际启用分支、切线或高度法线 | 按父开关、引用和强度校验，不位移原几何 |
@@ -34,7 +36,7 @@ Better FBX 与 MMD Tools 为独立安装依赖，按所选文件格式调用公�
 | `lighting.build / attach / update` | 头部参照、光向控制、Light Vectors | 只引用导入骨架，保留骨架数据和层级；参数更新不重复创建资源 |
 | `outlines.build / update` | 按材质分区的描边修改器 | 沿用材质颜色，位于原始修改器和 Light Vectors 之后，不应用到网格 |
 | `workflow.build / assemble / restore` | 资产根对象、装配或恢复结果 | 编排上述模块；同批重复装配复用根对象和已建资源 |
-| `rendering.prepare / frame_camera / preview` | 自有相机与视图预览 | 按有姿态的角色网格构图，保留原始修改器和用户相机 |
+| `rendering.prepare / frame_camera / preview` | 自有相机与视图预览 | 按有姿态且已勾选的表面构图，保留原始修改器和用户相机 |
 | `rendering.start / finish` | PNG、完成或取消结果 | 临时场景独立设置尺寸与透明背景，检查真实文件和 PNG 尺寸后清理资源 |
 | `post_processing.configure` | 渲染副本的后期节点 | 保留原合成链，最终 Alpha 在输出模块统一恢复 |
 | `panels` | 导入、外观、光照、输出和渲染操作 | 一个导入入口，常用参数直接展示，其余折叠；错误使用 Blender 原生报告 |
@@ -46,6 +48,8 @@ Better FBX 与 MMD Tools 为独立安装依赖，按所选文件格式调用公�
 原生资源保留 Toon 明暗、脸部 SDF、Fresnel、高光、金属、Alpha 与材质描边路径。资源编译入口为 `tools/build_shader_library.py`，节点选择规则为 `tools/native_shader_paths.py`，输入版本与摘要保存在 `assets/upstream.json`。
 
 后台验证入口为 `tools/verify_development.py`、`tools/verify_integration.py` 和 `tools/verify_interface.py`，分别覆盖模型数据、输出与保存重开、真实界面及撤销重做。验证可将候选 ZIP 安装到项目内隔离仓库，再读取实际安装文件执行。私人路径与工程保留在 `.verification/`。
+
+`tools/verify_subjects.py` 检查真实风之翼、技能附件、两种格式的同材质混合网格夹具、保存重开、恢复与回滚；`verify_interface.py --subjects` 检查真实分组操作和撤销重做。主体管理及旧工程约定见 [主体与附件](subjects.md)。
 
 `tools/build_release.py candidate` 生成并校验候选包。整体验收后，`release` 子命令只将已验证的候选字节推广为发布包并更新索引，历史 ZIP 不覆盖。
 

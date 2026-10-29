@@ -88,6 +88,10 @@ class ImportBatch:
 def derive_mesh(entry, uid):
     """Render-only aliases and material slots never alter the imported Mesh ID."""
     obj = entry.object
+    if entry.original_data:
+        if obj.data != entry.render_data:
+            raise ValueError(f'{obj.name} 的网格引用已改变，请恢复后重新装配')
+        return entry.render_data
     entry.original_data = obj.data
     entry.original_material_links = ",".join(slot.link for slot in obj.material_slots)
     derived = obj.data.copy()

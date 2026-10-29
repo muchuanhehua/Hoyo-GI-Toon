@@ -1,6 +1,6 @@
 """Persist character ownership and only user-adjustable rendering settings."""
 import bpy
-from bpy.props import BoolProperty, CollectionProperty, FloatProperty, IntProperty, PointerProperty, StringProperty
+from bpy.props import BoolProperty, CollectionProperty, EnumProperty, FloatProperty, IntProperty, PointerProperty, StringProperty
 from bpy.types import PropertyGroup
 
 
@@ -42,6 +42,36 @@ class HGTControlReference(PropertyGroup):
     key: StringProperty()
 
 
+PART_ROLES = [('BODY', '角色', '身体、头发、服装及角色装饰'),
+              ('WEAPON', '武器', '按需加入出图的武器'),
+              ('GLIDER', '风之翼', '按需加入出图的风之翼'),
+              ('EFFECT', '特效／技能附件', '按需显示的特效或技能附件'),
+              ('OTHER', '其它', '保留原状态，可自行调整归属')]
+
+
+class HGTPartReference(PropertyGroup):
+    key: IntProperty()
+    object: PointerProperty(type=bpy.types.Object)
+    armature: PointerProperty(type=bpy.types.Object)
+    role: EnumProperty(items=PART_ROLES, default='OTHER')
+    included: BoolProperty(default=True)
+    locked: BoolProperty()
+    basis: StringProperty()
+    face_count: IntProperty()
+    source_slots: StringProperty()
+
+
+def update_part_edit(self, context):
+    self.included=self.role in {'BODY','OTHER'}
+
+
+class HGTPartEdit(PropertyGroup):
+    key: IntProperty()
+    label: StringProperty()
+    role: EnumProperty(items=PART_ROLES, default='OTHER', update=update_part_edit)
+    included: BoolProperty(name='显示')
+
+
 class HGTCharacterSettings(PropertyGroup):
     managed: BoolProperty()
     building: BoolProperty(options={"HIDDEN", "SKIP_SAVE"})
@@ -55,6 +85,8 @@ class HGTCharacterSettings(PropertyGroup):
     slots: CollectionProperty(type=HGTSlotSnapshot)
     meshes: CollectionProperty(type=HGTMeshReference)
     controls: CollectionProperty(type=HGTControlReference)
+    parts: CollectionProperty(type=HGTPartReference)
+    parts_version: IntProperty(default=0)
     global_properties: PointerProperty(type=bpy.types.NodeTree)
     light_vectors: PointerProperty(type=bpy.types.NodeTree)
     outline_graph: PointerProperty(type=bpy.types.NodeTree)
@@ -83,7 +115,8 @@ def update_target(self, context):
         self.hgt_output.camera = root.hgt_character.camera
 
 
-CLASSES = (HGTMaterialBinding, HGTSlotSnapshot, HGTMeshReference, HGTControlReference, HGTCharacterSettings,
+CLASSES = (HGTMaterialBinding, HGTSlotSnapshot, HGTMeshReference, HGTControlReference,
+           HGTPartReference, HGTPartEdit, HGTCharacterSettings,
            HGTOutputSettings)
 
 

@@ -1,18 +1,20 @@
 """Owned framing and PNG output through a temporary scene."""
 from dataclasses import dataclass, field
 from pathlib import Path
+import json
 import re
 import struct
 import uuid
 import bpy
 from bpy.app.handlers import persistent
 from mathutils import Vector
-from . import post_processing
+from . import post_processing, subjects, lighting
 
 _JOBS = {}
 
 
 def character_bounds(root):
+    subjects.apply(root)
     meshes = [entry.object for entry in root.hgt_character.meshes
               if entry.object and entry.render_data and not entry.object.hide_render]
     # Frame posed base geometry. Render/view-dependent outline geometry must not
@@ -23,7 +25,8 @@ def character_bounds(root):
             probe = obj.copy()
             probe.name = "HGT Framing"
             for modifier in tuple(probe.modifiers):
-                if modifier.type == "NODES" and modifier.node_group and modifier.node_group.get("hgt_owner"):
+                if (modifier.type == "NODES" and modifier.node_group and modifier.node_group.get("hgt_owner")
+                        and not modifier.node_group.get('hgt_subject_filter')):
                     probe.modifiers.remove(modifier)
             bpy.context.scene.collection.objects.link(probe)
             probes.append(probe)
@@ -181,6 +184,7 @@ def _proxy(scene, root, path):
         objects.add(proxy.camera)
         for obj in objects:
             collection.objects.link(obj)
+        _attachment_light(job, root, collection)
         proxy.render.engine = "BLENDER_EEVEE"
         proxy.view_settings.view_transform = "Standard"
         proxy.view_settings.look = 'None'
@@ -209,6 +213,28 @@ def _proxy(scene, root, path):
         raise
 
 
+def _attachment_light(job, root, collection):
+    """Light retained original materials when a plain scene has no lamps."""
+    settings = root.hgt_character
+    if not settings.parts_version or any(o.type=='LIGHT' for o in job.proxy.objects):
+        return
+    originals = {p.object for p in settings.parts if p.included and not p.locked
+                 and any(i>=len(p.object.material_slots) or p.object.material_slots[i].material is None
+                         or p.object.material_slots[i].material.get('hgt_owner')!=settings.uid
+                         for i in json.loads(p.source_slots))}
+    if not originals:
+        return
+    receivers=bpy.data.collections.new('HGT • Original Material Receivers')
+    data=bpy.data.lights.new('HGT • Original Material Light','SUN')
+    light=bpy.data.objects.new(data.name,data)
+    job.resources.update({receivers,data,light})
+    for obj in originals:receivers.objects.link(obj)
+    light.light_linking.receiver_collection=receivers
+    collection.objects.link(light)
+    data.energy=2
+    light.rotation_euler=(-lighting.light_direction(settings)).to_track_quat('-Z','Y').to_euler()
+
+
 def _render_alpha(scene):
     tree = scene.compositing_node_group
     output = next((n for n in tree.nodes if n.type == "GROUP_OUTPUT" and n.is_active_output), None)
@@ -229,6 +255,9 @@ def start(scene, root, invoke=False):
         raise ValueError("请等待当前渲染结束")
     if not root or not root.hgt_character.managed:
         raise ValueError("请先导入模型")
+    if root.hgt_character.parts_version:
+        subjects.validate(root)
+        subjects.apply(root)
     camera = scene.hgt_output.camera
     if camera is None or camera.type != "CAMERA" or camera.name not in scene.objects:
         raise ValueError("请在输出中选择当前场景的相机")

@@ -3,7 +3,7 @@
 bl_info = {
     "name": "Hoyo-GI-Toon",
     "author": "muchuanhehua",
-    "version": (0, 5, 3),
+    "version": (0, 6, 0),
     "blender": (5, 2, 0),
     "location": "View3D > Sidebar > Hoyo-GI-Toon",
     "description": "原神角色导入、卡通材质、描边与调光",

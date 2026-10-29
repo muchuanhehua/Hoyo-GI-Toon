@@ -113,7 +113,9 @@ def validate_derived(root, baseline):
         assert before == current, f'Derived mesh changed geometry or attributes: {entry.object.name}'
         modifiers = [m for m in entry.object.modifiers if m.type=='NODES']
         names = [m.node_group for m in modifiers]
-        assert names[-2:] == [root.hgt_character.light_vectors,root.hgt_character.outline_graph] or entry.object.name.split('.')[0] in {'Brow','Pupil','Face_Eye'}
+        generated={b.generated for b in root.hgt_character.bindings}
+        if any(s.material in generated for s in entry.object.material_slots):
+            assert names[-2:] == [root.hgt_character.light_vectors,root.hgt_character.outline_graph] or entry.object.name.split('.')[0] in {'Brow','Pupil','Face_Eye'}
 
 
 def render(root, destination, azimuth):

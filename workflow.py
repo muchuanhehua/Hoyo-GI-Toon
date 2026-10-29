@@ -4,20 +4,10 @@ import json
 import uuid
 import bpy
 from bpy.app.handlers import persistent
-from mathutils import Vector
 from .asset_resolver import AssetCatalog, source_name
-from . import asset_tracking, importers, lighting, outlines, rendering, shaders, surface_layers, eye_surfaces
+from . import asset_tracking, importers, lighting, outlines, rendering, shaders, surface_layers, eye_surfaces, subjects
 
 _REFRESHING = False
-
-
-def bounds(objects):
-    points = [obj.matrix_world @ Vector(corner) for obj in objects for corner in obj.bound_box]
-    if not points:
-        raise ValueError("角色没有可用的包围盒")
-    low = Vector(tuple(min(p[i] for p in points) for i in range(3)))
-    high = Vector(tuple(max(p[i] for p in points) for i in range(3)))
-    return low, high
 
 
 def build(filepath, context):
@@ -88,18 +78,20 @@ def assemble(batch, context):
                 if entry.participation != 'surface':
                     obj.hide_render = True
                     obj.hide_set(True)
-        visible = [e.object for e in settings.meshes if not e.object.hide_render]
-        low, high = bounds(visible)
+        subjects.initialize(root)
+        low, high = rendering.character_bounds(root)
         settings.height = max(0.01, high.z - low.z)
         library = shaders.ShaderLibrary(root)
         controls = lighting.build(root, collection, batch.objects, library)
         built = {}
         for entry in settings.meshes:
             mesh = entry.object
-            if mesh.hide_render:
+            if not entry.render_data:
                 continue
             candidates = [(i, s.material) for i, s in enumerate(mesh.material_slots)
-                          if s.material and (batch.source_format == 'pmx' or is_character_material(s.material))]
+                          if s.material and (batch.source_format == 'pmx' or is_character_material(s.material))
+                          and any(p.object==mesh and p.role=='BODY' and not p.locked
+                                  and i in json.loads(p.source_slots) for p in settings.parts)]
             if not candidates:
                 continue
             if any(slot.material is None for slot in mesh.material_slots):
@@ -162,6 +154,7 @@ def assemble(batch, context):
         settings.slots.clear()
         settings.bindings.clear()
         settings.controls.clear()
+        subjects.clear(root)
         settings.global_properties = settings.light_vectors = settings.outline_graph = None
         settings.light = settings.head = None
         settings.managed = settings.building = False
@@ -183,6 +176,7 @@ def refresh_character(root, depsgraph=None):
         return
     _REFRESHING = True
     try:
+        subjects.apply(root)
         lighting.update(root)
         for entry in settings.meshes:
             if entry.object:
@@ -214,6 +208,7 @@ def restore(root):
     settings.slots.clear()
     settings.bindings.clear()
     settings.controls.clear()
+    subjects.clear(root)
     settings.global_properties = settings.light_vectors = settings.outline_graph = None
     settings.light = settings.head = None
     for scene in bpy.data.scenes:
@@ -238,6 +233,7 @@ def register():
 
 
 def unregister():
+    subjects._STATES.clear()
     for handlers in (bpy.app.handlers.depsgraph_update_post, bpy.app.handlers.frame_change_post):
         if update_scene in handlers:
             handlers.remove(update_scene)

@@ -1,0 +1,244 @@
+{
+  "version": "0.6.0",
+  "scope": "16–21",
+  "status": "pending_user_acceptance",
+  "archive": {
+    "name": "hoyo_gi_toon-0.6.0.zip",
+    "bytes": 681974,
+    "files": 36,
+    "sha256": "6d8c931a9dfc2ee09dba6b26c2fa88ea4c22f063e7311c807162138da71ef061"
+  },
+  "published_version": "0.5.3",
+  "payload_sha256": {
+    "CHANGELOG.md": "a449315e928fd77a4bbe185c337ae68347f1a589d8614394c1c40416f0268912",
+    "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "NOTICE": "9fd86a453aa8e9219d466ca1fc31503764d102b26795904387d3271fad6e145a",
+    "README.md": "83dff006a9c9c318efb95c184e50f9461c550756761683899a9a79a5105fa4f6",
+    "__init__.py": "131045908b979a73b5b63d8964aca48b104cfeebd35236499d1c203c44faf879",
+    "asset_resolver.py": "1c3672a1cd11067d660eec2205f2e4eb8d78cd01ee9b2ea368949e59d8814f4c",
+    "asset_tracking.py": "3c6875fe9134fd15a4300df89c6093276bce5ee62e0d385a394561d769c35a09",
+    "assets/original_controls.blend": "d7149f6040356c466e0e3eca69fb37e3bde05e64792b7efaaa043acacb41ae14",
+    "assets/original_shader.blend": "a298539803090c585345b732bb0c330d510df59ce90942aa37c8fe4b28c22fd2",
+    "assets/upstream.json": "ee8dacd35e3dc6ffcbe30543d0d4bfb20ee6b3ab2547e9de8ff6fca00735de20",
+    "blender_manifest.toml": "27ba58c518b97306f3dc934df9a8385de756ae96e6e81090f9e9d5e76058439d",
+    "docs/basic-rendering.md": "b9c6dbed1befee0482760437ed6c314c5537599bad892c718df13c6289b72c6b",
+    "docs/pmx-rendering.md": "87857a8afc64dfe56adc7711611f6682b9e01815cfecf3666e1e40e22a6aa379",
+    "docs/subjects.md": "4cac1f056e2c522efe5ffbc11270dd57917b50ffd820eb6409c338301f6a4713",
+    "docs/upstream-baseline.md": "a2ddb340ea3152b1e4f1db4a7db04cf74f0a93bae9424a75f59902d6e2f6d7a0",
+    "eye_layers.py": "b93b0575f7ac8d404a68a806f6b3c3f0c86deeb959998832811d6cf086c3f2f5",
+    "eye_surfaces.py": "2124cb99bbf503ebe402d86837502489cfadac245995856e6d4a6885679bc78c",
+    "importers.py": "2a14736eff94c91a13554badf4ba1a6986f0b36733c7d973d4f8578ab260fb62",
+    "lighting.py": "cbbf97021089378f4cd323c482f040ff6e91efdd02c8b45c8fdb5045117d1d6a",
+    "material_protocol.py": "6602ddbafc5912bf6439592dab94af84cc97ec6abf8006165fe0cde33dc33b26",
+    "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+    "node_graph.py": "52f529ac823f8fb2f1f5804ab41f3f00f715c872ae8975194484dacd707527c1",
+    "normal_maps.py": "4fb5b95ed846ef22ee7895bb127d43ebfa6514cab6334c98e43fc786a67e0f6f",
+    "outlines.py": "f28f782a511c69af3680f85cb2f3777955dcab2599f21f8bbab785781d021943",
+    "panels.py": "4e87f9728ebab3552a737694b8004f3d9ed9c856ad57ce78c0cb0215ff0a0a58",
+    "pmx_materials.py": "0a4fd2b8596d3ae9d52304d74fa6ec25d1c536933ac171e76de2d961d49f146a",
+    "post_processing.py": "cb200b98192aef16bb327dbd8f55d61f9a54ff909af6cb46556df1e7d9045979",
+    "properties.py": "8b0f8506f16fc9ef730a081f6e397bcd2c8853777a0fc7850161940da9948921",
+    "reflections.py": "345a22b93a41aff8e613dd2a73c70c665eab1de43953fd141ff91224b8d6986d",
+    "rendering.py": "2f5be57dad76b791b85634353f7d6bc4c8456152531c48334b939481f8ab8edf",
+    "shaders.py": "253fdecba4e899b5fef876f301d62de448f3edf4ef359aac5402fea925043821",
+    "subjects.py": "80ad8e5280f62ad3b42991eddb4e9456f32621965e6b05651aea8f3a187d6e72",
+    "surface_layers.py": "bea9507c65af219de7818b2f11d24900198d89f5b3e5984c4d8f4610921c49c2",
+    "textiles.py": "9a481cab063e1a97c154ea798dba77288a7d34155d1e1d48dd3585d7bde7f33d",
+    "upstream_mapping.py": "3da1b73d944c8456ed626ce28b1e5ff26f3f8becf30bebf89aa0236bea8a5f32",
+    "workflow.py": "27f4f4942b9ccf3f8367e3e87f0c18211681743d8250ba578aa7b106243cc0c6"
+  },
+  "integration_checks": {
+    "camera_framing": true,
+    "scene_preserved": true,
+    "transparent_alpha": true,
+    "post_alpha": true,
+    "render_save": true,
+    "errors_and_cleanup": true,
+    "register_unregister": true,
+    "save_reload": true,
+    "fresh_package_process": true,
+    "undo_redo": true,
+    "ui_errors": true,
+    "ui_render_save": true
+  },
+  "subject_checks": {
+    "unknown_kept_and_corrected": true,
+    "head_decoration_preserved": true,
+    "assembly_failure_rollback": true,
+    "mixed_imports_isolated": true,
+    "register_unregister": true
+  },
+  "subject_interface": {
+    "interface": {
+      "toggle_undo_redo": true,
+      "group_undo_redo": true,
+      "empty_selection_rollback": true,
+      "dialog_cancel": true
+    },
+    "pmx-interface": {
+      "toggle_undo_redo": true,
+      "group_undo_redo": true,
+      "empty_selection_rollback": true,
+      "dialog_cancel": true
+    }
+  },
+  "formats": {
+    "mixed_formats": true,
+    "independent_render": true,
+    "restore_isolated": true,
+    "source_data_preserved": true,
+    "mmd_metadata_preserved": true
+  },
+  "fbx_regression": {
+    "models": [
+      "安柏",
+      "刻晴",
+      "奥黛塔",
+      "尼可"
+    ],
+    "source_files_unchanged": 124,
+    "animation": {
+      "actions": 2,
+      "shapes": 2,
+      "source_actions_preserved": true,
+      "uv_color_normals_preserved": true
+    },
+    "lifecycle": {
+      "two_imports_isolated": true,
+      "failure_rollback": true,
+      "selection_restored": true,
+      "cancelled_import_rollback": true,
+      "empty_import_rollback": true,
+      "missing_dependency_error": true,
+      "adopted_material_preserved": true,
+      "other_character_survives_restore": true
+    }
+  },
+  "pmx_regression": {
+    "models": [
+      "安柏",
+      "纳西妲",
+      "奥黛塔"
+    ],
+    "source_files_unchanged": 73,
+    "checks": {
+      "save_reload": true,
+      "empty_scene_failure_rollback": true,
+      "assembly_failure_rollback": true,
+      "two_imports_isolated": true,
+      "import_repair_failure_rollback": true,
+      "missing_mmd_dependency": true,
+      "register_unregister": true
+    }
+  },
+  "subject_cases": [
+    {
+      "name": "FBX 风之翼",
+      "source_format": "fbx",
+      "mixed": false,
+      "source_data_unchanged": true,
+      "derived_geometry_unchanged": true,
+      "references_restored": true,
+      "visibility_restored": true,
+      "save_reload": true,
+      "toggle_pixels_restored": true,
+      "reload_pixel_difference": {
+        "changed_fraction": 0.0,
+        "mean_error": 0.0,
+        "maximum_error": 0.0
+      }
+    },
+    {
+      "name": "FBX 技能附件",
+      "source_format": "fbx",
+      "mixed": false,
+      "source_data_unchanged": true,
+      "derived_geometry_unchanged": true,
+      "references_restored": true,
+      "visibility_restored": true,
+      "save_reload": true,
+      "toggle_pixels_restored": true,
+      "reload_pixel_difference": {
+        "changed_fraction": 0.0,
+        "mean_error": 0.0,
+        "maximum_error": 0.0
+      }
+    },
+    {
+      "name": "PMX 主体",
+      "source_format": "pmx",
+      "mixed": false,
+      "source_data_unchanged": true,
+      "derived_geometry_unchanged": true,
+      "references_restored": true,
+      "visibility_restored": true,
+      "save_reload": true,
+      "toggle_pixels_restored": true,
+      "reload_pixel_difference": {
+        "changed_fraction": 0.0,
+        "mean_error": 0.0,
+        "maximum_error": 0.0
+      }
+    },
+    {
+      "name": "FBX 混合网格",
+      "source_format": "fbx",
+      "mixed": true,
+      "source_data_unchanged": true,
+      "derived_geometry_unchanged": true,
+      "references_restored": true,
+      "visibility_restored": true,
+      "save_reload": true,
+      "toggle_pixels_restored": true,
+      "reload_pixel_difference": {
+        "changed_fraction": 0.0,
+        "mean_error": 0.0,
+        "maximum_error": 0.0
+      }
+    },
+    {
+      "name": "PMX 混合网格",
+      "source_format": "pmx",
+      "mixed": true,
+      "source_data_unchanged": true,
+      "derived_geometry_unchanged": true,
+      "references_restored": true,
+      "visibility_restored": true,
+      "save_reload": true,
+      "toggle_pixels_restored": true,
+      "reload_pixel_difference": {
+        "changed_fraction": 0.0,
+        "mean_error": 0.0,
+        "maximum_error": 0.0
+      }
+    }
+  ],
+  "baseline": {
+    "comparisons": [
+      {
+        "source_format": "fbx",
+        "unchanged_shading": true,
+        "pixels": {
+          "changed_fraction": 8.101851851851852e-05,
+          "mean_error": 6.779906129850133e-07,
+          "maximum_error": 0.047058820724487305
+        }
+      },
+      {
+        "source_format": "pmx",
+        "unchanged_shading": true,
+        "pixels": {
+          "changed_fraction": 0.0,
+          "mean_error": 0.0,
+          "maximum_error": 0.0
+        }
+      }
+    ],
+    "checks": {
+      "fbx_legacy_load_render_restore": true,
+      "pmx_legacy_load_render_restore": true,
+      "register_unregister": true
+    }
+  },
+  "boundary": "Attachments retain source transforms and materials; this batch verifies selection and framing. Existing Amber glider material still needs transparency rendering work."
+}

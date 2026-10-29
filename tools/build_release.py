@@ -13,9 +13,9 @@ ROOT=Path(__file__).resolve().parents[1]
 PAYLOAD={"__init__.py","asset_resolver.py","asset_tracking.py","eye_layers.py","importers.py","lighting.py","outlines.py",
          "mmd_importer.py","pmx_materials.py",
          "material_protocol.py","node_graph.py","normal_maps.py","eye_surfaces.py","textiles.py","reflections.py",
-         "panels.py","post_processing.py","properties.py","rendering.py","shaders.py","surface_layers.py","upstream_mapping.py","workflow.py",
+         "panels.py","post_processing.py","properties.py","rendering.py","shaders.py","subjects.py","surface_layers.py","upstream_mapping.py","workflow.py",
          "assets/original_shader.blend","assets/original_controls.blend","assets/upstream.json",
-         "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE","docs/upstream-baseline.md","docs/basic-rendering.md","docs/pmx-rendering.md"}
+         "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE","docs/upstream-baseline.md","docs/basic-rendering.md","docs/pmx-rendering.md","docs/subjects.md"}
 
 
 def sha(data):
@@ -37,7 +37,7 @@ def validate_evidence(evidence,integration=False):
     if integration:
         required={'fresh_package_process','register_unregister','save_reload','undo_redo','ui_render_save',
                   'camera_framing','scene_preserved','transparent_alpha','post_alpha','errors_and_cleanup','ui_errors'}
-        if evidence.get('scope') not in {'01–08','01–15'} or not all(evidence.get('integration_checks',{}).get(key) is True for key in required):
+        if evidence.get('scope') not in {'01–08','01–15','01–21'} or not all(evidence.get('integration_checks',{}).get(key) is True for key in required):
             raise ValueError('08 integration evidence is required')
     return hashes
 
@@ -59,6 +59,25 @@ def validate_pmx(evidence, hashes, integration=False):
         raise ValueError('Installed PMX package verification is required')
 
 
+def validate_subjects(evidence,hashes,integration=False):
+    expected={name:value for name,value in hashes.items() if name.endswith('.py')}
+    if evidence.get('scope')!='16–21' or evidence.get('source_sha256')!=expected:
+        raise ValueError('Subject verification does not match the runtime payload')
+    models=evidence.get('models',[])
+    flags=('source_data_unchanged','mmd_metadata_preserved','derived_geometry_unchanged',
+           'references_restored','visibility_restored','save_reload','repeat_no_leak','toggle_pixels_restored')
+    if len(models)<5 or not all(all(m.get(k) is True for k in flags) for m in models):
+        raise ValueError('Subject data/display verification is incomplete')
+    if {m['source_format'] for m in models if m.get('mixed')}!={'fbx','pmx'}:
+        raise ValueError('Both mixed-mesh formats must be verified')
+    required=('unknown_kept_and_corrected','head_decoration_preserved','assembly_failure_rollback',
+              'mixed_imports_isolated','register_unregister')
+    if not all(evidence.get('checks',{}).get(k) is True for k in required):
+        raise ValueError('Subject lifecycle verification is incomplete')
+    if integration and not evidence.get('package_sha256'):
+        raise ValueError('Installed subject package verification is required')
+
+
 def validate_archive(path):
     with zipfile.ZipFile(path) as archive:
         if archive.testzip() is not None or set(archive.namelist())!=PAYLOAD:
@@ -74,6 +93,7 @@ def main():
     parser.add_argument('--blender',type=Path,required=True)
     parser.add_argument('--verification',type=Path,required=True)
     parser.add_argument('--pmx-verification',type=Path)
+    parser.add_argument('--subjects-verification',type=Path)
     args=parser.parse_args()
     manifest=tomllib.loads((ROOT/'blender_manifest.toml').read_text(encoding='utf-8'))
     for name in PAYLOAD:
@@ -90,6 +110,12 @@ def main():
         validate_pmx(pmx,hashes,integration=args.action=='release')
         if args.action=='release' and pmx.get('package_sha256')!=evidence.get('package_sha256'):
             raise ValueError('FBX and PMX verification must use the same candidate')
+    if tuple(map(int,manifest['version'].split('.'))) >= (0,6,0):
+        if not args.subjects_verification:raise ValueError('Subject verification is required for this version')
+        subjects=json.loads(args.subjects_verification.read_text(encoding='utf-8'))
+        validate_subjects(subjects,hashes,integration=args.action=='release')
+        if args.action=='release' and subjects.get('package_sha256')!=evidence.get('package_sha256'):
+            raise ValueError('Subject verification must use the same candidate')
     candidate_dir=ROOT/'.build/candidate'
     candidate_dir.mkdir(parents=True,exist_ok=True)
     name=f"{manifest['id']}-{manifest['version']}.zip"
@@ -127,6 +153,8 @@ def main():
             ('name','materials','source_data_unchanged','mmd_metadata_unchanged','original_mesh_refs_restored')}
             for model in pmx['models']]}
         summary['formats']=evidence.get('formats',{})
+    if args.subjects_verification:
+        summary['subjects']={'checks':subjects['checks'],'models':subjects['models']}
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print('HGT_RELEASE_RECORD',name,record['sha256'],flush=True)
 

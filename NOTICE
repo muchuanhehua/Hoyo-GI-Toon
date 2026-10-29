@@ -48,6 +48,13 @@ AstraMorningstar/Morningstar-Festivity-render-assistant (local reference 1.0.2.1
 character_system.py):
 https://github.com/AstraMorningstar/Morningstar-Festivity-render-assistant
 
+subjects.py follows the per-import ownership, armature membership and explicit
+MMD helper-type checks studied in Morningstar's character_system.py and FBX
+grouping. Gacha Setup's Genshin import filtering informs the source-purpose
+checks. The reversible face attributes, evaluated selection graph and shared
+FBX/PMX controls are implemented in Hoyo-GI-Toon; source meshes, parenting and
+armature bindings are retained.
+
 Hoyo-GI-Toon adapts the current Blender API and scopes the original setup to each
 imported character. It does not distribute game character models, textures,
 material dumps or private validation projects. Local game assets are read from

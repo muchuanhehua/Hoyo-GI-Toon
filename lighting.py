@@ -23,6 +23,12 @@ def build(root, collection, imported, library):
     if len(heads) != 1:
         raise ValueError("无法确定唯一头骨，请检查 Head / 頭 骨骼及 MMD 骨骼名称")
     armature, bone = heads[0]
+    settings.source_armature = armature
+    if settings.source_root is None:
+        original_root = armature
+        while original_root.parent in imported:
+            original_root = original_root.parent
+        settings.source_root = original_root
     controls = library.controls(collection)
     head = controls["Head Origin"]
     constraint = head.constraints.get("Child Of")

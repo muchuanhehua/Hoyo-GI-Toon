@@ -4,7 +4,7 @@ import shutil
 import bpy
 
 
-def animated_fbx(addon, source, output):
+def animated_fbx(addon, source, output, accessories=False):
     bpy.ops.wm.read_homefile(use_empty=True,use_factory_startup=True)
     output.mkdir(parents=True, exist_ok=True)
     for path in Path(source).parent.rglob('*'):
@@ -16,12 +16,17 @@ def animated_fbx(addon, source, output):
     file.touch()
     assets = addon.workflow.AssetCatalog(file).resolve('Avatar_Girl_Bow_Ambor_Mat_Body')
     mesh = bpy.data.meshes.new('Fixture mesh')
-    mesh.from_pydata([(-.5,0,0),(.5,0,0),(.5,0,1.5),(-.5,0,1.5)],[],[(0,1,2,3)])
+    vertices=[(-.5,0,0),(.5,0,0),(.5,0,1.5),(-.5,0,1.5)]
+    faces=[(0,1,2,3)]
+    if accessories:
+        vertices += [(3,0,0),(3.3,0,0),(3.3,0,1),(3,0,1)]
+        faces += [(4,5,6,7)]
+    mesh.from_pydata(vertices,[],faces)
     mesh.uv_layers.new(name='SourceUV')
-    for point,uv in zip(mesh.uv_layers.active.data,[(0,0),(1,0),(1,1),(0,1)]): point.uv=uv
+    for i,point in enumerate(mesh.uv_layers.active.data):point.uv=[(0,0),(1,0),(1,1),(0,1)][i%4]
     colors = mesh.color_attributes.new(name='SourceColor',type='FLOAT_COLOR',domain='POINT')
     for color in colors.data: color.color=(.2,.5,.8,1)
-    mesh.normals_split_custom_set([(0,-1,0)]*4)
+    mesh.normals_split_custom_set([(0,-1,0)]*len(mesh.loops))
     obj = bpy.data.objects.new('Fixture body',mesh)
     bpy.context.scene.collection.objects.link(obj)
     material=bpy.data.materials.new(assets.source)
@@ -47,12 +52,31 @@ def animated_fbx(addon, source, output):
     root.head,root.tail=(0,0,0),(0,0,.5)
     head=arm.edit_bones.new('Head')
     head.head,head.tail,head.parent=(0,0,1.3),(0,0,1.6),root
+    if accessories:
+        weapon=arm.edit_bones.new('Weapon_Root')
+        weapon.head,weapon.tail,weapon.parent=(3,0,0),(3,0,1),root
     bpy.ops.object.mode_set(mode='OBJECT')
     group=obj.vertex_groups.new(name='Root')
     group.add([0,1,2,3],1,'REPLACE')
+    if accessories:
+        weapon_group=obj.vertex_groups.new(name='Weapon_Root')
+        weapon_group.add([4,5,6,7],1,'REPLACE')
     modifier=obj.modifiers.new('Source armature','ARMATURE')
     modifier.object=rig
     obj.parent=rig
+    if accessories:
+        for name,points,known in [
+            ('Bow',[(-.1,-.02,1.4),(.1,-.02,1.4),(0,-.02,1.6)],True),
+            ('Unclassified prop',[(-2,0,.3),(-1.8,0,.3),(-1.9,0,.6)],False)]:
+            detail=bpy.data.meshes.new(name);detail.from_pydata(points,[],[(0,1,2)])
+            detail.uv_layers.new(name='SourceUV')
+            detail.color_attributes.new(name='SourceColor',type='FLOAT_COLOR',domain='POINT')
+            detail.normals_split_custom_set([(0,-1,0)]*3)
+            surface=bpy.data.objects.new(name,detail);bpy.context.scene.collection.objects.link(surface)
+            detail.materials.append(material if known else bpy.data.materials.new('Unclassified material'))
+            surface.parent=rig
+            group=surface.vertex_groups.new(name='Head' if known else 'Root');group.add([0,1,2],1,'REPLACE')
+            skin=surface.modifiers.new('Source armature','ARMATURE');skin.object=rig
     bone=rig.pose.bones['Head']
     bone.rotation_mode='XYZ'
     bone.rotation_euler=(0,0,0)

@@ -1,10 +1,11 @@
 """One import, two appearance sliders, folded lighting/output and one render."""
 import traceback
 import bpy
-from bpy.props import StringProperty
+from bpy.props import CollectionProperty, IntProperty, StringProperty
 from bpy.types import Menu, Operator, Panel
 from bpy_extras.io_utils import ImportHelper
-from . import rendering, workflow
+from . import rendering, workflow, subjects
+from .properties import HGTPartEdit, PART_ROLES
 
 
 def target(context):
@@ -136,7 +137,117 @@ class HGT_MT_tools(Menu):
 
     def draw(self, context):
         self.layout.operator("hgt.material_info", icon="MATERIAL")
+        if target(context).hgt_character.parts_version:
+            self.layout.operator('hgt.manage_parts', icon='OUTLINER_COLLECTION')
         self.layout.operator("hgt.restore_materials", icon="LOOP_BACK")
+
+
+class HGT_OT_toggle_part(Operator):
+    bl_idname='hgt.toggle_part'
+    bl_label='切换部件显示'
+    bl_description='切换这个部件的预览与渲染'
+    bl_options={'REGISTER','UNDO'}
+    key: IntProperty(options={'HIDDEN'})
+
+    @classmethod
+    def poll(cls,context):
+        return bool(target(context) and not context.scene.hgt_output.rendering)
+
+    def execute(self,context):
+        previous=None
+        try:
+            root=target(context)
+            part=next((p for p in root.hgt_character.parts if p.key==self.key),None)
+            if part is None:raise ValueError('部件不存在，请重新选择角色')
+            previous=part.included
+            subjects.set_part(root,self.key,not part.included)
+            if context.scene.hgt_output.camera==root.hgt_character.camera:
+                rendering.frame_camera(context.scene,root)
+        except (ValueError,RuntimeError) as exc:
+            if previous is not None and part.included!=previous:
+                subjects.set_part(root,self.key,previous)
+            return report_error(self,exc)
+        return {'FINISHED'}
+
+
+class HGT_OT_manage_parts(Operator):
+    bl_idname='hgt.manage_parts'
+    bl_label='调整部件分组'
+    bl_description='调整出图分组和显示，保留现有材质'
+    bl_options={'REGISTER','UNDO'}
+    parts: CollectionProperty(type=HGTPartEdit)
+
+    @classmethod
+    def poll(cls,context):
+        return bool(target(context) and target(context).hgt_character.parts_version
+                    and not context.scene.hgt_output.rendering)
+
+    def invoke(self,context,event):
+        self.parts.clear()
+        for part in target(context).hgt_character.parts:
+            if part.locked:continue
+            edit=self.parts.add();edit.key=part.key;edit.label=part.name
+            edit.role,edit.included=part.role,part.included
+        return context.window_manager.invoke_props_dialog(self,width=550)
+
+    def draw(self,context):
+        for part in self.parts:
+            row=self.layout.row(align=True)
+            row.label(text=part.label)
+            row.prop(part,'role',text='')
+            row.prop(part,'included',text='')
+
+    def execute(self,context):
+        root=target(context);settings=root.hgt_character
+        before={p.key:(p.role,p.included) for p in settings.parts}
+        applied=False
+        try:
+            subjects.validate(root)
+            mapping={p.key:p for p in settings.parts if not p.locked}
+            if set(mapping)!={p.key for p in self.parts}:
+                raise ValueError('部件列表已改变，请重新打开分组窗口')
+            for edit in self.parts:
+                part=mapping[edit.key];part.role,part.included=edit.role,edit.included
+            if not any(p.included and not p.locked and p.face_count for p in settings.parts):
+                raise ValueError('请至少选择一个可出图的部件')
+            applied=True
+            subjects.apply(root,force=True)
+            if context.scene.hgt_output.camera==settings.camera:
+                rendering.frame_camera(context.scene,root)
+        except (ValueError,RuntimeError) as exc:
+            for part in settings.parts:
+                if part.key in before:part.role,part.included=before[part.key]
+            if applied:subjects.apply(root,force=True)
+            return report_error(self,exc)
+        return {'FINISHED'}
+
+
+class HGT_PT_parts(Panel):
+    bl_label='附件'
+    bl_idname='HGT_PT_parts'
+    bl_parent_id='HGT_PT_main'
+    bl_space_type='VIEW_3D'
+    bl_region_type='UI'
+    bl_options={'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls,context):
+        root=target(context)
+        return bool(root and any(not p.locked and p.role!='BODY' for p in root.hgt_character.parts))
+
+    def draw(self,context):
+        layout=self.layout;layout.enabled=not context.scene.hgt_output.rendering
+        parts=[p for p in target(context).hgt_character.parts if not p.locked and p.role!='BODY']
+        labels={role:label for role,label,_ in PART_ROLES}
+        for part in parts:
+            if part.object is None:
+                row=layout.row();row.alert=True;row.label(text=part.name+'：对象已移除')
+                continue
+            label=part.name if part.role=='OTHER' else labels[part.role]
+            if sum(p.role==part.role for p in parts)>1:label+=' · '+part.object.name
+            op=layout.operator('hgt.toggle_part',text=label,icon='CHECKBOX_HLT' if part.included else 'CHECKBOX_DEHLT')
+            op.key=part.key
+        layout.operator('hgt.manage_parts',text='调整分组',icon='OUTLINER_COLLECTION')
 
 
 class HGT_PT_main(Panel):
@@ -213,7 +324,8 @@ class HGT_PT_output(Panel):
 
 
 CLASSES = (HGT_OT_import_character, HGT_OT_restore, HGT_OT_frame, HGT_OT_render, HGT_OT_material_info,
-           HGT_MT_tools, HGT_PT_main, HGT_PT_lighting, HGT_PT_output)
+           HGT_OT_toggle_part, HGT_OT_manage_parts,
+           HGT_MT_tools, HGT_PT_main, HGT_PT_parts, HGT_PT_lighting, HGT_PT_output)
 
 
 def register():
