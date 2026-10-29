@@ -29,10 +29,11 @@ Better FBX 与 MMD Tools 为独立安装依赖，按所选文件格式调用公�
 | `subjects.initialize / classify / set_part / apply` | 统一部件记录、识别依据、派生面属性与可恢复显示 | 源材质槽、实际蒙皮骨与连通表面参与识别；未知用途保留显示，通过共用界面纠正 |
 | `AssetCatalog.resolve(name, material)` | `MaterialAssets`：用途、参数、贴图与匹配依据 | JSON 优先，结合导入材质 Base Color 与精确名称；限定所选资产包 |
 | `shaders.ShaderLibrary.build_material(assets)` | 渲染材质和对应描边材质 | Body、Hair、Face、基础眼部与 Alpha；含贴图路径按材质独立 |
-| `material_protocol.describe / normal_maps.apply` | 实际启用分支、切线或高度法线 | 按父开关、引用和强度校验，不位移原几何 |
-| `eye_surfaces.mark / eye_layers.apply` | 派生眼层属性、独立虹膜与高光 | 按表面深度与源参数装配，不改原 UV 和材质槽索引 |
+| `material_protocol.describe / normal_maps.apply` | 实际模板与启用分支、切线或高度法线 | 按父开关、引用和强度校验，不位移原几何 |
+| `sampling.configure / node_graph.Graph.texture` | 源贴图缩放与偏移 | 自有节点采样，原 UV 不变，两条路径共用数值校验 |
+| `eye_surfaces.mark / attach / eye_layers.apply` | 派生眼层属性、独立虹膜与高光通道 | 原生 PupilaTodo 顺序，在求值几何上分派材质，不改原 UV 和材质槽索引 |
 | `textiles.apply / reflections.apply` | 源遮罩限定的面料与反射 | 各模块独立开关验证，保持底层 Toon 路径 |
-| `surface_layers.participation / mark_expression_faces / mask_material` | 覆盖层可见性判定、派生表情属性和透明着色 | 根据源用途与参数处理，保留全部原几何与 UV |
+| `surface_layers.participation / mark_expression_faces / attach_expression` | 覆盖层可见性判定、派生表情属性及求值筛选 | 默认关闭的表情面退出深度与描边，基础网格和 UV 保留 |
 | `lighting.build / attach / update` | 头部参照、光向控制、Light Vectors | 只引用导入骨架，保留骨架数据和层级；参数更新不重复创建资源 |
 | `outlines.build / update` | 按材质分区的描边修改器 | 沿用材质颜色，位于原始修改器和 Light Vectors 之后，不应用到网格 |
 | `workflow.build / assemble / restore` | 资产根对象、装配或恢复结果 | 编排上述模块；同批重复装配复用根对象和已建资源 |
@@ -50,6 +51,8 @@ Better FBX 与 MMD Tools 为独立安装依赖，按所选文件格式调用公�
 后台验证入口为 `tools/verify_development.py`、`tools/verify_integration.py` 和 `tools/verify_interface.py`，分别覆盖模型数据、输出与保存重开、真实界面及撤销重做。验证可将候选 ZIP 安装到项目内隔离仓库，再读取实际安装文件执行。私人路径与工程保留在 `.verification/`。
 
 `tools/verify_subjects.py` 检查真实风之翼、技能附件、两种格式的同材质混合网格夹具、保存重开、恢复与回滚；`verify_interface.py --subjects` 检查真实分组操作和撤销重做。主体管理及旧工程约定见 [主体与附件](subjects.md)。
+
+`tools/verify_material_pipeline.py` 检查跨格式材质近景矩阵，并通过 `verification_materials.py` 直接加载 Gacha Setup 的原生 PupilaTodo 进行同输入合成对照。源贴图变换、法线强度、剔除与 Alpha 使用实际渲染夹具检查；这些结果证明对应模块有效，不代表整套参考插件或游戏渲染已完全等价。覆盖范围见 [22–34 材质核对](../design/material-coverage.md)。
 
 `tools/build_release.py candidate` 生成并校验候选包。整体验收后，`release` 子命令只将已验证的候选字节推广为发布包并更新索引，历史 ZIP 不覆盖。
 

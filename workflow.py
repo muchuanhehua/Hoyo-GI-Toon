@@ -89,8 +89,9 @@ def assemble(batch, context):
             if not entry.render_data:
                 continue
             candidates = [(i, s.material) for i, s in enumerate(mesh.material_slots)
-                          if s.material and (batch.source_format == 'pmx' or is_character_material(s.material))
-                          and any(p.object==mesh and p.role=='BODY' and not p.locked
+                          if s.material and (batch.source_format == 'pmx' or is_character_material(s.material)
+                                             or source_name(s.material.name).casefold() in catalog.materials)
+                          and any(p.object==mesh and p.role in {'BODY','WEAPON','GLIDER'} and not p.locked
                                   and i in json.loads(p.source_slots) for p in settings.parts)]
             if not candidates:
                 continue
@@ -117,6 +118,8 @@ def assemble(batch, context):
                     surface_layers.mark_expression_faces(entry, index, assets)
                 if built[key].get('hgt_eye_surface_mask'):
                     eye_surfaces.mark(entry, index)
+                    eye_surfaces.attach(entry, built[key])
+            surface_layers.attach_expression(entry, settings.uid)
             lighting.attach(mesh, root, controls)
             outlines.build(mesh, root)
         if not built:

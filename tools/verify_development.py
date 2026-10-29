@@ -88,6 +88,11 @@ def validate_materials(root, package):
                 assert node.bl_idname != 'NodeUndefined', (tree.name,node.name)
                 if node.type == 'TEX_IMAGE' and node.image:
                     image = node.image
+                    if node.get('hgt_texture_role') == 'neutral_packed':
+                        assert image.get('hgt_owner') == root.hgt_character.uid
+                        assert image.colorspace_settings.name == 'Non-Color' and image.packed_file
+                        assert tuple(image.pixels[:4]) == (0, 1, 0, 0)
+                        continue
                     path = Path(bpy.path.abspath(image.filepath)).resolve()
                     assert path.is_file() and path.is_relative_to(package)
                     role = node.get('hgt_texture_role')

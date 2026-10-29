@@ -8,6 +8,8 @@ import shutil
 import sys
 import time
 import traceback
+from types import SimpleNamespace
+from unittest.mock import patch
 
 sys.dont_write_bytecode=True
 sys.path.insert(0,str(Path(__file__).resolve().parent))
@@ -22,6 +24,7 @@ parser.add_argument('--candidate',type=Path)
 parser.add_argument('--mmd-tools',type=Path)
 parser.add_argument('--tab-click',type=int,nargs=2)
 parser.add_argument('--subjects',action='store_true')
+parser.add_argument('--model-index',type=int)
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:])
 project=Path(__file__).resolve().parents[1]
 out=args.output_dir.resolve()
@@ -162,7 +165,7 @@ def step():
                 return .5
             if phase==0:
                 assert bpy.ops.ed.undo_push(message='HGT empty scene')=={'FINISHED'}
-                model=index['models'][0 if args.subjects else 1]
+                model=index['models'][args.model_index if args.model_index is not None else (0 if args.subjects else 1)]
                 is_pmx=Path(model['path']).suffix.lower()=='.pmx'
                 if is_pmx: better.unregister()
                 assert bpy.ops.hgt.import_character(filepath=model['path'])=={'FINISHED'}
@@ -275,6 +278,16 @@ def step():
                 assert tuple(image.size)==(384,576)
                 bpy.data.images.remove(image)
                 report['integration_checks']['ui_render_save']=True
+                assert bpy.context.scene.hgt_output.last_render==str(path)
+                assert addon.panels.HGT_OT_view_render.poll(bpy.context)
+                opened=[]
+                fake=SimpleNamespace(ops=SimpleNamespace(wm=SimpleNamespace(
+                    path_open=lambda **kw:opened.append(kw['filepath']) or {'FINISHED'})))
+                with patch.object(addon.panels,'bpy',fake):
+                    assert bpy.ops.hgt.view_render()=={'FINISHED'}
+                assert opened==[str(path)]
+                report['integration_checks']['png_preview']=True
+                screenshot('render-complete.png')
                 report['render_seconds']=round(time.monotonic()-render_start,2)
                 write_report()
                 unload_addon(addon)

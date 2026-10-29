@@ -1,5 +1,6 @@
 """Small native-node operations shared by the independent material modules."""
 import bpy
+from .sampling import components
 
 
 class Graph:
@@ -110,8 +111,8 @@ class Graph:
         coordinate = vector if vector is not None else self.uv()
         settings = self.assets.texture_settings.get(role, {})
         scale, offset = settings.get('m_Scale', {}), settings.get('m_Offset', {})
-        xy_scale = (float(scale.get('X', 1)), float(scale.get('Y', 1)), 1)
-        xy_offset = (float(offset.get('X', 0)), float(offset.get('Y', 0)), 0)
+        xy_scale = (*components(scale, (1, 1)), 1)
+        xy_offset = (*components(offset, (0, 0)), 0)
         if xy_scale != (1, 1, 1):
             coordinate = self.vector('MULTIPLY', coordinate, xy_scale)
         if xy_offset != (0, 0, 0):

@@ -54,5 +54,25 @@ def check_resolver(module, output):
         else: raise AssertionError('Outside-package texture was accepted')
         outside.unlink()
         bpy.data.batch_remove(ids={material,image})
+        # Active native paths, rather than inherited unused source switches,
+        # decide which references are actually required.
+        from importlib import import_module
+        describe = import_module(module.__package__+'.material_protocol').describe
+        face = module.MaterialAssets('Avatar_Girl_Test_Mat_Face','face',
+                                    textures={'diffuse':root/'Avatar_Girl_Test_Tex_Face_Diffuse.png'},
+                                    floats={'_MetalMaterial':1,'_MTUseSpecularRamp':1,'_UseShadowRamp':1})
+        assert describe(face)['template']=='Face' and not describe(face)['metal']
+        eye = module.MaterialAssets('Avatar_Girl_Test_Mat_Pupil','eye',
+                                   textures={'diffuse':texture,'eye_layer_1':texture,'eye_highlight':texture},
+                                   floats={'_ParallaxLayer1':1,'_MetalMaterial':1,'_UseShadowRamp':1})
+        assert describe(eye)['layered_eye'] and not describe(eye)['uses_body']
+        normal = module.MaterialAssets(name,'body',textures={'diffuse':texture},
+                                      unresolved={'normal':'DeclaredNormal'},floats={'_UseBumpMap':1,'_BumpScale':0})
+        assert describe(normal)['normal']=='none'
+        normal.floats['_BumpScale']=.5
+        try:describe(normal)
+        except module.AssetError:pass
+        else:raise AssertionError('Active declared normal was not required')
     return {'json_dict_and_pairs':True,'duplicate_error':True,'missing_map_error':True,
-            'malformed_json_error':True,'imported_base_color_reference':True,'package_boundary':True}
+            'malformed_json_error':True,'imported_base_color_reference':True,'package_boundary':True,
+            'inactive_native_branches':True,'zero_normal_strength':True,'active_normal_error':True}

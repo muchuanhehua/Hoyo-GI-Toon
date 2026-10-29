@@ -35,8 +35,9 @@ def _layer(graph, index, uv):
         coordinate = graph.clamp(graph.math('ADD', coordinate, .5))
         # Four packed two-pixel rows, ordered from the top of the source image.
         ramp = graph.texture('eye_layer_ramp', data=False, vector=graph.combine(coordinate, 1 - (index - .5) / 4))
-        operation = 'MULTIPLY' if f.get(prefix + 'RampBlendMode', 0) == 1 else 'ADD'
-        color = graph.mix(f.get(prefix + 'RampStrength', 1), color, ramp.outputs['Color'], operation)
+        # PupilaTodo overlays each packed ramp onto its source pupil layer.
+        mapped = graph.mix(ramp.outputs['Alpha'], ramp.outputs['Color'], color, 'OVERLAY')
+        color = graph.mix(f.get(prefix + 'RampStrength', 1), color, mapped)
     return color, texture.outputs['Alpha']
 
 
@@ -47,7 +48,8 @@ def apply(material, assets, load_image, owner):
     f, uv = assets.floats, graph.uv()
     color = graph.texture('diffuse', data=False).outputs['Color']
     layers = []
-    for index in (1, 2, 3):
+    # Native PupilaTodo: base 01 -> 04 -> 02 -> 03, independent of character ID.
+    for index in (2, 1, 3):
         if not f.get(f'_ParallaxLayer{index}', 0):
             continue
         layer, alpha = _layer(graph, index, uv)
@@ -62,6 +64,7 @@ def apply(material, assets, load_image, owner):
     distance = graph.vector('DISTANCE', uv, center[:3])
     radius, feather = f.get('_EyeDiscRadius', .5), max(f.get('_EyeDiscFeather', .01), .0001)
     disc = graph.math('SUBTRACT', 1, graph.smooth(radius, radius + feather, distance))
+    reflection = (0, 0, 0, 1)
     if 'eye_normal' in assets.textures:
         packed = graph.texture('eye_normal')
         red, green, blue, alpha = graph.channels(packed)
@@ -71,7 +74,7 @@ def apply(material, assets, load_image, owner):
         spherical = graph.mix(f.get('_EyeMatcapSphericalNormalLerp', 0), normal.outputs['Normal'], graph.geometry('Normal'))
         graph.normal_override = graph.vector('NORMALIZE', spherical)
         intensity = graph.math('MULTIPLY', graph.math('MULTIPLY', blue, alpha), f.get('_BaseMatcapIntensity', 0))
-        color = graph.add(color, graph.multiply(assets.color('_BaseMatcapTint', (1, 1, 1, 1)), graph.math('MULTIPLY', intensity, disc)))
+        reflection = graph.multiply(assets.color('_BaseMatcapTint', (1, 1, 1, 1)), graph.math('MULTIPLY', intensity, disc))
     reflection_uv = graph.matcap_uv()
     invert = assets.color('_EyeMatcapInvertUV', (0, 0, 0, 0))
     coords = graph.split(reflection_uv)
@@ -82,8 +85,7 @@ def apply(material, assets, load_image, owner):
         if f.get('_EyeMatcapUseBinary', 0):
             threshold = f.get('_EyeMatcapBinaryThreshold', .5)
             value = graph.smooth(threshold, threshold + max(f.get('_EyeMatcapBinarySmoothness', .01), .0001), value)
-        reflection = graph.multiply(assets.color('_EyeMatcapTint', (1, 1, 1, 1)), graph.math('MULTIPLY', value, f.get('_EyeMatcapIntensity', 0)))
-        color = graph.add(color, reflection)
+        reflection = graph.add(reflection, graph.multiply(assets.color('_EyeMatcapTint', (1, 1, 1, 1)), graph.math('MULTIPLY', value, f.get('_EyeMatcapIntensity', 0))))
     iris = graph.node('ShaderNodeEmission', 'Layered Iris')
     graph.link(color, iris.inputs['Color'])
     # SDF is laid out in the original pupil UV; it is not a spherical Matcap.
@@ -97,18 +99,28 @@ def apply(material, assets, load_image, owner):
     if f.get('_UseHighlightRamp', 0):
         ramp = graph.texture('eye_ramp', data=False, vector=graph.combine(sdf, .5))
         high_color = graph.multiply(ramp.outputs['Color'], high_color)
+    # Reflection belongs to the clear surface; it must not wash out iris RGB.
+    high_color = graph.add(high_color, reflection)
     high = graph.node('ShaderNodeEmission', 'Eye Reflection')
     graph.link(high_color, high.inputs['Color'])
+    high.inputs['Strength'].default_value = f.get('_HighlightIntensity', 1)
     transparent = graph.node('ShaderNodeBsdfTransparent', 'Clear Eye Surface')
     blend = graph.node('ShaderNodeMixShader', 'SDF Highlight Coverage')
     for value, socket in zip((coverage, transparent.outputs[0], high.outputs[0]), blend.inputs):
         graph.link(value, socket)
-    marker = graph.node('ShaderNodeAttribute', 'Eye Surface')
-    marker.attribute_name = OUTER_MASK
-    surface = graph.node('ShaderNodeMixShader', 'Inner and Outer Eye')
-    for value, socket in zip((marker.outputs['Fac'], iris.outputs[0], blend.outputs[0]), surface.inputs):
-        graph.link(value, socket)
     output = next(n for n in graph.tree.nodes if n.type == 'OUTPUT_MATERIAL' and n.is_active_output)
-    graph.link(surface.outputs[0], output.inputs['Surface'])
-    material.surface_render_method = 'BLENDED'
+    graph.link(iris.outputs[0], output.inputs['Surface'])
+    # EEVEE sorts transparent objects, not overlapping triangles of one mesh.
+    # Opaque iris writes depth; the highlight gets a separate evaluated material
+    # pass. Original mesh polygons and material slot indices remain untouched.
+    overlay = material.copy()
+    overlay.name = material.name + ' Highlight'
+    tree = overlay.node_tree
+    overlay_output = next(n for n in tree.nodes if n.type == 'OUTPUT_MATERIAL' and n.is_active_output)
+    tree.links.new(tree.nodes[blend.name].outputs[0], overlay_output.inputs['Surface'])
+    overlay.surface_render_method = 'BLENDED'
+    overlay['hgt_eye_overlay_branch'] = True
+    material['hgt_eye_overlay'] = overlay
+    material.surface_render_method = 'DITHERED'
     material['hgt_eye_surface_mask'] = OUTER_MASK
+    material['hgt_eye_compositor'] = 'PupilaTodo order; opaque iris and clear highlight passes'

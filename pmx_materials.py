@@ -86,17 +86,8 @@ class Catalog:
 
 
 def _constant_image(library):
-    # Gacha's PMX adapter uses an explicit neutral material-ID/AO texture.
-    key = 'PMX neutral packed data'
-    image = next((i for i in bpy.data.images if i.get('hgt_owner') == library.uid and i.get('hgt_generated') == key), None)
-    if image is None:
-        image = bpy.data.images.new('HGT • ' + key, 4, 4, alpha=True)
-        image.colorspace_settings.name = 'Non-Color'
-        image.alpha_mode = 'CHANNEL_PACKED'
-        image.pixels[:] = [0, 1, 0, 0] * 16
-        image['hgt_owner'], image['hgt_generated'] = library.uid, key
-        image.pack()
-    return image
+    from .shaders import neutral_packed
+    return neutral_packed(library.uid)
 
 
 def build(library, assets):

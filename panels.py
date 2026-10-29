@@ -1,5 +1,6 @@
 """One import, two appearance sliders, folded lighting/output and one render."""
 import traceback
+from pathlib import Path
 import bpy
 from bpy.props import CollectionProperty, IntProperty, StringProperty
 from bpy.types import Menu, Operator, Panel
@@ -107,6 +108,26 @@ class HGT_OT_render(Operator):
             return report_error(self, exc)
         self.report({"INFO"}, "已保存：" + path)
         return {"FINISHED"}
+
+
+class HGT_OT_view_render(Operator):
+    bl_idname = 'hgt.view_render'
+    bl_label = '查看渲染'
+    bl_description = '打开已保存的 PNG'
+
+    @classmethod
+    def poll(cls, context):
+        path = context.scene.hgt_output.last_render
+        return bool(path and Path(path).is_file() and not context.scene.hgt_output.rendering)
+
+    def execute(self, context):
+        try:
+            result = bpy.ops.wm.path_open(filepath=context.scene.hgt_output.last_render)
+            if result != {'FINISHED'}:
+                raise RuntimeError('无法打开图片，请从输出位置查看 PNG')
+        except (ValueError, RuntimeError, OSError) as exc:
+            return report_error(self, exc)
+        return {'FINISHED'}
 
 
 class HGT_OT_material_info(Operator):
@@ -274,7 +295,10 @@ class HGT_PT_main(Panel):
         for name in ("shadow_position", "outline"):
             column.prop(root.hgt_character, name, slider=True)
         layout.separator(factor=.5)
-        layout.operator("hgt.render", icon="RENDER_STILL")
+        row = layout.row(align=True)
+        row.operator("hgt.render", icon="RENDER_STILL")
+        if HGT_OT_view_render.poll(context):
+            row.operator('hgt.view_render', text='', icon='IMAGE_DATA')
 
 
 class HGT_PT_lighting(Panel):
@@ -323,7 +347,7 @@ class HGT_PT_output(Panel):
         layout.prop(settings, "post_processing")
 
 
-CLASSES = (HGT_OT_import_character, HGT_OT_restore, HGT_OT_frame, HGT_OT_render, HGT_OT_material_info,
+CLASSES = (HGT_OT_import_character, HGT_OT_restore, HGT_OT_frame, HGT_OT_render, HGT_OT_view_render, HGT_OT_material_info,
            HGT_OT_toggle_part, HGT_OT_manage_parts,
            HGT_MT_tools, HGT_PT_main, HGT_PT_parts, HGT_PT_lighting, HGT_PT_output)
 

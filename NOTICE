@@ -33,9 +33,15 @@ MMD head aliases and layered-eye handling are informed by Morningstar's
 _head_candidates and native eye/expression modules. Mixed-mesh outline batching
 uses the original native six-material graph on evaluated material partitions.
 eye_layers.py follows the alpha-composition principle of the native PupilaTodo
-group in Gacha Setup's GI shader resource. eye_surfaces.py uses connected surfaces
+group in Gacha Setup's GI shader resource, including its 01/04/02/03 layer order
+and OVERLAY ramp. tools/verification_materials.py compares the composition against
+that native group with controlled inputs. eye_surfaces.py uses connected surfaces
 and their depth to distinguish the clear eye surface, informed by Gacha Setup's
 classify_pupil_faces. It does not use character names or fixed polygon counts.
+The evaluated-geometry assignment of separate opaque iris and transparent
+highlight materials is implemented in Hoyo-GI-Toon to handle Eevee overlap.
+Source-marked inactive expression faces are filtered in evaluated geometry to
+exclude their depth contribution. Base meshes and shape keys remain intact.
 
 textiles.py translates selected source stockings parameters to native nodes,
 informed by HoyoToon's public Genshin material-ID and stockings implementations:

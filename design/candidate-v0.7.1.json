@@ -1,0 +1,811 @@
+{
+  "scope": "22–34",
+  "version": "0.7.1",
+  "status": "pending_user_review",
+  "published_version": "0.5.3",
+  "candidate": {
+    "archive": "hoyo_gi_toon-0.7.1.zip",
+    "bytes": 687307,
+    "sha256": "9af33547cb56214f0ef27b8a8a23beff7dd3c990568668f2185057ac7342d3a5"
+  },
+  "payload_files": 37,
+  "payload_sha256": {
+    "CHANGELOG.md": "1d4cb0b8e6d28807692c271d2fac22d9c85a632c57112102e26756cb5d088596",
+    "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "NOTICE": "6a19287d4187849271b0d76efd4a8420cad47729a4ef0e1ebb84eae34e3eafdb",
+    "README.md": "1989cc37c8b434be743775a74f3ea8793479fa59ff83c0bb60eede1521a2449a",
+    "__init__.py": "91c135f71c057eec98d8a149b54e75f9dbb8203df322dfa5278a8de64738038b",
+    "asset_resolver.py": "1c3672a1cd11067d660eec2205f2e4eb8d78cd01ee9b2ea368949e59d8814f4c",
+    "asset_tracking.py": "3c6875fe9134fd15a4300df89c6093276bce5ee62e0d385a394561d769c35a09",
+    "assets/original_controls.blend": "d7149f6040356c466e0e3eca69fb37e3bde05e64792b7efaaa043acacb41ae14",
+    "assets/original_shader.blend": "a298539803090c585345b732bb0c330d510df59ce90942aa37c8fe4b28c22fd2",
+    "assets/upstream.json": "ee8dacd35e3dc6ffcbe30543d0d4bfb20ee6b3ab2547e9de8ff6fca00735de20",
+    "blender_manifest.toml": "fed1be8f5ccafa6bf36aaff671f1ffdef5fbb45b8dd39a3ff0044f4439661efb",
+    "docs/basic-rendering.md": "0a6064d8c324167d9bd57976cfc182730054dd51df4980ee61edbbd4132dd9d6",
+    "docs/pmx-rendering.md": "87857a8afc64dfe56adc7711611f6682b9e01815cfecf3666e1e40e22a6aa379",
+    "docs/subjects.md": "295cefc1ba1c61268fd364fdd82122e58ae20c9c1cfc476fd0cb18a71d98088a",
+    "docs/upstream-baseline.md": "931785068705e6be627f3d0cedfd1e2dedadeec22ee419ca87dc08e0fca4e844",
+    "eye_layers.py": "07dc1c4ada171630bab69d9010f86108ea0cc03cd68935722e142ea1fa063b69",
+    "eye_surfaces.py": "08bae4d407b937120d3faae424f83ac253714e7b525ad7548a8180ff2bb3ecea",
+    "importers.py": "2a14736eff94c91a13554badf4ba1a6986f0b36733c7d973d4f8578ab260fb62",
+    "lighting.py": "cbbf97021089378f4cd323c482f040ff6e91efdd02c8b45c8fdb5045117d1d6a",
+    "material_protocol.py": "649e7cee5c44e65dd87225327445896eb7f644d48822b89a0dd297b9c1eae7e6",
+    "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+    "node_graph.py": "41affb0dc9028328c08a55c751a849e710393346bd189afbd33dd794b28eee9f",
+    "normal_maps.py": "f8ac28e2044ee2a42a67a3b78cf69ee1830255975c4d8093516ca7d1cea4b801",
+    "outlines.py": "f28f782a511c69af3680f85cb2f3777955dcab2599f21f8bbab785781d021943",
+    "panels.py": "655809b036d5c3aa225350b0bda45a08bf47ea7ff1a4dac15fa4cb5236c85785",
+    "pmx_materials.py": "e7cc868dfa46532a89a233c49c19253496e18955d1aac6319d791c04e7e65d40",
+    "post_processing.py": "cb200b98192aef16bb327dbd8f55d61f9a54ff909af6cb46556df1e7d9045979",
+    "properties.py": "cb0e905c71b614e42dd723b98e45724bfced1eff608c1687cfe52e3c1f9a1f16",
+    "reflections.py": "345a22b93a41aff8e613dd2a73c70c665eab1de43953fd141ff91224b8d6986d",
+    "rendering.py": "38dc04b869498e5822c734542c88407a4974fb7e0e55ca8c552ac956bb08197d",
+    "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+    "shaders.py": "168d273ff02d1cffd7397d6f623b9d29b52669c10a54aa51c4bda1ce7b2383e1",
+    "subjects.py": "80ad8e5280f62ad3b42991eddb4e9456f32621965e6b05651aea8f3a187d6e72",
+    "surface_layers.py": "0b12a7a82eb42ea7071da84d7b95a7cb327d43a486365108c6e7f98a8880837e",
+    "textiles.py": "9a481cab063e1a97c154ea798dba77288a7d34155d1e1d48dd3585d7bde7f33d",
+    "upstream_mapping.py": "3da1b73d944c8456ed626ce28b1e5ff26f3f8becf30bebf89aa0236bea8a5f32",
+    "workflow.py": "c2282128fe6126db7e071a7cf1c2439eee615074004b2282a58628857827f229"
+  },
+  "runtime": {
+    "blender": "5.2.3 LTS",
+    "better_fbx": [
+      6,
+      3,
+      4
+    ],
+    "mmd_tools": "4.5.14"
+  },
+  "checks": {
+    "camera_framing": true,
+    "scene_preserved": true,
+    "transparent_alpha": true,
+    "post_alpha": true,
+    "render_save": true,
+    "errors_and_cleanup": true,
+    "register_unregister": true,
+    "save_reload": true,
+    "fresh_package_process": true,
+    "undo_redo": true,
+    "ui_errors": true,
+    "ui_render_save": true,
+    "png_preview": true
+  },
+  "resolver_checks": {
+    "json_dict_and_pairs": true,
+    "duplicate_error": true,
+    "missing_map_error": true,
+    "malformed_json_error": true,
+    "imported_base_color_reference": true,
+    "package_boundary": true,
+    "inactive_native_branches": true,
+    "zero_normal_strength": true,
+    "active_normal_error": true
+  },
+  "matrix": {
+    "fbx": 7,
+    "pmx": 3,
+    "views_per_model": 5,
+    "body_types": [
+      "Loli",
+      "Girl",
+      "Lady"
+    ],
+    "models": [
+      {
+        "name": "芭芭拉",
+        "format": "fbx",
+        "era": "早期",
+        "source_files_unchanged": 16,
+        "source_data_unchanged": true,
+        "derived_geometry_unchanged": true,
+        "restore_verified": true,
+        "mmd_metadata_preserved": true,
+        "source_output_protected": true,
+        "expression_depth_filtered": true,
+        "render_resources_clean": true,
+        "game_references_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ],
+        "feature_response": {},
+        "baseline_difference": {
+          "front": {
+            "maximum": 0.21568627655506134,
+            "mean": 9.910832886816934e-06,
+            "changed_fraction": 0.0011995442708333333
+          },
+          "head": {
+            "maximum": 0.7882353663444519,
+            "mean": 0.0002863932168111205,
+            "changed_fraction": 0.005769517686631944
+          },
+          "head-turn": {
+            "maximum": 0.6431372761726379,
+            "mean": 0.0001983543043024838,
+            "changed_fraction": 0.0046539306640625
+          },
+          "torso": {
+            "maximum": 0.3803921937942505,
+            "mean": 2.9526925573009066e-05,
+            "changed_fraction": 0.0020904541015625
+          }
+        },
+        "roles": [
+          "body",
+          "face",
+          "hair"
+        ],
+        "templates": [
+          "Body",
+          "Face",
+          "Hair"
+        ],
+        "layered_eye_materials": 0
+      },
+      {
+        "name": "雷电将军",
+        "format": "fbx",
+        "era": "过渡",
+        "source_files_unchanged": 16,
+        "source_data_unchanged": true,
+        "derived_geometry_unchanged": true,
+        "restore_verified": true,
+        "mmd_metadata_preserved": true,
+        "source_output_protected": true,
+        "expression_depth_filtered": true,
+        "render_resources_clean": true,
+        "game_references_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ],
+        "feature_response": {},
+        "baseline_difference": {
+          "front": {
+            "maximum": 0.011764705181121826,
+            "mean": 3.6222178323441767e-07,
+            "changed_fraction": 0.00021484375
+          },
+          "head": {
+            "maximum": 0.011764705181121826,
+            "mean": 2.1708037820644677e-06,
+            "changed_fraction": 0.0013885498046875
+          },
+          "head-turn": {
+            "maximum": 0.0156862735748291,
+            "mean": 2.1508576537598856e-06,
+            "changed_fraction": 0.0014512803819444445
+          },
+          "torso": {
+            "maximum": 0.011764705181121826,
+            "mean": 8.094804684333212e-07,
+            "changed_fraction": 0.0005086263020833334
+          }
+        },
+        "roles": [
+          "body",
+          "face",
+          "hair"
+        ],
+        "templates": [
+          "Body",
+          "Face",
+          "Hair"
+        ],
+        "layered_eye_materials": 0
+      },
+      {
+        "name": "纳西妲",
+        "format": "fbx",
+        "era": "中期",
+        "source_files_unchanged": 20,
+        "source_data_unchanged": true,
+        "derived_geometry_unchanged": true,
+        "restore_verified": true,
+        "mmd_metadata_preserved": true,
+        "source_output_protected": true,
+        "expression_depth_filtered": true,
+        "render_resources_clean": true,
+        "game_references_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ],
+        "feature_response": {},
+        "baseline_difference": {
+          "front": {
+            "maximum": 0.27450981736183167,
+            "mean": 0.0001172513366327621,
+            "changed_fraction": 0.0025358072916666667
+          },
+          "head": {
+            "maximum": 0.2823529839515686,
+            "mean": 2.200556809839327e-05,
+            "changed_fraction": 0.004367404513888889
+          },
+          "head-turn": {
+            "maximum": 0.3490196168422699,
+            "mean": 2.2136880943435244e-05,
+            "changed_fraction": 0.004608154296875
+          },
+          "torso": {
+            "maximum": 0.3607843518257141,
+            "mean": 0.0003565487277228385,
+            "changed_fraction": 0.005671183268229167
+          }
+        },
+        "roles": [
+          "body",
+          "face",
+          "hair"
+        ],
+        "templates": [
+          "Body",
+          "Face",
+          "Hair"
+        ],
+        "layered_eye_materials": 0
+      },
+      {
+        "name": "芙宁娜",
+        "format": "fbx",
+        "era": "中后期",
+        "source_files_unchanged": 21,
+        "source_data_unchanged": true,
+        "derived_geometry_unchanged": true,
+        "restore_verified": true,
+        "mmd_metadata_preserved": true,
+        "source_output_protected": true,
+        "expression_depth_filtered": true,
+        "render_resources_clean": true,
+        "game_references_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ],
+        "feature_response": {
+          "height_normal": {
+            "maximum": 0.36862748861312866,
+            "mean": 7.076249312376603e-05,
+            "changed_fraction": 0.003951822916666667
+          }
+        },
+        "baseline_difference": {
+          "front": {
+            "maximum": 0.019607849419116974,
+            "mean": 9.414573014510097e-07,
+            "changed_fraction": 0.00048014322916666664
+          },
+          "head": {
+            "maximum": 0.03529413044452667,
+            "mean": 6.241476967261406e-06,
+            "changed_fraction": 0.003048366970486111
+          },
+          "head-turn": {
+            "maximum": 0.0313725471496582,
+            "mean": 6.316274721029913e-06,
+            "changed_fraction": 0.003143310546875
+          },
+          "torso": {
+            "maximum": 0.027450978755950928,
+            "mean": 2.215682798123453e-06,
+            "changed_fraction": 0.0011647542317708333
+          }
+        },
+        "roles": [
+          "body",
+          "face",
+          "hair"
+        ],
+        "templates": [
+          "Body",
+          "Face",
+          "Hair"
+        ],
+        "layered_eye_materials": 0
+      },
+      {
+        "name": "玛薇卡",
+        "format": "fbx",
+        "era": "后期",
+        "source_files_unchanged": 49,
+        "source_data_unchanged": true,
+        "derived_geometry_unchanged": true,
+        "restore_verified": true,
+        "mmd_metadata_preserved": true,
+        "source_output_protected": true,
+        "expression_depth_filtered": true,
+        "render_resources_clean": true,
+        "game_references_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ],
+        "feature_response": {
+          "height_normal": {
+            "maximum": 0.35294121503829956,
+            "mean": 0.0001561654353281483,
+            "changed_fraction": 0.016204427083333334
+          }
+        },
+        "baseline_difference": {
+          "front": {
+            "maximum": 0.06666667014360428,
+            "mean": 6.606157967325998e-07,
+            "changed_fraction": 0.00030924479166666665
+          },
+          "head": {
+            "maximum": 0.03137260675430298,
+            "mean": 9.25500353332609e-06,
+            "changed_fraction": 0.0047760009765625
+          },
+          "head-turn": {
+            "maximum": 0.04313725233078003,
+            "mean": 9.781914741324726e-06,
+            "changed_fraction": 0.004720052083333333
+          },
+          "torso": {
+            "maximum": 0.25882354378700256,
+            "mean": 2.2323044959193794e-06,
+            "changed_fraction": 0.0009646945529513889
+          }
+        },
+        "roles": [
+          "body",
+          "face",
+          "hair"
+        ],
+        "templates": [
+          "Body",
+          "Face",
+          "Hair"
+        ],
+        "layered_eye_materials": 0
+      },
+      {
+        "name": "桑多涅",
+        "format": "fbx",
+        "era": "新模型",
+        "source_files_unchanged": 41,
+        "source_data_unchanged": true,
+        "derived_geometry_unchanged": true,
+        "restore_verified": true,
+        "mmd_metadata_preserved": true,
+        "source_output_protected": true,
+        "expression_depth_filtered": true,
+        "render_resources_clean": true,
+        "game_references_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ],
+        "feature_response": {
+          "stockings": {
+            "maximum": 0.3843137323856354,
+            "mean": 0.0023000193759799004,
+            "changed_fraction": 0.09292154947916667
+          },
+          "shining": {
+            "maximum": 0.21568632125854492,
+            "mean": 4.705370884039439e-05,
+            "changed_fraction": 0.00390625
+          },
+          "reflection": {
+            "maximum": 0.8352941274642944,
+            "mean": 0.0007751545053906739,
+            "changed_fraction": 0.005807291666666666
+          }
+        },
+        "baseline_difference": {
+          "front": {
+            "maximum": 0.7294117212295532,
+            "mean": 4.1583691199775785e-05,
+            "changed_fraction": 0.0007014973958333334
+          },
+          "head": {
+            "maximum": 0.9843137264251709,
+            "mean": 0.0009025440667755902,
+            "changed_fraction": 0.014619615342881944
+          },
+          "head-turn": {
+            "maximum": 0.9764705896377563,
+            "mean": 0.0007719168206676841,
+            "changed_fraction": 0.013454861111111112
+          },
+          "torso": {
+            "maximum": 0.886274516582489,
+            "mean": 0.00010168537119170651,
+            "changed_fraction": 0.0018446180555555555
+          }
+        },
+        "roles": [
+          "body",
+          "brow",
+          "eye",
+          "face",
+          "hair"
+        ],
+        "templates": [
+          "Body",
+          "Face",
+          "Hair"
+        ],
+        "layered_eye_materials": 1
+      },
+      {
+        "name": "奥黛塔",
+        "format": "fbx",
+        "era": "本次重点",
+        "source_files_unchanged": 53,
+        "source_data_unchanged": true,
+        "derived_geometry_unchanged": true,
+        "restore_verified": true,
+        "mmd_metadata_preserved": true,
+        "source_output_protected": true,
+        "expression_depth_filtered": true,
+        "render_resources_clean": true,
+        "game_references_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ],
+        "feature_response": {
+          "stockings": {
+            "maximum": 0.5803921818733215,
+            "mean": 0.004858312662690878,
+            "changed_fraction": 0.1015673828125
+          },
+          "silk": {
+            "maximum": 0.058823540806770325,
+            "mean": 4.01954457629472e-06,
+            "changed_fraction": 0.000634765625
+          },
+          "shining": {
+            "maximum": 0.5254902243614197,
+            "mean": 0.00020199205027893186,
+            "changed_fraction": 0.017823893229166665
+          },
+          "reflection": {
+            "maximum": 0.8549020290374756,
+            "mean": 0.0005635834531858563,
+            "changed_fraction": 0.010940755208333333
+          }
+        },
+        "baseline_difference": {
+          "front": {
+            "maximum": 0.5999999642372131,
+            "mean": 3.027981802006252e-05,
+            "changed_fraction": 0.0008626302083333333
+          },
+          "head": {
+            "maximum": 0.8235294222831726,
+            "mean": 0.0010965234832838178,
+            "changed_fraction": 0.015726725260416668
+          },
+          "head-turn": {
+            "maximum": 0.8352941274642944,
+            "mean": 0.0009787498274818063,
+            "changed_fraction": 0.014190673828125
+          },
+          "torso": {
+            "maximum": 0.6745097637176514,
+            "mean": 8.763830555835739e-05,
+            "changed_fraction": 0.0021413167317708335
+          }
+        },
+        "roles": [
+          "body",
+          "brow",
+          "eye",
+          "face",
+          "hair"
+        ],
+        "templates": [
+          "Body",
+          "Face",
+          "Hair"
+        ],
+        "layered_eye_materials": 1
+      },
+      {
+        "name": "安柏",
+        "format": "pmx",
+        "era": "",
+        "source_files_unchanged": 9,
+        "source_data_unchanged": true,
+        "derived_geometry_unchanged": true,
+        "restore_verified": true,
+        "mmd_metadata_preserved": true,
+        "source_output_protected": true,
+        "expression_depth_filtered": true,
+        "render_resources_clean": true,
+        "game_references_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ],
+        "feature_response": {},
+        "baseline_difference": {
+          "front": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "changed_fraction": 0.0
+          },
+          "head": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "changed_fraction": 0.0
+          },
+          "head-turn": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "changed_fraction": 0.0
+          },
+          "torso": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "changed_fraction": 0.0
+          }
+        },
+        "roles": [
+          "body",
+          "eye",
+          "face",
+          "hair"
+        ],
+        "templates": [
+          "Body",
+          "Hair"
+        ],
+        "layered_eye_materials": 0
+      },
+      {
+        "name": "纳西妲",
+        "format": "pmx",
+        "era": "",
+        "source_files_unchanged": 12,
+        "source_data_unchanged": true,
+        "derived_geometry_unchanged": true,
+        "restore_verified": true,
+        "mmd_metadata_preserved": true,
+        "source_output_protected": true,
+        "expression_depth_filtered": true,
+        "render_resources_clean": true,
+        "game_references_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ],
+        "feature_response": {},
+        "baseline_difference": {
+          "front": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "changed_fraction": 0.0
+          },
+          "head": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "changed_fraction": 0.0
+          },
+          "head-turn": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "changed_fraction": 0.0
+          },
+          "torso": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "changed_fraction": 0.0
+          }
+        },
+        "roles": [
+          "body",
+          "brow",
+          "expression",
+          "eye",
+          "face",
+          "hair"
+        ],
+        "templates": [
+          "Body",
+          "Hair"
+        ],
+        "layered_eye_materials": 0
+      },
+      {
+        "name": "奥黛塔",
+        "format": "pmx",
+        "era": "",
+        "source_files_unchanged": 52,
+        "source_data_unchanged": true,
+        "derived_geometry_unchanged": true,
+        "restore_verified": true,
+        "mmd_metadata_preserved": true,
+        "source_output_protected": true,
+        "expression_depth_filtered": true,
+        "render_resources_clean": true,
+        "game_references_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ],
+        "feature_response": {},
+        "baseline_difference": {
+          "front": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "changed_fraction": 0.0
+          },
+          "head": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "changed_fraction": 0.0
+          },
+          "head-turn": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "changed_fraction": 0.0
+          },
+          "torso": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "changed_fraction": 0.0
+          }
+        },
+        "roles": [
+          "body",
+          "brow",
+          "expression",
+          "eye",
+          "face",
+          "hair"
+        ],
+        "templates": [
+          "Body",
+          "Hair"
+        ],
+        "layered_eye_materials": 0
+      }
+    ]
+  },
+  "fixtures": {
+    "pupil_native_reference": {
+      "maximum": 0.0,
+      "mean": 0.0,
+      "changed_fraction": 0.0
+    },
+    "source_uv_transform": {
+      "maximum": 0.0,
+      "mean": 0.0,
+      "changed_fraction": 0.0
+    },
+    "coverage_ratio": 0.4803921568627451,
+    "expression_coverage_ratio": 0.5,
+    "checks": {
+      "native_pupil_composition": true,
+      "derived_slots_preserved": true,
+      "source_uv_sampling": true,
+      "invalid_uv_error": true,
+      "normal_negative_and_above_one": true,
+      "source_alpha_coverage": true,
+      "front_culling": true,
+      "expression_depth_excluded": true
+    }
+  },
+  "native_reference_sha256": "86d8515051fdfd65c767610151c4cb46ec84dbd1da37247dee07e5ecf518076c",
+  "core_regression": {
+    "fbx_models": 4,
+    "fbx_files": 124,
+    "pmx_models": 3,
+    "pmx_files": 73,
+    "pmx_checks": {
+      "save_reload": true,
+      "empty_scene_failure_rollback": true,
+      "assembly_failure_rollback": true,
+      "two_imports_isolated": true,
+      "import_repair_failure_rollback": true,
+      "missing_mmd_dependency": true,
+      "register_unregister": true
+    },
+    "subjects": 5,
+    "subject_checks": {
+      "unknown_kept_and_corrected": true,
+      "head_decoration_preserved": true,
+      "assembly_failure_rollback": true,
+      "mixed_imports_isolated": true,
+      "register_unregister": true
+    },
+    "interface": {
+      "interface": {
+        "toggle_undo_redo": true,
+        "group_undo_redo": true,
+        "empty_selection_rollback": true,
+        "dialog_cancel": true
+      },
+      "pmx-interface": {
+        "toggle_undo_redo": true,
+        "group_undo_redo": true,
+        "empty_selection_rollback": true,
+        "dialog_cancel": true
+      }
+    },
+    "formats": {
+      "mixed_formats": true,
+      "independent_render": true,
+      "restore_isolated": true,
+      "source_data_preserved": true,
+      "mmd_metadata_preserved": true
+    },
+    "baseline": {
+      "comparisons": [
+        {
+          "source_format": "fbx",
+          "unchanged_shading": true,
+          "pixels": {
+            "changed_fraction": 0.00047453703703703704,
+            "mean_error": 2.0935449356329627e-06,
+            "maximum_error": 0.054901957511901855
+          }
+        },
+        {
+          "source_format": "pmx",
+          "unchanged_shading": true,
+          "pixels": {
+            "changed_fraction": 0.0,
+            "mean_error": 0.0,
+            "maximum_error": 0.0
+          }
+        }
+      ],
+      "checks": {
+        "fbx_legacy_load_render_restore": true,
+        "pmx_legacy_load_render_restore": true,
+        "register_unregister": true
+      }
+    }
+  },
+  "acceptance": {
+    "22-33": "实现及技术自检通过，待用户验收",
+    "34": "待用户基础材质外观验收",
+    "35-50": "未开始"
+  },
+  "appearance_limits": [
+    "游戏截图与测试图存在机位、姿态及环境差异，外观由用户验收",
+    "受控原生眼层合成一致不代表整个参考插件或游戏引擎等价",
+    "面料、晶面、高度细节及眼部反射沿用原生静帧近似，未复现引擎 Cubemap 和动态闪点"
+  ]
+}

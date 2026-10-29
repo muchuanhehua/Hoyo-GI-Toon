@@ -40,8 +40,23 @@ def apply(graph):
     if graph.body is None:
         return
     strength = graph.assets.features['normal_strength']
-    graph.body.inputs['Use Normal Map'].default_value = (min(abs(strength), 1) if mode == 'tangent'
-                                                        else int(mode == 'height'))
+    graph.body.inputs['Use Normal Map'].default_value = int(mode != 'none')
+    if mode == 'tangent':
+        if 0 < strength <= 1:
+            graph.body.inputs['Use Normal Map'].default_value = strength
+            graph.material['hgt_normal_encoding'] = 'source tangent RG scale; native TBN and reconstructed Z'
+            return
+        socket = graph.body.inputs['Normal Map']
+        if not socket.is_linked:
+            raise ValueError('原生着色资源缺少切线法线输入')
+        red, green, blue = graph.split(socket.links[0].from_socket)
+        # Unity scales unpacked XY, including negative and >1 strengths. The
+        # native graph reconstructs Z and supplies its original UV-based TBN.
+        def scaled(value):
+            return graph.math('ADD', graph.math('MULTIPLY', graph.math('SUBTRACT', value, .5), strength), .5)
+        graph.link(graph.combine(scaled(red), scaled(green), blue), socket)
+        graph.material['hgt_normal_encoding'] = 'source tangent RG scale; native TBN and reconstructed Z'
+        return
     if mode != 'height':
         return
     uv = graph.uv(graph.assets.features['normal_uv'])

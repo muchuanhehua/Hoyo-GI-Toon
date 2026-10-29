@@ -39,6 +39,20 @@ def load_image(path, data=False, owner=""):
     return image
 
 
+def neutral_packed(owner):
+    """Explicit neutral ID/AO input for a source with no light-map reference."""
+    key = 'Neutral material data'
+    image = next((i for i in bpy.data.images if i.get('hgt_owner') == owner and i.get('hgt_generated') == key), None)
+    if image is None:
+        image = bpy.data.images.new('HGT • ' + key, 4, 4, alpha=True)
+        image.colorspace_settings.name = 'Non-Color'
+        image.alpha_mode = 'CHANNEL_PACKED'
+        image.pixels[:] = [0, 1, 0, 0] * 16
+        image['hgt_owner'], image['hgt_generated'] = owner, key
+        image.pack()
+    return image
+
+
 def input_value(modifier, name):
     socket = next((s for s in modifier.node_group.interface.items_tree
                    if s.item_type == "SOCKET" and s.in_out == "INPUT" and s.name == name), None)
@@ -88,7 +102,6 @@ class ShaderLibrary:
         settings.global_properties = self.groups["Global Material Properties"]
         settings.light_vectors = self.groups["Light Vectors"]
         settings.outline_graph = self.groups["HoYoverse - Genshin Impact Outlines"]
-        surface_layers.filter_outline_surfaces(settings.outline_graph)
         # Same links made by the original LightingPanel v3.4 setup.
         tree = settings.global_properties
         output = tree.nodes["Global Properties"]
@@ -147,7 +160,7 @@ class ShaderLibrary:
         if main is None:
             raise ValueError(f"{assets.source} 缺少基础色贴图")
         face_type = next((v for k,v in FACE_TYPES.items() if f"Avatar_{k}" in assets.source), None)
-        if face_type is None:
+        if face_type is None and material.node_tree.nodes.get('Face Shader'):
             raise ValueError(f"无法确定原版脸部类型：{assets.source}")
         for tree in walk(material.node_tree):
             for node in tree.nodes:
@@ -169,7 +182,7 @@ class ShaderLibrary:
                     role = "metal"
                 elif tree.get("hgt_upstream") == "Genshin Specular" and name == "Image Texture":
                     role, data = "specular_ramp", True
-                elif name == FACE_NODES[face_type]:
+                elif face_type is not None and name == FACE_NODES[face_type]:
                     role, data = "face_sdf", True
                 elif name == "Face_Shadow":
                     role, data = "lightmap", True
@@ -177,6 +190,13 @@ class ShaderLibrary:
                 if path:
                     node.image = load_image(path, data, self.uid)
                     node["hgt_texture_role"] = role
+                    from .sampling import configure
+                    configure(node, assets.texture_settings.get(role, {}))
+                elif role == 'lightmap':
+                    if assets.features['uses_body'] and 'lightmap' in assets.unresolved:
+                        raise ValueError(f'{assets.source} 缺少已启用的 LightMap')
+                    node.image = neutral_packed(self.uid)
+                    node['hgt_texture_role'] = 'neutral_packed'
         node = material.node_tree.nodes.get("Face Shader")
         if node:
             if "face_sdf" not in assets.textures or "lightmap" not in assets.textures:
@@ -187,11 +207,7 @@ class ShaderLibrary:
         if assets.source_format == 'pmx':
             from . import pmx_materials
             return pmx_materials.build(self, assets)
-        diffuse_name = assets.textures.get("diffuse", Path("")).stem
-        if assets.role in {"face", "eye", "brow"} and "_Tex_Face_" in diffuse_name:
-            kind = "Face"
-        else:
-            kind = "Hair" if assets.role == "hair" else "Body"
+        kind = assets.features['template']
         template = self.materials[f"HoYoverse - Genshin {kind}"]
         material = template.copy()
         material.name = f"HGT • {self.root.name} • {assets.source.rsplit('_Mat_', 1)[-1]}"
@@ -241,9 +257,15 @@ class ShaderLibrary:
         if int(assets.floats.get("_MainTexAlphaUse", 0)) == 1:
             outline_node.inputs["Use Alpha"].default_value = 1
         if kind == "Face" and surface_layers.uses_default_expression(assets):
-            surface_layers.mask_material(material)
-            surface_layers.mask_material(outline)
+            material['hgt_expression_mask'] = surface_layers.EXPRESSION_MASK
+            material['hgt_expression_visibility'] = 'evaluated_geometry'
         eye_layers.apply(material, assets, load_image, self.uid)
+        if '_CullMode' in assets.floats:
+            mode = int(assets.floats['_CullMode'])
+            surface_layers.configure_culling(material, mode)
+            overlay = material.get('hgt_eye_overlay')
+            if overlay:
+                surface_layers.configure_culling(overlay, mode)
         return material, outline
 
     def finish(self):

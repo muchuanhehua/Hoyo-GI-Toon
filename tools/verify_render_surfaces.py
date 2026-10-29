@@ -107,9 +107,14 @@ for model in models:
         if root.hgt_character.outline_graph.get('hgt_expression_mask'):
             assert root.hgt_character.outline_graph.nodes['HGT Active Outline Surfaces'].outputs['Geometry'].is_linked
         if material.get('hgt_expression_mask'):
-            for generated in (material, binding.outline):
-                assert generated.node_tree.nodes['HGT Expression Mask'].attribute_name == addon.workflow.surface_layers.EXPRESSION_MASK
-                assert generated.node_tree.nodes['HGT Facial Layers'].outputs[0].is_linked
+            if material.get('hgt_expression_visibility')=='evaluated_geometry':
+                assert any(mod.type=='NODES' and mod.node_group.get('hgt_expression_surfaces')
+                           for entry in root.hgt_character.meshes if material in entry.object.data.materials[:]
+                           for mod in entry.object.modifiers)
+            else:
+                for generated in (material, binding.outline):
+                    assert generated.node_tree.nodes['HGT Expression Mask'].attribute_name == addon.workflow.surface_layers.EXPRESSION_MASK
+                    assert generated.node_tree.nodes['HGT Facial Layers'].outputs[0].is_linked
     folder = out / name
     folder.mkdir(exist_ok=True)
     closeup(scene, root)

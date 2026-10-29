@@ -97,6 +97,8 @@ def preview(context, root):
     space.camera = root.hgt_character.camera
     space.region_3d.view_perspective = "CAMERA"
     space.shading.type = "MATERIAL"
+    space.shading.use_scene_world = True
+    space.shading.use_scene_lights = True
     space.overlay.show_overlays = False
 
 
@@ -182,7 +184,9 @@ def _proxy(scene, root, path):
         objects = {obj for obj in scene.objects if obj.get('hgt_owner') == uid
                    or (obj.type == 'LIGHT' and not obj.get('hgt_owner'))}
         objects.add(proxy.camera)
-        for obj in objects:
+        # Stable insertion also makes coplanar/transparent draw ties repeatable
+        # after reload, when ID addresses and Python set order have changed.
+        for obj in sorted(objects, key=lambda item: item.name_full):
             collection.objects.link(obj)
         _attachment_light(job, root, collection)
         proxy.render.engine = "BLENDER_EEVEE"
@@ -264,6 +268,7 @@ def start(scene, root, invoke=False):
     if camera == root.hgt_character.camera:
         frame_camera(scene, root)
     path = output_path(scene)
+    protect_assets(scene, path)
     path.parent.mkdir(parents=True, exist_ok=True)
     job = _proxy(scene, root, path)
     job.previous_file = _file_signature(path)
@@ -299,9 +304,25 @@ def finish(key):
         if job.state == "cancelled":
             raise RuntimeError("渲染已取消")
         _validate_png(job)
+        job.source.hgt_output.last_render = str(job.path)
         return str(job.path)
     finally:
         _cleanup(key)
+
+
+def protect_assets(scene, path):
+    """A render target must never replace any part of an imported package."""
+    for obj in scene.objects:
+        settings = obj.hgt_character
+        if settings.uid and settings.source_file:
+            folder = Path(settings.source_file).resolve().parent
+            if path.is_relative_to(folder):
+                raise ValueError('请选择模型资产目录以外的位置保存图片')
+    for image in bpy.data.images:
+        if image.source == 'FILE' and image.filepath:
+            source = Path(bpy.path.abspath(image.filepath)).resolve()
+            if path == source:
+                raise ValueError('保存位置与已有贴图相同，请选择其他 PNG 文件')
 
 
 def job_state(key):

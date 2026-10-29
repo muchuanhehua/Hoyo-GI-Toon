@@ -105,6 +105,7 @@ class HGTOutputSettings(PropertyGroup):
     height: IntProperty(name="高", default=1536, min=64, max=16384)
     transparent: BoolProperty(name="透明背景", default=True)
     filepath: StringProperty(name="保存到", subtype="FILE_PATH")
+    last_render: StringProperty(subtype='FILE_PATH')
     post_processing: BoolProperty(name="后期", default=False)
     rendering: BoolProperty(options={"HIDDEN", "SKIP_SAVE"})
 

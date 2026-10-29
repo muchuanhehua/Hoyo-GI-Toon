@@ -3,6 +3,7 @@ import argparse
 import ast
 import hashlib
 import json
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -12,7 +13,7 @@ import zipfile
 ROOT=Path(__file__).resolve().parents[1]
 PAYLOAD={"__init__.py","asset_resolver.py","asset_tracking.py","eye_layers.py","importers.py","lighting.py","outlines.py",
          "mmd_importer.py","pmx_materials.py",
-         "material_protocol.py","node_graph.py","normal_maps.py","eye_surfaces.py","textiles.py","reflections.py",
+         "material_protocol.py","node_graph.py","normal_maps.py","eye_surfaces.py","textiles.py","reflections.py","sampling.py",
          "panels.py","post_processing.py","properties.py","rendering.py","shaders.py","subjects.py","surface_layers.py","upstream_mapping.py","workflow.py",
          "assets/original_shader.blend","assets/original_controls.blend","assets/upstream.json",
          "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE","docs/upstream-baseline.md","docs/basic-rendering.md","docs/pmx-rendering.md","docs/subjects.md"}
@@ -36,8 +37,8 @@ def validate_evidence(evidence,integration=False):
         raise ValueError('Render and lifecycle verification is incomplete')
     if integration:
         required={'fresh_package_process','register_unregister','save_reload','undo_redo','ui_render_save',
-                  'camera_framing','scene_preserved','transparent_alpha','post_alpha','errors_and_cleanup','ui_errors'}
-        if evidence.get('scope') not in {'01–08','01–15','01–21'} or not all(evidence.get('integration_checks',{}).get(key) is True for key in required):
+                  'camera_framing','scene_preserved','transparent_alpha','post_alpha','errors_and_cleanup','ui_errors','png_preview'}
+        if evidence.get('scope') not in {'01–08','01–15','01–21','01–34'} or not all(evidence.get('integration_checks',{}).get(key) is True for key in required):
             raise ValueError('08 integration evidence is required')
     return hashes
 
@@ -78,6 +79,37 @@ def validate_subjects(evidence,hashes,integration=False):
         raise ValueError('Installed subject package verification is required')
 
 
+def validate_materials(evidence,hashes,integration=False):
+    expected={name:value for name,value in hashes.items() if name.endswith('.py')}
+    resources={name:value for name,value in hashes.items() if name.startswith('assets/')}
+    if (evidence.get('scope')!='22–34' or evidence.get('source_sha256')!=expected
+            or evidence.get('resource_sha256')!=resources):
+        raise ValueError('Material verification does not match the runtime payload')
+    models=evidence.get('models',[])
+    counts={format:sum(m.get('format')==format for m in models) for format in ('fbx','pmx')}
+    flags=('source_data_unchanged','derived_geometry_unchanged','restore_verified','mmd_metadata_preserved',
+           'source_output_protected','render_resources_clean','game_references_unchanged','expression_depth_filtered')
+    if counts['fbx']<7 or counts['pmx']<3 or not all(all(m.get(k) is True for k in flags) for m in models):
+        raise ValueError('Seven FBX and three PMX material verification cases are required')
+    types={match.group(1) for m in models for mat in m['materials']
+           if (match:=re.match(r'Avatar_(Loli|Boy|Girl|Male|Lady)_',mat['source']))}
+    if len(types)<3:raise ValueError('Material verification must cover different body types')
+    views={'front','head','head-turn','torso','side-light'}
+    if not all(views.issubset(m['views']) for m in models):raise ValueError('Close-up and turn verification is incomplete')
+    features={name for m in models for name in m['feature_response']}
+    if not {'stockings','silk','shining','reflection','height_normal'}.issubset(features):
+        raise ValueError('Material feature response verification is incomplete')
+    if not all(evidence.get('checks',{}).values()) or not evidence.get('checks'):
+        raise ValueError('Material lifecycle verification is incomplete')
+    fixture=evidence.get('fixtures',{})
+    if not fixture.get('checks') or not all(fixture['checks'].values()):
+        raise ValueError('Native-reference and sampling fixtures are incomplete')
+    if fixture['pupil_native_reference']['maximum']>1/255+.00001:
+        raise ValueError('Pupil composition differs from the native reference')
+    if integration and not evidence.get('package_sha256'):
+        raise ValueError('Installed material package verification is required')
+
+
 def validate_archive(path):
     with zipfile.ZipFile(path) as archive:
         if archive.testzip() is not None or set(archive.namelist())!=PAYLOAD:
@@ -94,6 +126,7 @@ def main():
     parser.add_argument('--verification',type=Path,required=True)
     parser.add_argument('--pmx-verification',type=Path)
     parser.add_argument('--subjects-verification',type=Path)
+    parser.add_argument('--materials-verification',type=Path)
     args=parser.parse_args()
     manifest=tomllib.loads((ROOT/'blender_manifest.toml').read_text(encoding='utf-8'))
     for name in PAYLOAD:
@@ -116,6 +149,12 @@ def main():
         validate_subjects(subjects,hashes,integration=args.action=='release')
         if args.action=='release' and subjects.get('package_sha256')!=evidence.get('package_sha256'):
             raise ValueError('Subject verification must use the same candidate')
+    if tuple(map(int,manifest['version'].split('.'))) >= (0,7,0):
+        if not args.materials_verification:raise ValueError('Material verification is required for this version')
+        materials=json.loads(args.materials_verification.read_text(encoding='utf-8'))
+        validate_materials(materials,hashes,integration=args.action=='release')
+        if args.action=='release' and materials.get('package_sha256')!=evidence.get('package_sha256'):
+            raise ValueError('Material verification must use the same candidate')
     candidate_dir=ROOT/'.build/candidate'
     candidate_dir.mkdir(parents=True,exist_ok=True)
     name=f"{manifest['id']}-{manifest['version']}.zip"
@@ -155,6 +194,10 @@ def main():
         summary['formats']=evidence.get('formats',{})
     if args.subjects_verification:
         summary['subjects']={'checks':subjects['checks'],'models':subjects['models']}
+    if args.materials_verification:
+        summary['materials']={'checks':materials['checks'],'fixtures':materials['fixtures'],
+                              'models':[{k:m[k] for k in ('name','format','source_data_unchanged','views')} for m in materials['models']],
+                              'visual_acceptance':'pending_user_review'}
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print('HGT_RELEASE_RECORD',name,record['sha256'],flush=True)
 

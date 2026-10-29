@@ -25,9 +25,10 @@ assert out.is_relative_to(project/'.verification')
 out.mkdir(parents=True,exist_ok=True)
 better,_=copy_better(args.better_fbx,out/'_runtime')
 addon=install_candidate(args.candidate,out) if args.candidate else load_addon(project)
+payload=Path(addon.__file__).resolve().parent
 models=json.loads(args.assets_index.read_text(encoding='utf-8'))['models']
 report={'package_sha256':file_hash(args.candidate) if args.candidate else None,
-        'source_sha256':{p.name:file_hash(p) for p in project.glob('*.py')},'conditions':{'size':[640,960],
+        'source_sha256':{p.name:file_hash(p) for p in payload.glob('*.py')},'conditions':{'size':[640,960],
         'background':[.06,.06,.06,1],'light_azimuths':[.35,-1.0],'light_elevation':.35,
         'shadow_position':.55,'outline':.25,'post_processing':False},'models':[]}
 
