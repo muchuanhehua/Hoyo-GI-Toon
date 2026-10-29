@@ -25,8 +25,16 @@ Better FBX operator integration follows the interface documented in
 PaoloESAN/gacha-setup (local reference 3.8.3, utils/better_fbx_utils.py):
 https://github.com/PaoloESAN/gacha-setup
 Better FBX itself is a separately installed dependency and is not bundled.
-eye_layers.py follows the alpha composition of the native PupilaTodo group in
-Gacha Setup's GI shader resource, binding source JSON layer references separately.
+eye_layers.py follows the alpha-composition principle of the native PupilaTodo
+group in Gacha Setup's GI shader resource. eye_surfaces.py uses connected surfaces
+and their depth to distinguish the clear eye surface, informed by Gacha Setup's
+classify_pupil_faces. It does not use character names or fixed polygon counts.
+
+textiles.py translates selected source stockings parameters to native nodes,
+informed by HoyoToon's public Genshin material-ID and stockings implementations:
+https://github.com/Hoyotoon/HoyoToon/tree/main/Shaders/Genshin%20Impact/Includes
+The silk, static glint and Matcap/facet modules are native approximations driven
+by local material data, not a distribution of the game's shaders or cubemaps.
 
 Per-character ownership and resource isolation were informed by
 AstraMorningstar/Morningstar-Festivity-render-assistant (local reference 1.0.2.1,

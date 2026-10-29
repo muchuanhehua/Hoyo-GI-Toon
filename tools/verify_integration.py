@@ -45,6 +45,7 @@ def scene_snapshot(scene):
     return {'camera':scene.camera.name if scene.camera else None,
             'camera_data':{'matrix':matrix(scene.camera.matrix_world),'lens':scene.camera.data.lens} if scene.camera else None,
             'engine':scene.render.engine,'size':(scene.render.resolution_x,scene.render.resolution_y,scene.render.resolution_percentage),
+            'color_view':(scene.view_settings.view_transform,scene.view_settings.look,scene.view_settings.exposure,scene.view_settings.gamma),
             'transparent':scene.render.film_transparent,'path':scene.render.filepath,
             'format':scene.render.image_settings.file_format,'world':scene.world.name if scene.world else None,
             'compositor':scene.compositing_node_group.name if scene.compositing_node_group else None,

@@ -3,7 +3,8 @@ from pathlib import Path
 import bpy
 from .asset_tracking import data_pointers, new_data
 from .upstream_mapping import ADDITIONAL_MAPPING, ALPHA_MAPPING, FACE_MAPPING, MATERIAL_MAPPING, OUTLINE_MAPPING
-from . import eye_layers, surface_layers
+from . import eye_layers, surface_layers, normal_maps, textiles, reflections
+from .node_graph import Graph
 
 LIBRARY_PATH = Path(__file__).parent / "assets/original_shader.blend"
 CONTROLS_PATH = Path(__file__).parent / "assets/original_controls.blend"
@@ -188,11 +189,6 @@ class ShaderLibrary:
             kind = "Face"
         else:
             kind = "Hair" if assets.role == "hair" else "Body"
-        if kind != "Face":
-            for flag, role in (("_UseBumpMap", "normal"), ("_UseShadowRamp", "ramp"),
-                               ("_MetalMaterial", "metal"), ("_MTUseSpecularRamp", "specular_ramp")):
-                if assets.floats.get(flag, 0) and role not in assets.textures:
-                    raise ValueError(f"{assets.source} 启用了 {flag}，但缺少配套 {role} 贴图")
         template = self.materials[f"HoYoverse - Genshin {kind}"]
         material = template.copy()
         material.name = f"HGT • {self.root.name} • {assets.source.rsplit('_Mat_', 1)[-1]}"
@@ -200,17 +196,13 @@ class ShaderLibrary:
         material["hgt_json"] = str(assets.json_path or "")
         material["hgt_template"] = kind
         import json
+        material['hgt_features'] = json.dumps(assets.features, sort_keys=True)
         material["hgt_texture_matches"] = json.dumps({role: {"file": str(path), "basis": assets.evidence.get(role, "")}
                                                      for role, path in assets.textures.items()}, ensure_ascii=False)
         if assets.source.rsplit('_Mat_', 1)[-1] in {"Face", "Eye", "Pupil"}:
             material.use_raytrace_refraction = True
         self._private_textures(material.node_tree, {})
         self._bind_textures(material, assets)
-        diffuse_nodes = [node for tree in walk(material.node_tree) for node in tree.nodes
-                         if node.type == 'TEX_IMAGE' and node.get('hgt_texture_role') == 'diffuse']
-        layers = eye_layers.compose(diffuse_nodes, assets, load_image, self.uid)
-        if layers:
-            material['hgt_eye_layers'] = layers
         node = material.node_tree.nodes["Face Shader" if kind == "Face" else "Body Shader"]
         applied = apply_mapping(node, FACE_MAPPING if kind == "Face" else MATERIAL_MAPPING, assets)
         if kind != "Face":
@@ -224,6 +216,12 @@ class ShaderLibrary:
                 raise ValueError(f"原版 v3 不支持该 Alpha 模式：{assets.source} / {mode}")
             for key, value in ALPHA_MAPPING[mode].items():
                 node.inputs[key].default_value = value
+            node.inputs['Enable Metallics?'].default_value = int(assets.features['metal'])
+            node.inputs['Use Specular Ramp'].default_value = int(assets.features['specular_ramp'])
+            graph = Graph(material, assets, self.uid, load_image)
+            normal_maps.apply(graph)
+            textiles.apply(graph)
+            reflections.apply(graph)
         material["hgt_applied_parameters"] = list(applied)
         outline = self.materials["HoYoverse - Genshin Outlines"].copy()
         outline.name = material.name + " Outlines"
@@ -242,6 +240,7 @@ class ShaderLibrary:
         if kind == "Face" and surface_layers.uses_default_expression(assets):
             surface_layers.mask_material(material)
             surface_layers.mask_material(outline)
+        eye_layers.apply(material, assets, load_image, self.uid)
         return material, outline
 
     def finish(self):

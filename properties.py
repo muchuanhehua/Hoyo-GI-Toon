@@ -33,6 +33,8 @@ class HGTMeshReference(PropertyGroup):
     original_material_links: StringProperty()
     original_hidden: BoolProperty()
     original_view_hidden: BoolProperty()
+    participation: StringProperty()
+    participation_basis: StringProperty()
 
 
 class HGTControlReference(PropertyGroup):
@@ -58,8 +60,8 @@ class HGTCharacterSettings(PropertyGroup):
     camera: PointerProperty(type=bpy.types.Object)
     shadow_position: FloatProperty(name="阴影位置", default=0.55, min=0, max=1, update=update_appearance)
     outline: FloatProperty(name="描边", default=0.25, min=0, max=1, update=update_appearance)
-    light_azimuth: FloatProperty(name="光照方位", subtype="ANGLE", default=0, min=-3.14159, max=3.14159, update=update_appearance)
-    light_elevation: FloatProperty(name="光照高度", subtype="ANGLE", default=0, min=-1.55, max=1.55, update=update_appearance)
+    light_azimuth: FloatProperty(name="光照方位", subtype="ANGLE", default=0.35, min=-3.14159, max=3.14159, update=update_appearance)
+    light_elevation: FloatProperty(name="光照高度", subtype="ANGLE", default=0.35, min=-1.55, max=1.55, update=update_appearance)
 
 
 class HGTOutputSettings(PropertyGroup):

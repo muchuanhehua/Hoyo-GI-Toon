@@ -25,8 +25,10 @@ Better FBX 为独立安装依赖，通过 `better_import.fbx` 调用。其余参
 | `asset_tracking.DataTransaction / remove_render_data` | 失败回滚、按归属清理 | 沿真实 ID 引用保留外部已使用的资源，不进行全场景清理 |
 | `AssetCatalog.resolve(name, material)` | `MaterialAssets`：用途、参数、贴图与匹配依据 | JSON 优先，结合导入材质 Base Color 与精确名称；限定所选资产包 |
 | `shaders.ShaderLibrary.build_material(assets)` | 渲染材质和对应描边材质 | Body、Hair、Face、基础眼部与 Alpha；含贴图路径按材质独立 |
-| `eye_layers.compose` | 由材质参数开启的眼图颜色合成 | 读取实际层图，按 Alpha 混合，不改 UV 或网格 |
-| `surface_layers.is_effect_overlay / mark_expression_faces / mask_material` | 覆盖层可见性判定、派生表情属性和透明着色 | 根据源用途与参数处理，保留全部原几何与 UV |
+| `material_protocol.describe / normal_maps.apply` | 实际启用分支、切线或高度法线 | 按父开关、引用和强度校验，不位移原几何 |
+| `eye_surfaces.mark / eye_layers.apply` | 派生眼层属性、独立虹膜与高光 | 按表面深度与源参数装配，不改原 UV 和材质槽索引 |
+| `textiles.apply / reflections.apply` | 源遮罩限定的面料与反射 | 各模块独立开关验证，保持底层 Toon 路径 |
+| `surface_layers.participation / mark_expression_faces / mask_material` | 覆盖层可见性判定、派生表情属性和透明着色 | 根据源用途与参数处理，保留全部原几何与 UV |
 | `lighting.build / attach / update` | 头部参照、光向控制、Light Vectors | 只引用导入骨架，保留骨架数据和层级；参数更新不重复创建资源 |
 | `outlines.build / update` | 按材质分区的描边修改器 | 沿用材质颜色，位于原始修改器和 Light Vectors 之后，不应用到网格 |
 | `workflow.build / assemble / restore` | 资产根对象、装配或恢复结果 | 编排上述模块；同批重复装配复用根对象和已建资源 |

@@ -91,7 +91,10 @@ def validate_materials(root, package):
                     path = Path(bpy.path.abspath(image.filepath)).resolve()
                     assert path.is_file() and path.is_relative_to(package)
                     role = node.get('hgt_texture_role')
-                    expected = 'Non-Color' if role in {'normal','lightmap','face_sdf','specular_ramp'} else 'sRGB'
+                    data_roles = {'normal','normal_package','lightmap','face_sdf','specular_ramp',
+                                  'eye_normal','eye_matcap','eye_highlight','stocking_detail',
+                                  'silk_detail','shining_shape','facet_normal'}
+                    expected = 'Non-Color' if role in data_roles else 'sRGB'
                     assert image.colorspace_settings.name == expected, (material.name,role,image.colorspace_settings.name)
                     assert image.alpha_mode == 'CHANNEL_PACKED'
                     textures.append({'role':role,'path':str(path.relative_to(package)),'colorspace':expected})

@@ -6,7 +6,7 @@ import bpy
 from bpy.app.handlers import persistent
 from mathutils import Vector
 from .asset_resolver import AssetCatalog, source_name
-from . import asset_tracking, importers, lighting, outlines, rendering, shaders, surface_layers
+from . import asset_tracking, importers, lighting, outlines, rendering, shaders, surface_layers, eye_surfaces
 
 _REFRESHING = False
 
@@ -70,9 +70,10 @@ def assemble(batch, context):
                 entry.object = obj
                 entry.original_hidden = obj.hide_render
                 entry.original_view_hidden = obj.hide_get()
-                # Named effect overlays are retained with their original data.
-                # Their visibility is restored together with the render assembly.
-                if surface_layers.is_effect_overlay(obj):
+                entry.participation, entry.participation_basis = surface_layers.participation(obj)
+                # Preview participation never deletes geometry or changes its rig.
+                # Permanent Avatar surfaces keep rendering even if named EffectMesh.
+                if entry.participation != 'surface':
                     obj.hide_render = True
                     obj.hide_set(True)
         visible = [e.object for e in settings.meshes if not e.object.hide_render]
@@ -107,6 +108,8 @@ def assemble(batch, context):
                 mesh.material_slots[index].material = built[key]
                 if built[key].get("hgt_expression_mask"):
                     surface_layers.mark_expression_faces(entry, index, assets)
+                if built[key].get('hgt_eye_surface_mask'):
+                    eye_surfaces.mark(entry, index)
             lighting.attach(mesh, root, controls)
             outlines.build(mesh, root)
         if not built:

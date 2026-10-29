@@ -10,13 +10,13 @@ sys.dont_write_bytecode=True
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import bpy
 import numpy as np
-from verification_runtime import copy_better,install_candidate,unload_addon,file_hash
+from verification_runtime import copy_better,install_candidate,load_addon,unload_addon,file_hash
 from verification_data import source_snapshot
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--assets-index',type=Path,required=True)
 parser.add_argument('--better-fbx',type=Path,required=True)
-parser.add_argument('--candidate',type=Path,required=True)
+parser.add_argument('--candidate',type=Path)
 parser.add_argument('--output-dir',type=Path,required=True)
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:])
 project=Path(__file__).resolve().parents[1]
@@ -24,10 +24,11 @@ out=args.output_dir.resolve()
 assert out.is_relative_to(project/'.verification')
 out.mkdir(parents=True,exist_ok=True)
 better,_=copy_better(args.better_fbx,out/'_runtime')
-addon=install_candidate(args.candidate,out)
+addon=install_candidate(args.candidate,out) if args.candidate else load_addon(project)
 models=json.loads(args.assets_index.read_text(encoding='utf-8'))['models']
-report={'package_sha256':file_hash(args.candidate),'conditions':{'size':[640,960],
-        'background':[.06,.06,.06,1],'light_azimuths':[.65,-1.0],
+report={'package_sha256':file_hash(args.candidate) if args.candidate else None,
+        'source_sha256':{p.name:file_hash(p) for p in project.glob('*.py')},'conditions':{'size':[640,960],
+        'background':[.06,.06,.06,1],'light_azimuths':[.35,-1.0],'light_elevation':.35,
         'shadow_position':.55,'outline':.25,'post_processing':False},'models':[]}
 
 
@@ -71,7 +72,7 @@ for model in models:
         root.hgt_character.shadow_position=.55
         root.hgt_character.outline=.25
         outputs=[]
-        for name,azimuth in [('front',.65),('side-light',-1.0)]:
+        for name,azimuth in [('front',.35),('side-light',-1.0)]:
             root.hgt_character.light_azimuth=azimuth
             output=folder/(name+'.png')
             scene.hgt_output.filepath=str(output)
@@ -84,7 +85,7 @@ for model in models:
             bpy.data.images.remove(image)
             outputs.append(pixels)
         assert np.abs(outputs[0][:,:3]-outputs[1][:,:3]).max()>.01,'Light direction has no visual response'
-        root.hgt_character.light_azimuth=.65
+        root.hgt_character.light_azimuth=.35
         scene.hgt_output.filepath=str(folder/'front.png')
         bpy.ops.wm.save_as_mainfile(filepath=str(folder/'render.blend'),relative_remap=False)
         record.update({'objects':len(batch.objects),'meshes':len(batch.meshes),

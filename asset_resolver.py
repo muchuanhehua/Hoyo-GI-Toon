@@ -8,6 +8,7 @@ IMAGE_SUFFIXES = {".png", ".tga", ".dds", ".jpg", ".jpeg", ".bmp", ".exr", ".tif
 TEXTURE_KEYS = {
     "diffuse": ("_MainTex", "_BaseMap", "_BaseTex"),
     "normal": ("_BumpMap", "_NormalMap"),
+    "normal_package": ("_NormalPackageMap",),
     "lightmap": ("_LightMapTex", "_LightMap"),
     "ramp": ("_PackedShadowRampTex", "_ShadowRamp", "_RampTex"),
     "face_sdf": ("_FaceSdfMap", "_FaceMapTex"),
@@ -16,6 +17,16 @@ TEXTURE_KEYS = {
     "eye_layer_1": ("_ParallaxLayer1Tex",),
     "eye_layer_2": ("_ParallaxLayer2Tex",),
     "eye_layer_3": ("_ParallaxLayer3Tex",),
+    "eye_normal": ("_BaseMatcapPackedTex",),
+    "eye_matcap": ("_EyeMaskWithMatcap",),
+    "eye_highlight": ("_SDFGradientMap", "_EyeHighlightTex", "_HighlightMask"),
+    "eye_ramp": ("_PackedHighlightRampTex",),
+    "eye_layer_ramp": ("_PackedParallaxLayerRampTex",),
+    "stocking_detail": ("_StockingsDetailTex",),
+    "silk_detail": ("_AnisoSilkThreadMap",),
+    "shining_shape": ("_ShiningCustomIDMask_V2",),
+    "matcap": ("_MatCap",),
+    "facet_normal": ("_NormalTex",),
 }
 
 
@@ -62,6 +73,8 @@ class MaterialAssets:
     texenvs: dict = field(default_factory=dict)
     json_path: Path | None = None
     evidence: dict = field(default_factory=dict)
+    unresolved: dict = field(default_factory=dict)
+    features: dict = field(default_factory=dict)
 
     def color(self, key, fallback):
         value = self.colors.get(key)
@@ -142,6 +155,8 @@ class AssetCatalog:
                     result.evidence[role] = f"{part} material JSON ramp"
         if "diffuse" not in result.textures and result.role != "effect":
             raise AssetError(f"{name} 缺少基础色贴图，请将配套贴图放在 FBX 所在资产包内")
+        from .material_protocol import describe
+        result.features = describe(result)
         return result
 
     def _source_diffuse(self, material):
@@ -205,6 +220,7 @@ class AssetCatalog:
                     continue
                 image = self.image(name)
                 if image is None:
+                    result.unresolved[role] = name
                     # A selected material's main texture is a required reference;
                     # optional shader-specific detail maps may not be exported.
                     enabled_eye_layer = role.startswith("eye_layer_") and result.floats.get("_ParallaxLayer" + role[-1], 0)

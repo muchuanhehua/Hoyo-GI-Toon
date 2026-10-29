@@ -64,7 +64,7 @@ for model in models:
         if obj.name.split('.')[0] == 'Face_Eye':
             assert not any(modifier.type == 'NODES' and modifier.node_group == root.hgt_character.outline_graph
                            for modifier in obj.modifiers), 'Eye overlay generated an exterior outline'
-        if addon.workflow.surface_layers.is_effect_overlay(obj):
+        if entry.participation != 'surface':
             assert obj.hide_render and obj.hide_get(), obj.name
             record['hidden_overlays'].append(obj.name)
         original = entry.original_data or obj.data

@@ -167,6 +167,9 @@ def _proxy(scene, root, path):
         proxy.camera = scene.hgt_output.camera
         proxy.render.engine = "BLENDER_EEVEE"
         proxy.view_settings.view_transform = "Standard"
+        proxy.view_settings.look = 'None'
+        proxy.view_settings.exposure = 0
+        proxy.view_settings.gamma = 1
         proxy.render.resolution_x, proxy.render.resolution_y = job.size
         proxy.render.resolution_percentage = 100
         proxy.render.pixel_aspect_x = proxy.render.pixel_aspect_y = 1

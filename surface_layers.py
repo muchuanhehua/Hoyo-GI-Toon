@@ -5,9 +5,19 @@ EXPRESSION_MASK = "hgt_facial_expression"
 UV_EPSILON = 1e-5
 
 
-def is_effect_overlay(obj):
-    name = source_name(obj.name).casefold()
-    return name.startswith("eff_") or "effectmesh" in name or name == "eyestar"
+def participation(obj):
+    """Use referenced material namespaces, rather than an object's loose name."""
+    materials = [source_name(s.material.name) for s in obj.material_slots if s.material]
+    if (source_name(obj.name).casefold() == 'eyestar' and materials
+            and all(name.startswith('Avatar_') and name.endswith('_Mat_Face') for name in materials)):
+        return 'inactive_expression', 'EyeStar expression geometry using the Face atlas'
+    if materials and all(name == 'Avatar_Default_Mat' for name in materials):
+        return 'placeholder', 'source default material'
+    if materials and all(name.startswith('SkillObj_') for name in materials):
+        return 'gameplay_attachment', 'source SkillObj material namespace'
+    if materials and all(name.startswith('Eff_') for name in materials):
+        return 'gameplay_effect', 'source Eff material namespace'
+    return 'surface', 'source character or retained material'
 
 
 def uses_default_expression(assets):
