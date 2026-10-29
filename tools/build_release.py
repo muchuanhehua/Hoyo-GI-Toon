@@ -217,13 +217,19 @@ def main():
             for model in pmx['models']]}
         summary['formats']=evidence.get('formats',{})
     if args.subjects_verification:
-        summary['subjects']={'checks':subjects['checks'],'models':subjects['models']}
+        fields=('name','source_format','mixed','source_files_unchanged','source_data_unchanged',
+                'mmd_metadata_preserved','derived_geometry_unchanged','references_restored',
+                'visibility_restored','save_reload','repeat_no_leak','toggle_pixels_restored')
+        summary['subjects']={'checks':subjects['checks'],
+            'models':[{**{key:model[key] for key in fields},'parts':len(model['parts'])}
+                      for model in subjects['models']]}
     if args.materials_verification:
         summary['materials']={'checks':materials['checks'],'fixtures':materials['fixtures'],
                               'models':[{k:m[k] for k in ('name','format','source_data_unchanged','views')} for m in materials['models']],
                               'visual_acceptance':'pending_user_review'}
     if args.workflow_verification:
         summary['workflow']=workflow
+        summary['workflow_interface']=evidence.get('workflow_interface',{})
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print('HGT_RELEASE_RECORD',name,record['sha256'],flush=True)
 

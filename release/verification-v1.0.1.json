@@ -1,0 +1,519 @@
+{
+  "scope": "01–34 / 39–49",
+  "version": "1.0.1",
+  "archive_sha256": "89f93ec77b23d6b53937cfa22b42d4d8c1c4fb9e7d299138ddf3c7315bc92ce9",
+  "integration_checks": {
+    "camera_framing": true,
+    "scene_preserved": true,
+    "transparent_alpha": true,
+    "post_alpha": true,
+    "render_save": true,
+    "errors_and_cleanup": true,
+    "register_unregister": true,
+    "save_reload": true,
+    "fresh_package_process": true,
+    "undo_redo": true,
+    "ui_errors": true,
+    "workflow_undo_redo": true,
+    "ui_workflow_controls": true,
+    "ui_workflow_panels_opened": true,
+    "ui_cancel_signal_cleanup": true,
+    "ui_render_save": true,
+    "png_preview": true
+  },
+  "core_sha256": {
+    "__init__.py": "f9cd846488d515b1f6eb0d6b704dc7c5db34a2f6ee55de50ac4ba012562b339a",
+    "asset_resolver.py": "1c3672a1cd11067d660eec2205f2e4eb8d78cd01ee9b2ea368949e59d8814f4c",
+    "asset_tracking.py": "3c6875fe9134fd15a4300df89c6093276bce5ee62e0d385a394561d769c35a09",
+    "expressions.py": "fc27d30f0e1375d44956ae3133b59ea61e10be0a6f58321322f570faa7b54830",
+    "eye_layers.py": "07dc1c4ada171630bab69d9010f86108ea0cc03cd68935722e142ea1fa063b69",
+    "eye_surfaces.py": "08bae4d407b937120d3faae424f83ac253714e7b525ad7548a8180ff2bb3ecea",
+    "framing.py": "de54e5843de1fd221c350a9741686f0fd033440a6dca99082e34bf73bc2465ac",
+    "importers.py": "2a14736eff94c91a13554badf4ba1a6986f0b36733c7d973d4f8578ab260fb62",
+    "lighting.py": "cbbf97021089378f4cd323c482f040ff6e91efdd02c8b45c8fdb5045117d1d6a",
+    "material_protocol.py": "649e7cee5c44e65dd87225327445896eb7f644d48822b89a0dd297b9c1eae7e6",
+    "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+    "node_graph.py": "41affb0dc9028328c08a55c751a849e710393346bd189afbd33dd794b28eee9f",
+    "normal_maps.py": "f8ac28e2044ee2a42a67a3b78cf69ee1830255975c4d8093516ca7d1cea4b801",
+    "outlines.py": "f28f782a511c69af3680f85cb2f3777955dcab2599f21f8bbab785781d021943",
+    "panels.py": "e51795eaf0c53b1f8f1813bf732c0c2bc5f6e3e7d6f38e0a2090a526ed3db179",
+    "pmx_materials.py": "e7cc868dfa46532a89a233c49c19253496e18955d1aac6319d791c04e7e65d40",
+    "post_processing.py": "cb200b98192aef16bb327dbd8f55d61f9a54ff909af6cb46556df1e7d9045979",
+    "presentation.py": "ca6ba6aea383785b8429f0a6cccc514e6316e2a76d3f30103f825d36cbe317ea",
+    "project_io.py": "9b4dc72f6a485c1b676c793cc2e1430c8b20b9846b8243ca4b7c6c98d986718e",
+    "properties.py": "47bd534cd782317c0e89a752048b2fe56a2171dc9df1c0579bddd1bd278f83da",
+    "reflections.py": "345a22b93a41aff8e613dd2a73c70c665eab1de43953fd141ff91224b8d6986d",
+    "rendering.py": "4e3584f96b42df9535cc2cdb05f32b109aa5344cc579f5f428d39762727fcb96",
+    "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+    "shaders.py": "168d273ff02d1cffd7397d6f623b9d29b52669c10a54aa51c4bda1ce7b2383e1",
+    "subjects.py": "80ad8e5280f62ad3b42991eddb4e9456f32621965e6b05651aea8f3a187d6e72",
+    "surface_layers.py": "0b12a7a82eb42ea7071da84d7b95a7cb327d43a486365108c6e7f98a8880837e",
+    "textiles.py": "9a481cab063e1a97c154ea798dba77288a7d34155d1e1d48dd3585d7bde7f33d",
+    "upstream_mapping.py": "3da1b73d944c8456ed626ce28b1e5ff26f3f8becf30bebf89aa0236bea8a5f32",
+    "workflow.py": "6e0ab8420316275a884d9b370ebe8bcc7fbb2a354fcf8abc2f2ddf57543fd10d",
+    "assets/original_controls.blend": "d7149f6040356c466e0e3eca69fb37e3bde05e64792b7efaaa043acacb41ae14",
+    "assets/original_shader.blend": "a298539803090c585345b732bb0c330d510df59ce90942aa37c8fe4b28c22fd2",
+    "assets/upstream.json": "ee8dacd35e3dc6ffcbe30543d0d4bfb20ee6b3ab2547e9de8ff6fca00735de20"
+  },
+  "models": [
+    {
+      "name": "安柏",
+      "objects": 72,
+      "meshes": 7,
+      "materials": 4,
+      "source_data_unchanged": true
+    },
+    {
+      "name": "刻晴",
+      "objects": 64,
+      "meshes": 6,
+      "materials": 4,
+      "source_data_unchanged": true
+    },
+    {
+      "name": "奥黛塔",
+      "objects": 61,
+      "meshes": 10,
+      "materials": 8,
+      "source_data_unchanged": true
+    },
+    {
+      "name": "尼可",
+      "objects": 66,
+      "meshes": 12,
+      "materials": 9,
+      "source_data_unchanged": true
+    }
+  ],
+  "pmx": {
+    "checks": {
+      "save_reload": true,
+      "empty_scene_failure_rollback": true,
+      "assembly_failure_rollback": true,
+      "two_imports_isolated": true,
+      "import_repair_failure_rollback": true,
+      "missing_mmd_dependency": true,
+      "register_unregister": true
+    },
+    "models": [
+      {
+        "name": "安柏",
+        "materials": 8,
+        "source_data_unchanged": true,
+        "mmd_metadata_unchanged": true,
+        "original_mesh_refs_restored": true
+      },
+      {
+        "name": "纳西妲",
+        "materials": 23,
+        "source_data_unchanged": true,
+        "mmd_metadata_unchanged": true,
+        "original_mesh_refs_restored": true
+      },
+      {
+        "name": "奥黛塔",
+        "materials": 39,
+        "source_data_unchanged": true,
+        "mmd_metadata_unchanged": true,
+        "original_mesh_refs_restored": true
+      }
+    ]
+  },
+  "formats": {
+    "mixed_formats": true,
+    "independent_render": true,
+    "restore_isolated": true,
+    "source_data_preserved": true,
+    "mmd_metadata_preserved": true
+  },
+  "subjects": {
+    "checks": {
+      "unknown_kept_and_corrected": true,
+      "head_decoration_preserved": true,
+      "assembly_failure_rollback": true,
+      "mixed_imports_isolated": true,
+      "register_unregister": true
+    },
+    "models": [
+      {
+        "name": "FBX 风之翼",
+        "source_format": "fbx",
+        "mixed": false,
+        "source_files_unchanged": 17,
+        "source_data_unchanged": true,
+        "mmd_metadata_preserved": true,
+        "derived_geometry_unchanged": true,
+        "references_restored": true,
+        "visibility_restored": true,
+        "save_reload": true,
+        "repeat_no_leak": true,
+        "toggle_pixels_restored": true,
+        "parts": 7
+      },
+      {
+        "name": "FBX 技能附件",
+        "source_format": "fbx",
+        "mixed": false,
+        "source_files_unchanged": 38,
+        "source_data_unchanged": true,
+        "mmd_metadata_preserved": true,
+        "derived_geometry_unchanged": true,
+        "references_restored": true,
+        "visibility_restored": true,
+        "save_reload": true,
+        "repeat_no_leak": true,
+        "toggle_pixels_restored": true,
+        "parts": 12
+      },
+      {
+        "name": "PMX 主体",
+        "source_format": "pmx",
+        "mixed": false,
+        "source_files_unchanged": 52,
+        "source_data_unchanged": true,
+        "mmd_metadata_preserved": true,
+        "derived_geometry_unchanged": true,
+        "references_restored": true,
+        "visibility_restored": true,
+        "save_reload": true,
+        "repeat_no_leak": true,
+        "toggle_pixels_restored": true,
+        "parts": 502
+      },
+      {
+        "name": "FBX 混合网格",
+        "source_format": "fbx",
+        "mixed": true,
+        "source_files_unchanged": 17,
+        "source_data_unchanged": true,
+        "mmd_metadata_preserved": true,
+        "derived_geometry_unchanged": true,
+        "references_restored": true,
+        "visibility_restored": true,
+        "save_reload": true,
+        "repeat_no_leak": true,
+        "toggle_pixels_restored": true,
+        "parts": 4
+      },
+      {
+        "name": "PMX 混合网格",
+        "source_format": "pmx",
+        "mixed": true,
+        "source_files_unchanged": 2,
+        "source_data_unchanged": true,
+        "mmd_metadata_preserved": true,
+        "derived_geometry_unchanged": true,
+        "references_restored": true,
+        "visibility_restored": true,
+        "save_reload": true,
+        "repeat_no_leak": true,
+        "toggle_pixels_restored": true,
+        "parts": 2
+      }
+    ]
+  },
+  "materials": {
+    "checks": {
+      "native_reference_fixtures": true,
+      "cross_format_matrix": true,
+      "source_protection": true,
+      "register_unregister": true,
+      "png_matches_recorded_conditions": true
+    },
+    "fixtures": {
+      "pupil_native_reference": {
+        "maximum": 0.0,
+        "mean": 0.0,
+        "changed_fraction": 0.0
+      },
+      "source_uv_transform": {
+        "maximum": 0.0,
+        "mean": 0.0,
+        "changed_fraction": 0.0
+      },
+      "coverage_ratio": 0.4803921568627451,
+      "expression_coverage_ratio": 0.5,
+      "checks": {
+        "native_pupil_composition": true,
+        "derived_slots_preserved": true,
+        "source_uv_sampling": true,
+        "invalid_uv_error": true,
+        "normal_negative_and_above_one": true,
+        "source_alpha_coverage": true,
+        "front_culling": true,
+        "expression_depth_excluded": true
+      }
+    },
+    "models": [
+      {
+        "name": "芭芭拉",
+        "format": "fbx",
+        "source_data_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ]
+      },
+      {
+        "name": "雷电将军",
+        "format": "fbx",
+        "source_data_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ]
+      },
+      {
+        "name": "纳西妲",
+        "format": "fbx",
+        "source_data_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ]
+      },
+      {
+        "name": "芙宁娜",
+        "format": "fbx",
+        "source_data_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ]
+      },
+      {
+        "name": "玛薇卡",
+        "format": "fbx",
+        "source_data_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ]
+      },
+      {
+        "name": "桑多涅",
+        "format": "fbx",
+        "source_data_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ]
+      },
+      {
+        "name": "奥黛塔",
+        "format": "fbx",
+        "source_data_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ]
+      },
+      {
+        "name": "安柏",
+        "format": "pmx",
+        "source_data_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ]
+      },
+      {
+        "name": "纳西妲",
+        "format": "pmx",
+        "source_data_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ]
+      },
+      {
+        "name": "奥黛塔",
+        "format": "pmx",
+        "source_data_unchanged": true,
+        "views": [
+          "front",
+          "head",
+          "head-turn",
+          "torso",
+          "side-light"
+        ]
+      }
+    ],
+    "visual_acceptance": "pending_user_review"
+  },
+  "workflow": {
+    "scope": "39–49",
+    "package_sha256": "89f93ec77b23d6b53937cfa22b42d4d8c1c4fb9e7d299138ddf3c7315bc92ce9",
+    "source_sha256": {
+      "asset_resolver.py": "1c3672a1cd11067d660eec2205f2e4eb8d78cd01ee9b2ea368949e59d8814f4c",
+      "asset_tracking.py": "3c6875fe9134fd15a4300df89c6093276bce5ee62e0d385a394561d769c35a09",
+      "expressions.py": "fc27d30f0e1375d44956ae3133b59ea61e10be0a6f58321322f570faa7b54830",
+      "eye_layers.py": "07dc1c4ada171630bab69d9010f86108ea0cc03cd68935722e142ea1fa063b69",
+      "eye_surfaces.py": "08bae4d407b937120d3faae424f83ac253714e7b525ad7548a8180ff2bb3ecea",
+      "framing.py": "de54e5843de1fd221c350a9741686f0fd033440a6dca99082e34bf73bc2465ac",
+      "importers.py": "2a14736eff94c91a13554badf4ba1a6986f0b36733c7d973d4f8578ab260fb62",
+      "lighting.py": "cbbf97021089378f4cd323c482f040ff6e91efdd02c8b45c8fdb5045117d1d6a",
+      "material_protocol.py": "649e7cee5c44e65dd87225327445896eb7f644d48822b89a0dd297b9c1eae7e6",
+      "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+      "node_graph.py": "41affb0dc9028328c08a55c751a849e710393346bd189afbd33dd794b28eee9f",
+      "normal_maps.py": "f8ac28e2044ee2a42a67a3b78cf69ee1830255975c4d8093516ca7d1cea4b801",
+      "outlines.py": "f28f782a511c69af3680f85cb2f3777955dcab2599f21f8bbab785781d021943",
+      "panels.py": "e51795eaf0c53b1f8f1813bf732c0c2bc5f6e3e7d6f38e0a2090a526ed3db179",
+      "pmx_materials.py": "e7cc868dfa46532a89a233c49c19253496e18955d1aac6319d791c04e7e65d40",
+      "post_processing.py": "cb200b98192aef16bb327dbd8f55d61f9a54ff909af6cb46556df1e7d9045979",
+      "presentation.py": "ca6ba6aea383785b8429f0a6cccc514e6316e2a76d3f30103f825d36cbe317ea",
+      "project_io.py": "9b4dc72f6a485c1b676c793cc2e1430c8b20b9846b8243ca4b7c6c98d986718e",
+      "properties.py": "47bd534cd782317c0e89a752048b2fe56a2171dc9df1c0579bddd1bd278f83da",
+      "reflections.py": "345a22b93a41aff8e613dd2a73c70c665eab1de43953fd141ff91224b8d6986d",
+      "rendering.py": "4e3584f96b42df9535cc2cdb05f32b109aa5344cc579f5f428d39762727fcb96",
+      "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+      "shaders.py": "168d273ff02d1cffd7397d6f623b9d29b52669c10a54aa51c4bda1ce7b2383e1",
+      "subjects.py": "80ad8e5280f62ad3b42991eddb4e9456f32621965e6b05651aea8f3a187d6e72",
+      "surface_layers.py": "0b12a7a82eb42ea7071da84d7b95a7cb327d43a486365108c6e7f98a8880837e",
+      "textiles.py": "9a481cab063e1a97c154ea798dba77288a7d34155d1e1d48dd3585d7bde7f33d",
+      "upstream_mapping.py": "3da1b73d944c8456ed626ce28b1e5ff26f3f8becf30bebf89aa0236bea8a5f32",
+      "workflow.py": "6e0ab8420316275a884d9b370ebe8bcc7fbb2a354fcf8abc2f2ddf57543fd10d",
+      "__init__.py": "f9cd846488d515b1f6eb0d6b704dc7c5db34a2f6ee55de50ac4ba012562b339a"
+    },
+    "models": [
+      {
+        "name": "奥黛塔",
+        "format": "fbx",
+        "source_data_unchanged": true,
+        "source_files_unchanged": 53,
+        "mmd_metadata_preserved": true,
+        "shots": {
+          "FULL": 1.9723938703536987,
+          "HALF": 1.27605402469635,
+          "HEAD": 0.592913031578064
+        },
+        "manual_camera_preserved": true,
+        "preset_response": true,
+        "expressions": true,
+        "gaze": true,
+        "pose_follow": true,
+        "reset_restored": true,
+        "background_floor": true,
+        "save_reload": {
+          "maximum": 0.0,
+          "mean": 0.0,
+          "changed_fraction": 0.0
+        },
+        "temporary_resources_clean": true,
+        "seconds": {
+          "import": 13.615089600003557,
+          "assemble": 3.417849899997236,
+          "refresh_50": 0.009825800021644682,
+          "bounds_8": 1.5500548999989405
+        }
+      },
+      {
+        "name": "纳西妲",
+        "format": "pmx",
+        "source_data_unchanged": true,
+        "source_files_unchanged": 12,
+        "mmd_metadata_preserved": true,
+        "shots": {
+          "FULL": 1.382088303565979,
+          "HALF": 1.0814498662948608,
+          "HEAD": 0.5832292437553406
+        },
+        "manual_camera_preserved": true,
+        "preset_response": true,
+        "expressions": true,
+        "gaze": true,
+        "pose_follow": true,
+        "reset_restored": true,
+        "background_floor": true,
+        "save_reload": {
+          "maximum": 0.0,
+          "mean": 0.0,
+          "changed_fraction": 0.0
+        },
+        "temporary_resources_clean": true,
+        "seconds": {
+          "import": 3.0053342999890447,
+          "assemble": 4.153285500011407,
+          "refresh_50": 0.058921299991197884,
+          "bounds_8": 2.703124099993147
+        }
+      }
+    ],
+    "checks": {
+      "framing_angles": true,
+      "manual_camera": true,
+      "display_isolated": true,
+      "existing_expressions": true,
+      "gaze_restored": true,
+      "pose_material_follow": true,
+      "save_reload": true,
+      "relocation_identical_pixels": true,
+      "missing_resource_error": true,
+      "wrong_resource_rollback": true,
+      "automatic_unique_name": true,
+      "hidden_resources_not_required": true,
+      "resource_counts_stable": true,
+      "source_protection": true,
+      "register_unregister": true
+    }
+  },
+  "workflow_interface": {
+    "interface": {
+      "integration_checks": {
+        "undo_redo": true,
+        "ui_errors": true,
+        "workflow_undo_redo": true,
+        "ui_workflow_controls": true,
+        "ui_workflow_panels_opened": true,
+        "ui_cancel_signal_cleanup": true,
+        "ui_render_save": true,
+        "png_preview": true
+      },
+      "gaze_undo_redo": true,
+      "cancel_method": "injected_render_cancel_callback_with_partial_file",
+      "native_cancel_input": "pending_user_operation_acceptance"
+    },
+    "pmx-workflow-interface": {
+      "integration_checks": {
+        "undo_redo": true,
+        "ui_errors": true,
+        "workflow_undo_redo": true,
+        "ui_workflow_controls": true,
+        "ui_workflow_panels_opened": true,
+        "ui_cancel_signal_cleanup": true,
+        "ui_render_save": true,
+        "png_preview": true
+      },
+      "gaze_undo_redo": true,
+      "cancel_method": "injected_render_cancel_callback_with_partial_file",
+      "native_cancel_input": "pending_user_operation_acceptance"
+    }
+  }
+}
