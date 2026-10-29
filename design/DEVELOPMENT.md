@@ -12,7 +12,7 @@
 - 验收预览：`.verification/development/basic-render-fix/preview.html`；统一报告为同目录 `verification.json`，支持三角色正面、侧光、眼部的前后对照。
 - 代码检查点：`.verification/development/basic-render-fix/checkpoint.json`，对应本地 Git 提交和候选包摘要。
 - 最新结论：0.3.2 的数据保护与运行检查通过，不能据此认定游戏外观还原通过。奥黛塔与游戏截图对照显示眼部高光、服装及皮肤细节仍需处理。
-- 根因证据：奥黛塔黑面来自 `Eff_001 / Eff_002`；Pupil 被全局错误替换成 Body 贴图；尼可未启用的表情覆盖层带有第三套 UV 标记，被当成不透明皮肤绘制。单变量图片与检查记录位于 `.verification/development/basic-render-investigation/`。
+- 本轮根因：内外眼层共用颜色；SDF 高光、眼部 Matcap、面料/闪点与晶面未完整接入；打包法线入口及父子开关依赖处理不全。当前证据以 `game-reference-audit/` 为准。
 - 最新复盘：[游戏截图对照复盘](GAME-REFERENCE-REVIEW.md)。七角色标准候选测试为 5 个完成出图、2 个装配中断；出图不等于游戏外观验收通过。新增证据为 `.verification/development/game-reference-audit/`。
 - 下一步：用户确认下方 R01–R07 的实施范围后，按材质功能补齐通用模块，再使用同一批游戏截图验收。当前候选不推广为正式版本。
 - 约束：不建立角色特例配置，不删改源 FBX、贴图、JSON 或原网格；修正仅作用于基础装配与派生渲染数据。
