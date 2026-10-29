@@ -5,7 +5,7 @@ from pathlib import Path
 import bpy
 from bpy.app.handlers import persistent
 
-SCHEMA = 1
+SCHEMA = 2
 
 
 def digest(path):
@@ -15,27 +15,13 @@ def digest(path):
 
 def images(root, source=False):
     from .shaders import walk
-    materials = set()
-    for entry in root.hgt_character.meshes:
-        obj = entry.object
-        if obj is None or (not source and obj.hide_render):
-            continue
-        visible = obj.data.attributes.get('hgt_part_visible') if not source else None
-        expression = obj.data.attributes.get('hgt_facial_expression') if not source else None
-        indices = {p.material_index for p in obj.data.polygons
-                   if (visible is None or visible.data[p.index].value)
-                   and (expression is None or expression.data[p.index].value < .5)}
-        materials.update(slot.material for i, slot in enumerate(obj.material_slots)
-                         if slot.material and (source or i in indices))
-    for binding in root.hgt_character.bindings:
-        if source:
-            materials.update((binding.source, binding.generated, binding.outline))
-        if binding.generated and (source or binding.generated in materials):
-            materials.add(binding.generated.get('hgt_eye_overlay'))
-    return {node.image for material in materials if material and material.use_nodes
+    materials = {slot.material for entry in root.hgt_character.meshes if entry.object
+                 and (source or not entry.object.hide_render) for slot in entry.object.material_slots if slot.material}
+    if source:
+        materials.update(m for b in root.hgt_character.bindings for m in (b.source,b.generated,b.outline) if m)
+    return {node.image for material in materials if material.use_nodes
             for tree in walk(material.node_tree) for node in tree.nodes if node.type == 'TEX_IMAGE'
             and node.image and node.image.source == 'FILE' and node.image.filepath}
-
 
 def image_path(image):
     return Path(bpy.path.abspath(image.filepath, library=image.library)).resolve()
@@ -77,7 +63,7 @@ def relink(root, source):
     settings = root.hgt_character;source = Path(source).resolve()
     previous = Path(settings.source_file).resolve()
     if not source.is_file() or source.suffix.casefold() != previous.suffix.casefold() or source.name.casefold() != previous.name.casefold():
-        raise ValueError('请选择移动后的同一个 FBX 或 PMX 文件')
+        raise ValueError('请选择移动后的同一个 PMX 文件')
     model_digest = digest(source)
     if settings.source_digest and model_digest != settings.source_digest:
         raise ValueError('所选模型与工程中的原文件不同')
@@ -138,16 +124,8 @@ def relink(root, source):
 
 @persistent
 def on_load(_):
-    from . import expressions
     for scene in bpy.data.scenes:
         scene.hgt_output.rendering = False
-        for root in scene.objects:
-            settings = root.hgt_character
-            if settings.managed and settings.schema_version < SCHEMA:
-                # Old projects keep their saved camera and existing shader graphs.
-                settings.auto_frame = False
-                expressions.initialize(root)
-                stamp(root)
 
 
 def register():

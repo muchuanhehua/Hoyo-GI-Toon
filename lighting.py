@@ -6,19 +6,19 @@ from . import shaders
 
 
 def light_direction(settings):
-    a, e = settings.light_azimuth, settings.light_elevation
-    return Vector((math.sin(a) * math.cos(e), -math.cos(a) * math.cos(e), math.sin(e)))
+    source = settings.light_source or settings.light
+    if source is None:
+        raise ValueError('请先选择灯光')
+    return source.matrix_world.to_quaternion() @ Vector((0, 0, -1))
 
 
 def build(root, collection, imported, library):
     settings = root.hgt_character
     def is_head(bone):
-        if settings.source_format != 'pmx':
-            return bone.name.casefold().split()[-1] == 'head'
         names = (bone.name, bone.mmd_bone.name_j, bone.mmd_bone.name_e)
         return any(name.strip().casefold() in {'head', '頭', '头', 'あたま', 'atama'} for name in names)
     heads = [(obj, bone) for obj in imported if obj.type == "ARMATURE"
-             and (settings.source_format != 'pmx' or obj == settings.source_armature)
+             and obj == settings.source_armature
              for bone in obj.pose.bones if is_head(bone)]
     if len(heads) != 1:
         raise ValueError("无法确定唯一头骨，请检查 Head / 頭 骨骼及 MMD 骨骼名称")
@@ -69,8 +69,29 @@ def attach(mesh, root, controls):
 
 def update(root):
     settings = root.hgt_character
-    if settings.light:
-        rotation = light_direction(settings).to_track_quat("-Z", "Y").to_euler()
+    if settings.light and settings.light_source:
+        rotation = settings.light_source.matrix_world.to_quaternion().to_euler()
         if any(abs(settings.light.rotation_euler[i] - rotation[i]) > 1e-6 for i in range(3)):
             settings.light.rotation_euler = rotation
     shaders.set_controls(root)
+
+
+def default_light(root, scene):
+    settings = root.hgt_character
+    light = next((obj for obj in scene.objects if obj.get('hgt_owner') == settings.uid
+                  and obj.get('hgt_stage') == 'lighting' and obj.type == 'LIGHT'), None)
+    if light is None:
+        data = bpy.data.lights.new('HGT • 默认光', 'SUN')
+        light = bpy.data.objects.new(data.name, data)
+        for item in (data, light):
+            item['hgt_owner'], item['hgt_stage'] = settings.uid, 'lighting'
+        light['hgt_helper'] = True
+        root.users_collection[0].objects.link(light)
+    light.data.energy = 2
+    direction = Vector((math.sin(.35)*math.cos(.35), -math.cos(.35)*math.cos(.35), math.sin(.35)))
+    light.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
+    settings.light_source = light
+    bpy.context.view_layer.update()
+    if settings.managed:
+        update(root)
+    return light

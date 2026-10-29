@@ -153,21 +153,3 @@ class Graph:
             shader = mix.outputs[0]
         output = next(n for n in self.tree.nodes if n.type == 'OUTPUT_MATERIAL' and n.is_active_output)
         self.link(shader, output.inputs['Surface'])
-
-    def finish(self, color):
-        original = self._source_rgb.inputs[0].links[0].from_socket
-        opacity = None
-        if int(self.assets.floats.get('_MainTexAlphaUse', 0)) == 1:
-            # ShaderToRGB alpha is not the source texture's coverage. Reusing
-            # it through a second transparent closure changes EEVEE's color.
-            texture = self.texture('diffuse', data=False)
-            opacity = texture.outputs['Alpha']
-        self.surface(color, opacity)
-        output = next(n for n in self.tree.nodes if n.type == 'OUTPUT_MATERIAL' and n.is_active_output)
-        generated = output.inputs['Surface'].links[0].from_socket
-        switch = self.node('ShaderNodeMixShader', 'Material Feature')
-        switch['hgt_feature_switch'] = True
-        for value, socket in zip((1, original, generated), switch.inputs):
-            self.link(value, socket)
-        self.link(switch.outputs[0], output.inputs['Surface'])
-        self._source_rgb = None

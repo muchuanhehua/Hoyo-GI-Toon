@@ -4,8 +4,7 @@ from pathlib import Path
 import bpy
 
 result = {"blender": bpy.app.version_string, "binary": bpy.app.binary_path, "operators": {}, "nodes": {}}
-for namespace, name in (("wm", "fbx_import"), ("import_scene", "fbx"), ("export_scene", "fbx"),
-                        ("extensions", "repo_add"), ("preferences", "extension_repo_add")):
+for namespace, name in (("extensions", "repo_add"), ("preferences", "extension_repo_add")):
     try:
         operator = getattr(getattr(bpy.ops, namespace), name)
         result["operators"][f"{namespace}.{name}"] = [p.identifier for p in operator.get_rna_type().properties]

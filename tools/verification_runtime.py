@@ -4,7 +4,6 @@ import importlib
 import importlib.util
 import os
 from pathlib import Path
-import shutil
 import sys
 import zipfile
 
@@ -13,25 +12,6 @@ def file_hash(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def copy_better(source, runtime):
-    source, runtime = Path(source).resolve(), Path(runtime).resolve()
-    runtime.mkdir(parents=True, exist_ok=True)
-    os.environ['TEMP'] = os.environ['TMP'] = str(runtime)
-    destination = runtime / 'better_fbx'
-    names = ('__init__.py','importer.py','exporter.py','blender_manifest.toml','gpl-3.0.txt',
-             'bin/Windows/x64/fbx-utility.exe')
-    hashes = {}
-    for name in names:
-        original, target = source / name, destination / name
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(original,target)
-        hashes[name] = file_hash(original)
-        assert file_hash(target) == hashes[name]
-    (destination/'data').mkdir(exist_ok=True)
-    sys.path.insert(0,str(runtime))
-    addon = importlib.import_module('better_fbx')
-    addon.register()
-    return addon, hashes
 
 
 def load_addon(folder, name='hoyo_gi_toon'):

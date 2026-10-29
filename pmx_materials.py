@@ -4,8 +4,7 @@ import unicodedata
 import sys
 import bpy
 import numpy as np
-from .asset_resolver import MaterialAssets, AssetError
-from .material_protocol import describe
+from .material_assets import MaterialAssets, AssetError
 from .node_graph import Graph
 
 FACE_NAMES = {'颜', '顏', '顔', '脸', '臉', '白目', '眼白', '口舌', '口', '齿', '歯', '二重', '颜饰'}
@@ -81,7 +80,7 @@ class Catalog:
             raise AssetError(f'{name} 的 Sphere 混合模式无法识别')
         if result.pmx['sphere_mode'] != '0' and 'sphere' not in result.textures:
             raise AssetError(f'{name} 缺少已启用的 Sphere 贴图')
-        result.features = describe(result)
+        result.features = {'template':'Hair' if result.role == 'hair' else 'Body', 'uses_body':True}
         return result
 
 
@@ -153,8 +152,6 @@ def build(library, assets):
         gray = graph.node('ShaderNodeRGBToBW', 'PMX Additive Coverage')
         graph.link(color, gray.inputs[0])
         opacity = graph.math('MULTIPLY', opacity, gray.outputs[0])
-    if assets.role == 'expression':
-        opacity = 0
     graph.surface(result, opacity)
     # Opaque surfaces write depth; transparent overlays use alpha blending.
     # Dithered zero-alpha duplicate shells can occlude underlying PMX faces.

@@ -1,253 +1,171 @@
-"""Build and update a scoped character, preserving the imported source data."""
+"""Import, materials and lighting are independent, reversible user actions."""
 from pathlib import Path
-import json
 import uuid
 import bpy
+from mathutils import Vector
 from bpy.app.handlers import persistent
-from .asset_resolver import AssetCatalog, source_name
-from . import asset_tracking, importers, lighting, outlines, rendering, shaders, surface_layers, eye_surfaces, subjects, expressions, project_io
-
+from . import asset_tracking, importers, lighting, outlines, rendering, shaders, project_io, gaze, material_controls
+from .pmx_materials import Catalog
 _REFRESHING = False
 
+def current(root):
+    return bool(root and root.hgt_character.imported and (root.hgt_character.schema_version == 2))
 
 def build(filepath, context):
     transaction = asset_tracking.DataTransaction(context)
     try:
         batch = importers.import_character(filepath, context)
-        return assemble(batch, context)
+        collection = bpy.data.collections.new(Path(batch.source).stem + ' • HGT')
+        context.scene.collection.children.link(collection)
+        root = bpy.data.objects.new(Path(batch.source).stem, None)
+        collection.objects.link(root)
+        settings = root.hgt_character
+        settings.uid = uuid.uuid4().hex
+        settings.source_file = batch.source
+        settings.source_format = 'pmx'
+        settings.schema_version = 2
+        settings.source_root, settings.source_armature = (batch.model_root, batch.armature)
+        root['hgt_owner'] = collection['hgt_owner'] = settings.uid
+        for obj in batch.objects:
+            obj['hgt_owner'] = settings.uid
+            if obj.type == 'MESH' and getattr(obj, 'mmd_type', '') not in {'RIGID_BODY', 'JOINT'}:
+                entry = settings.meshes.add()
+                entry.object = obj
+                entry.original_hidden, entry.original_view_hidden = (obj.hide_render, obj.hide_get())
+        settings.imported = True
+        rendering.prepare(context.scene, root, collection)
+        project_io.stamp(root)
+        context.scene.hgt_target = root
+        return root
     except Exception:
         transaction.rollback()
         raise
 
-
-def assemble(batch, context):
-    # Repeating assembly for the same batch updates its controls, not its data IDs.
-    owners = {obj.get("hgt_owner") for obj in batch.objects if obj.get("hgt_owner")}
-    if len(owners) == 1:
-        root = next((obj for obj in context.scene.objects
-                     if obj.hgt_character.uid in owners), None)
-        if root and root.hgt_character.managed:
-            refresh_character(root)
-            return root
-    else:
-        root = None
-    if batch.source_format == 'pmx':
-        from .pmx_materials import Catalog
-        catalog = Catalog(batch.source)
-    else:
-        catalog = AssetCatalog(batch.source)
-    transaction = asset_tracking.DataTransaction(context)
-    if root:
-        collection = next(c for c in root.users_collection if c.get("hgt_owner") == root.hgt_character.uid)
-        root.hgt_character.meshes.clear()
-    else:
-        collection = bpy.data.collections.new(Path(batch.source).stem)
-        context.scene.collection.children.link(collection)
-        root = bpy.data.objects.new(Path(batch.source).stem, None)
-        collection.objects.link(root)
-    original_collections = {obj: tuple(obj.users_collection) for obj in batch.objects}
-    original_tags = {obj: obj.get("hgt_owner") for obj in batch.objects}
+def apply_materials(root, context):
+    if not current(root):
+        raise ValueError('请先导入 PMX 模型')
     settings = root.hgt_character
+    if settings.managed:
+        refresh_character(root)
+        return root
+    transaction = asset_tracking.DataTransaction(context)
     settings.building = True
-    settings.uid = settings.uid or uuid.uuid4().hex
-    settings.source_file = batch.source
-    settings.source_format = batch.source_format
-    settings.source_root, settings.source_armature = batch.model_root, batch.armature
-    root["hgt_import"] = json.dumps({"operator": batch.operator, "parameters": batch.parameters,
-                                    "format": batch.source_format})
-    collection["hgt_owner"] = settings.uid
     try:
-        for obj in batch.objects:
-            for old in tuple(obj.users_collection):
-                old.objects.unlink(obj)
-            collection.objects.link(obj)
-            obj["hgt_owner"] = settings.uid
-            if obj.type == "MESH":
-                entry = settings.meshes.add()
-                entry.object = obj
-                entry.original_hidden = obj.hide_render
-                entry.original_view_hidden = obj.hide_get()
-                if batch.source_format == 'pmx':
-                    helper = getattr(obj, 'mmd_type', '') in {'RIGID_BODY', 'JOINT'}
-                    entry.participation = 'helper' if helper else 'surface'
-                    entry.participation_basis = 'MMD object type'
-                else:
-                    entry.participation, entry.participation_basis = surface_layers.participation(obj)
-                # Preview participation never deletes geometry or changes its rig.
-                # Permanent Avatar surfaces keep rendering even if named EffectMesh.
-                if entry.participation != 'surface':
-                    obj.hide_render = True
-                    obj.hide_set(True)
-        subjects.initialize(root)
-        low, high = rendering.character_bounds(root)
-        settings.height = max(0.01, high.z - low.z)
+        context.view_layer.update()
+        points = [entry.object.matrix_world @ Vector(corner) for entry in settings.meshes for corner in entry.object.bound_box]
+        settings.height = max((p.z for p in points)) - min((p.z for p in points))
+        if settings.height < 1e-05:
+            raise ValueError('模型尺寸无效')
+        catalog = Catalog(settings.source_file)
         library = shaders.ShaderLibrary(root)
-        controls = lighting.build(root, collection, batch.objects, library)
+        controls = lighting.build(root, root.users_collection[0], [settings.source_armature], library)
+        settings.shadow_position = library.groups['Global Material Properties'].nodes['Global Properties'].inputs['Shadow Position'].default_value
+        settings.initial_shadow = settings.shadow_position
+        settings.initial_outline = settings.outline
         built = {}
         for entry in settings.meshes:
             mesh = entry.object
-            if not entry.render_data:
+            if not mesh.material_slots:
                 continue
-            candidates = [(i, s.material) for i, s in enumerate(mesh.material_slots)
-                          if s.material and (batch.source_format == 'pmx' or is_character_material(s.material)
-                                             or source_name(s.material.name).casefold() in catalog.materials)
-                          and any(p.object==mesh and p.role in {'BODY','WEAPON','GLIDER'} and not p.locked
-                                  and i in json.loads(p.source_slots) for p in settings.parts)]
-            if not candidates:
-                continue
-            if any(slot.material is None for slot in mesh.material_slots):
-                raise ValueError(f"{mesh.name} 的材质槽为空，请检查模型材质")
+            if any((slot.material is None for slot in mesh.material_slots)):
+                raise ValueError(mesh.name + ' 存在空材质槽')
             asset_tracking.derive_mesh(entry, settings.uid)
-            for index, original in candidates:
-                assets = catalog.resolve(original.name, original)
-                if (assets.source_format == 'pmx' and assets.pmx['sphere_mode'] == '3'
-                        and entry.original_data.uv_layers.get('UV1') is None):
-                    raise ValueError(f'{original.name} 的 Sphere 子贴图需要原模型的附加 UV1')
-                key = original.as_pointer()
-                if key not in built:
+            for index, slot in enumerate(mesh.material_slots):
+                original = slot.material
+                if original not in built:
+                    assets = catalog.resolve(original.name, original)
+                    if assets.pmx['sphere_mode'] == '3' and entry.original_data.uv_layers.get('UV1') is None:
+                        raise ValueError(original.name + ' 的 Sphere 需要附加 UV1')
                     generated, outline = library.build_material(assets)
-                    built[key] = generated
                     binding = settings.bindings.add()
-                    binding.source, binding.generated, binding.outline = original, generated, outline
-                    binding.source_name, binding.role = assets.source, assets.role
+                    binding.source, binding.generated, binding.outline = (original, generated, outline)
+                    binding.source_name, binding.role = (original.name, assets.role)
+                    material_controls.initialize(binding)
+                    built[original] = generated
                 snap = settings.slots.add()
-                snap.mesh, snap.index, snap.original, snap.generated = mesh, index, original, built[key]
-                # An OBJECT-linked source slot also has to be recorded and restored.
-                mesh.material_slots[index].material = built[key]
-                if built[key].get("hgt_expression_mask"):
-                    surface_layers.mark_expression_faces(entry, index, assets)
-                if built[key].get('hgt_eye_surface_mask'):
-                    eye_surfaces.mark(entry, index)
-                    eye_surfaces.attach(entry, built[key])
-            surface_layers.attach_expression(entry, settings.uid)
+                snap.mesh, snap.index = (mesh, index)
+                snap.original, snap.generated = (original, built[original])
+                slot.material = built[original]
+                entry.render_data.materials[index] = built[original]
             lighting.attach(mesh, root, controls)
             outlines.build(mesh, root)
         if not built:
-            raise ValueError("没有可匹配的角色材质，请检查所选模型的原材质")
+            raise ValueError('模型没有可应用的材质')
+        settings.has_outline = any((modifier.type == 'NODES' and modifier.node_group and modifier.node_group.get('hgt_pmx_outline') for entry in settings.meshes for modifier in entry.object.modifiers))
         library.finish()
-        expressions.initialize(root)
-        project_io.stamp(root)
         settings.managed = True
         settings.building = False
-        rendering.prepare(context.scene, root, collection)
-        context.scene.hgt_target = root
+        project_io.stamp(root)
         refresh_character(root)
-        for selected in context.selected_objects:
-            selected.select_set(False)
-        root.select_set(True)
-        context.view_layer.objects.active = root
         return root
     except Exception:
-        # Reattach imported IDs before removing the render transaction's collection.
         for entry in settings.meshes:
             asset_tracking.restore_mesh(entry)
-            if entry.object:
-                entry.object.hide_render = entry.original_hidden
-                entry.object.hide_set(entry.original_view_hidden)
         for snap in settings.slots:
             if snap.mesh and snap.index < len(snap.mesh.material_slots):
                 snap.mesh.material_slots[snap.index].material = snap.original
-        for obj, collections in original_collections.items():
-            for old in tuple(obj.users_collection):
-                old.objects.unlink(obj)
-            for old in collections:
-                old.objects.link(obj)
-            if original_tags[obj] is None:
-                del obj["hgt_owner"]
-            else:
-                obj["hgt_owner"] = original_tags[obj]
-        settings.slots.clear()
         settings.bindings.clear()
+        settings.slots.clear()
         settings.controls.clear()
-        settings.expressions.clear()
-        settings.expressions_version = 0
-        subjects.clear(root)
         settings.global_properties = settings.light_vectors = settings.outline_graph = None
         settings.light = settings.head = None
         settings.managed = settings.building = False
         transaction.rollback()
         raise
 
-
-def is_character_material(material):
-    name = source_name(material.name)
-    return name.startswith("Avatar_") and "_Mat_" in name
-
-
 def refresh_character(root, depsgraph=None):
     global _REFRESHING
-    if _REFRESHING or root is None:
-        return
-    settings = root.hgt_character
-    if not settings.managed or settings.building or settings.global_properties is None:
+    if _REFRESHING or not current(root) or root.hgt_character.building:
         return
     _REFRESHING = True
     try:
-        subjects.apply(root)
-        expressions.apply_values(root)
+        settings = root.hgt_character
         if settings.look_camera:
             scene = next((s for s in bpy.data.scenes if root.name in s.objects and s.hgt_target == root), bpy.context.scene)
-            expressions.update_gaze(root, scene)
-        lighting.update(root)
-        for entry in settings.meshes:
-            if entry.object:
+            gaze.update_gaze(root, scene)
+        if settings.managed:
+            lighting.update(root)
+            material_controls.apply(root)
+            for entry in settings.meshes:
                 outlines.update(entry.object, root)
     finally:
         _REFRESHING = False
 
-
 def restore(root):
+    if not current(root) or not root.hgt_character.managed:
+        raise ValueError('请先应用材质')
     settings = root.hgt_character
-    if not settings.managed:
-        raise ValueError("请选择 Hoyo-GI-Toon 角色")
     settings.building = True
-    expressions.reset(root)
-    settings.expressions.clear()
-    settings.expressions_version = 0
     for snap in settings.slots:
         if snap.mesh and snap.index < len(snap.mesh.material_slots):
             slot = snap.mesh.material_slots[snap.index]
             if slot.material == snap.generated:
                 slot.material = snap.original
     for entry in settings.meshes:
-        mesh = entry.object
-        if not mesh:
-            continue
-        mesh.hide_render = entry.original_hidden
-        mesh.hide_set(entry.original_view_hidden)
-        for modifier in tuple(mesh.modifiers):
-            if modifier.type == "NODES" and modifier.node_group and modifier.node_group.get("hgt_owner") == settings.uid:
-                mesh.modifiers.remove(modifier)
+        for modifier in tuple(entry.object.modifiers):
+            if modifier.type == 'NODES' and modifier.node_group and (modifier.node_group.get('hgt_owner') == settings.uid):
+                entry.object.modifiers.remove(modifier)
         asset_tracking.restore_mesh(entry)
     settings.slots.clear()
     settings.bindings.clear()
     settings.controls.clear()
-    subjects.clear(root)
     settings.global_properties = settings.light_vectors = settings.outline_graph = None
     settings.light = settings.head = None
-    for scene in bpy.data.scenes:
-        if scene.hgt_output.camera == settings.camera:
-            scene.hgt_output.camera = None
-    settings.camera = None
     settings.managed = False
     settings.building = False
     asset_tracking.remove_render_data(settings.uid)
 
-
 @persistent
 def update_scene(scene, depsgraph=None):
     for obj in tuple(scene.objects):
-        if obj.hgt_character.managed:
+        if current(obj):
             refresh_character(obj, depsgraph)
-
 
 def register():
     bpy.app.handlers.depsgraph_update_post.append(update_scene)
     bpy.app.handlers.frame_change_post.append(update_scene)
 
-
 def unregister():
-    subjects._STATES.clear()
     for handlers in (bpy.app.handlers.depsgraph_update_post, bpy.app.handlers.frame_change_post):
         if update_scene in handlers:
             handlers.remove(update_scene)

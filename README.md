@@ -1,42 +1,28 @@
 # Hoyo-GI-Toon
 
-面向新手的原神角色渲染插件，围绕模型导入、材质装配、光照、描边和渲染组织操作。
+面向原神 PMX 角色的材质渲染插件，以接近游戏内的 Toon 表现、接入 MMD 流程为目标。
 
-单入口导入 FBX、PMX，读取本地配套资产，完成保留原始数据的基础渲染。
-
-## 开发与验收
-
-详细工作项、交付标准和实时进度统一保存在 [开发清单与验收进度](design/DEVELOPMENT.md)。按用户批准的编号范围实施，提交验收后继续。
-
-模块接口、来源与接入要求见 [模块来源与接入标准](docs/upstream-baseline.md)，维护规则见 [AGENTS.md](AGENTS.md)。
+当前分支是 2.0 模块拆分候选，正式发布和实际安装仍为 1.0.1。当前进度、实施清单和验收状态统一见 [开发记录](design/DEVELOPMENT.md)。
 
 ## 使用流程
 
-1. 启用所用格式的导入器：FBX 使用 Better FBX，PMX 使用 MMD Tools。
-2. 从磁盘安装 Hoyo-GI-Toon 的 ZIP，打开 3D 视图侧栏的 **Hoyo-GI-Toon**。
-3. 点击 **导入模型**，选择 FBX 或 PMX。保留模型原有的配套文件和贴图目录。
-4. 选择 **全身、半身或头像**。需要其他视角时展开 **构图**，需要光照、背景或地面时展开 **展示**。
-5. 按需调整阴影、描边和已有 **表情**；**附件** 中勾选已有部件，分组不合适时点击 **调整分组**。
-6. 在 **输出** 中设置尺寸与保存位置，点击 **渲染**。
+1. 启用 MMD Tools，打开 3D 视图侧栏的 Hoyo-GI-Toon。
+2. **导入 PMX**：导入并修复骨骼，创建一个相机；模型原结构与显隐保留。
+3. **应用材质**：单独装配角色材质。展开 **材质参数** 调整阴影位置、描边及选中材质的颜色。
+4. 按需展开 **打光**，点击 **默认光**，或选择现有太阳光。旋转灯光可调整 Toon 光向。
+5. 手动设置相机，或主动点击 **相机对齐当前视角**；按需启用 **看向相机**。
+6. 在 **输出** 设置图片尺寸和 PNG 路径，点击 **渲染**。
 
-渲染完成后保存 PNG，图片图标可打开最近结果；Esc 取消后可以继续出图。插件生成的文件名遇到已有文件会编号保留，保存位置应在模型资产目录以外。
+导入不会应用材质、创建灯光、预设构图或切换视图。表情和动作继续使用 MMD Tools／Blender；本插件不提供表情编辑面板。背景和地面由用户自己的场景管理。
 
-导入按钮旁的菜单可查看材质、调整部件分组、重新定位移动后的资源或恢复导入状态。多次导入时再选择当前角色。手动调整的相机在出图时保留；详细操作见 [构图与出图](docs/workflow.md)。
+**材质参数**提供当前材质的颜色、阴影颜色和有描边时的描边颜色；全局阴影位置、描边粗细也集中于此。**恢复原材质**还原导入时的网格和材质，独立创建的相机与默认光保留。
 
-模型网格、骨架与配套文件保留。PMX 导入后自动调用 MMD 骨骼修复并保存前后记录；“恢复导入状态”恢复到修复后的导入基线。渲染材质和属性使用派生数据，输出在临时场景中执行，已有相机、灯光和合成链保持独立。
+操作与限制见 [使用说明](docs/workflow.md)，材质语义见 [PMX 渲染](docs/pmx-rendering.md)，来源见 [模块接口](docs/upstream-baseline.md)。
 
-主体与附件按本次导入的实际数据管理，构图跟随勾选内容；同一网格中的混合部件在派生数据上筛选。已有武器与风之翼按配套材质接入基础渲染，保留源位置、挂接及可恢复的原材质引用。具体约定见 [主体与附件](docs/subjects.md)。
+## 交付与保留记录
 
-基础渲染保留材质实际贴图引用，按源标记处理特效和默认未启用的表情覆盖层。实现与参考对照见 [基础渲染装配](docs/basic-rendering.md)。
+源码与正式包见 [GitHub](https://github.com/muchuanhehua/Hoyo-GI-Toon) 和 [Releases](https://github.com/muchuanhehua/Hoyo-GI-Toon/releases)。
 
-PMX 的 Toon、Sphere、透明与描边约定见 [PMX 渲染](docs/pmx-rendering.md)。
+远程更新源：`https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/main/release/index.json`
 
-## 交付
-
-源码与安装包见 [GitHub](https://github.com/muchuanhehua/Hoyo-GI-Toon) 和 [Releases](https://github.com/muchuanhehua/Hoyo-GI-Toon/releases)。
-
-Blender 远程更新源：
-
-`https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/main/release/index.json`
-
-角色模型、游戏贴图和私人验证工程仅在本地使用。
+FBX、附件分类、旧表情面板、背景和地面已退出当前实现，旧代码与工程使用方式见 [1.0.1 保留记录](design/legacy-v1.0.1.md)。模型、游戏贴图与私人验证工程不进入安装包。

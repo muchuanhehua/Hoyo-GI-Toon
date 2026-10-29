@@ -1,65 +1,25 @@
-"""Owned framing and PNG output through a temporary scene."""
+"""PNG output from the user's camera through an isolated scene."""
 from dataclasses import dataclass, field
 from pathlib import Path
-import json
-import re
 import struct
 import uuid
 import bpy
 from bpy.app.handlers import persistent
-from . import post_processing, subjects, lighting, framing, presentation, project_io, expressions
+from . import post_processing, lighting, project_io, gaze
 
 _JOBS = {}
 
 
-def character_bounds(root):
-    return framing.bounds(root)
-
-
-def frame_camera(scene, root):
-    framing.frame(scene, root)
-
-
 def prepare(scene, root, collection):
     settings = root.hgt_character
-    camera = settings.camera
-    if camera is None:
-        data = bpy.data.cameras.new(f"HGT • {root.name}")
-        data["hgt_owner"] = settings.uid
-        camera = bpy.data.objects.new(data.name, data)
-        camera["hgt_owner"], camera["hgt_helper"] = settings.uid, True
-        collection.objects.link(camera)
-        settings.camera = camera
-    scene.hgt_output.camera = camera
-    frame_camera(scene, root)
-    configure_output(scene, root)
-
-
-def configure_output(scene, root):
-    if not scene.hgt_output.filepath or scene.hgt_output.filepath == scene.hgt_output.last_auto_path:
-        base = Path(bpy.data.filepath).parent if bpy.data.filepath else Path.home() / "Pictures" / "Hoyo-GI-Toon"
-        if base.resolve().is_relative_to(Path(root.hgt_character.source_file).resolve().parent):
-            base = Path.home() / 'Pictures' / 'Hoyo-GI-Toon'
-        name = re.sub(r'[<>:"/\\|?*]', "_", root.name).strip(" .") or "角色"
-        scene.hgt_output.filepath = str(base / f"{name}.png")
-        scene.hgt_output.last_auto_path = scene.hgt_output.filepath
-
-
-def preview(context, root):
-    if bpy.app.background or not context.window:
-        return
-    area = context.area if context.area and context.area.type == "VIEW_3D" else next(
-        (area for area in context.window.screen.areas if area.type == "VIEW_3D"), None)
-    if area is None:
-        return
-    space = area.spaces.active
-    space.use_local_camera = True
-    space.camera = root.hgt_character.camera
-    space.region_3d.view_perspective = "CAMERA"
-    space.shading.type = "MATERIAL"
-    space.shading.use_scene_world = True
-    space.shading.use_scene_lights = True
-    space.overlay.show_overlays = False
+    data = bpy.data.cameras.new('HGT • Camera')
+    camera = bpy.data.objects.new(data.name, data)
+    for item in (data, camera):
+        item['hgt_owner'], item['hgt_stage'] = settings.uid, 'import'
+    camera['hgt_helper'] = True
+    collection.objects.link(camera)
+    settings.camera = scene.hgt_output.camera = camera
+    if scene.camera is None:scene.camera = camera
 
 
 def output_path(scene):
@@ -126,7 +86,8 @@ def _copy_compositor(tree, source, proxy, resources, copies=None):
 def _proxy(scene, root, path):
     proxy = scene.copy()
     proxy.name = "HGT Render • " + uuid.uuid4().hex[:8]
-    job = RenderJob(scene, proxy, path, (scene.hgt_output.width, scene.hgt_output.height))
+    job = RenderJob(scene, proxy, path, (max(1, scene.render.resolution_x * scene.render.resolution_percentage // 100),
+                                        max(1, scene.render.resolution_y * scene.render.resolution_percentage // 100)))
     job.temporary = path.with_name('.hgt-' + uuid.uuid4().hex + '.png')
     job.resources.add(proxy)
     try:
@@ -149,8 +110,6 @@ def _proxy(scene, root, path):
         # after reload, when ID addresses and Python set order have changed.
         for obj in sorted(objects, key=lambda item: item.name_full):
             collection.objects.link(obj)
-        _attachment_light(job, root, collection)
-        presentation.floor(job, root, collection)
         proxy.render.engine = "BLENDER_EEVEE"
         proxy.view_settings.view_transform = "Standard"
         proxy.view_settings.look = 'None'
@@ -159,7 +118,7 @@ def _proxy(scene, root, path):
         proxy.render.resolution_x, proxy.render.resolution_y = job.size
         proxy.render.resolution_percentage = 100
         proxy.render.pixel_aspect_x = proxy.render.pixel_aspect_y = 1
-        proxy.render.film_transparent = scene.hgt_output.transparent
+        proxy.render.film_transparent = scene.render.film_transparent
         proxy.render.image_settings.file_format = "PNG"
         proxy.render.image_settings.color_mode = "RGBA"
         proxy.render.image_settings.color_depth = "8"
@@ -173,33 +132,10 @@ def _proxy(scene, root, path):
             post_processing.configure(proxy, root, job.resources)
         if proxy.compositing_node_group:
             _render_alpha(proxy)
-        presentation.background(job)
         return job
     except Exception:
         bpy.data.batch_remove(ids=job.resources)
         raise
-
-
-def _attachment_light(job, root, collection):
-    """Light retained original materials when a plain scene has no lamps."""
-    settings = root.hgt_character
-    if not settings.parts_version or any(o.type=='LIGHT' for o in job.proxy.objects):
-        return
-    originals = {p.object for p in settings.parts if p.included and not p.locked
-                 and any(i>=len(p.object.material_slots) or p.object.material_slots[i].material is None
-                         or p.object.material_slots[i].material.get('hgt_owner')!=settings.uid
-                         for i in json.loads(p.source_slots))}
-    if not originals:
-        return
-    receivers=bpy.data.collections.new('HGT • Original Material Receivers')
-    data=bpy.data.lights.new('HGT • Original Material Light','SUN')
-    light=bpy.data.objects.new(data.name,data)
-    job.resources.update({receivers,data,light})
-    for obj in originals:receivers.objects.link(obj)
-    light.light_linking.receiver_collection=receivers
-    collection.objects.link(light)
-    data.energy=2
-    light.rotation_euler=(-lighting.light_direction(settings)).to_track_quat('-Z','Y').to_euler()
 
 
 def _render_alpha(scene):
@@ -221,19 +157,13 @@ def start(scene, root, invoke=False):
     if _JOBS or bpy.app.is_job_running("RENDER"):
         raise ValueError("请等待当前渲染结束")
     if not root or not root.hgt_character.managed:
-        raise ValueError("请先导入模型")
+        raise ValueError("请先导入 PMX 并应用材质")
     project_io.validate(root)
-    if root.hgt_character.parts_version:
-        subjects.validate(root)
-        subjects.apply(root)
     camera = scene.hgt_output.camera
     if camera is None or camera.type != "CAMERA" or camera.name not in scene.objects:
         raise ValueError("请在输出中选择当前场景的相机")
-    if camera == root.hgt_character.camera and framing.is_auto(root):
-        frame_camera(scene, root)
-    expressions.apply_values(root)
-    expressions.update_gaze(root, scene)
-    bpy.context.view_layer.update()
+    if root.hgt_character.look_camera:gaze.update_gaze(root, scene)
+    lighting.update(root)
     path = output_path(scene)
     protect_assets(scene, path)
     path.parent.mkdir(parents=True, exist_ok=True)

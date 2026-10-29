@@ -70,8 +70,8 @@ class ImportBatch:
     source: str
     data: dict
     parameters: dict
-    operator: str = "better_import.fbx"
-    source_format: str = 'fbx'
+    operator: str = "mmd_tools.import_model"
+    source_format: str = 'pmx'
     model_root: object = None
     armature: object = None
     repair: dict = field(default_factory=dict)
@@ -132,8 +132,8 @@ def restore_mesh(entry):
 def remove_render_data(uid):
     """Remove owned helpers and unused render IDs; keep every imported object and ID."""
     candidates = {item for kind in DATA_KINDS if kind not in {"objects", "collections"}
-                  for item in getattr(bpy.data, kind) if item.get("hgt_owner") == uid}
-    candidates.update(obj for obj in bpy.data.objects if obj.get("hgt_owner") == uid and obj.get("hgt_helper"))
+                  for item in getattr(bpy.data, kind) if item.get("hgt_owner") == uid and item.get("hgt_stage") not in {"import", "lighting", "gaze"}}
+    candidates.update(obj for obj in bpy.data.objects if obj.get("hgt_owner") == uid and obj.get("hgt_helper") and obj.get("hgt_stage") not in {"import", "lighting", "gaze"})
     collections = {c for c in bpy.data.collections if c.get("hgt_owner") == uid}
     references = bpy.data.user_map(subset=candidates)
     # Modifier socket fields can retain stale user counters after removal.

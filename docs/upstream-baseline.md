@@ -1,81 +1,17 @@
-# 模块来源与接入标准
+# 模块来源与接口
 
-Hoyo-GI-Toon 通过独立模块组合 FBX、PMX 基础渲染流程，参考插件按功能取用，通过本项目接口连接。
+目标是原生 Blender 中的原神 PMX 材质渲染和 MMD 流程。参考实现按模块选用，保留原节点与来源；游戏资产仅从用户所选本地 PMX 引用读取。
 
-## 来源与选用
-
-| 模块 | 参考来源 | 选用重点 |
+| 模块 | 接口与责任 | 来源 |
 |---|---|---|
-| Better FBX 接入 | Gacha Setup 3.8.3 的 `better_fbx_utils` | 公开 Operator 调用、参数核对和实际导入结果检查 |
-| 资产归属与资源隔离 | 晨星 Festivity 渲染助手 1.0.2.1 的 `character_system`，Hoyo-GI-Toon 现有事务逻辑 | 对象与资源归属、共享数据处理、引用重定向和恢复 |
-| 主体与附件管理 | 晨星 `character_system`、FBX 角色分组与 MMD 类型识别，Gacha Setup 原神导入流程 | 采用导入批次与骨架引用限定范围；显示筛选作用于派生网格，保留原网格与挂接 |
-| 资产解析与材质规则 | Gacha Setup 的原神分支，Hoyo-GI-Toon 的资源解析 | 材质 JSON、贴图角色、原材质引用及精确匹配 |
-| 基础着色与光照 | Festivity 原生可用节点、已选参考实现 | Body、Hair、Face、Light Vectors 与头部控制器 |
-| 描边 | 原生几何节点与材质参数映射 | 材质分区、描边颜色、宽度和修改器顺序 |
-| 输出与后期 | 晨星的场景资源归属，Hoyo-GI-Toon 现有输出逻辑 | 相机、图片输出、已有合成链的保留与透明通道 |
-| 后台验证 | Gacha Setup 的结果清单与完成检查，项目验证脚本 | 独立进程、明确完成结果、数据与渲染证据 |
+| PMX 导入 | importers.import_character、mmd_importer.import_model；导入、骨骼修复及前后记录 | MMD Tools 公开 Operator |
+| 资产保护 | asset_tracking；导入引用、派生网格、恢复及事务 | Hoyo-GI-Toon |
+| 材质适配 | pmx_materials.Catalog / build；Toon、Sphere、Alpha、边线 | Gacha Setup 的 PMX 适配原则 |
+| 原生着色 | shaders.ShaderLibrary；Body、Hair、光向与描边节点 | Festivity、michael-gh1 的原生模板 |
+| 参数 | material_controls；逐材质颜色与全局阴影描边 | Hoyo-GI-Toon |
+| 默认光 | lighting.default_light；主动调用，复用自有灯 | Hoyo-GI-Toon |
+| 视线 | gaze；可移除眼骨约束及实时跟随 | Hoyo-GI-Toon；MMD 骨名语义参考晨星 |
+| 工程与输出 | project_io、rendering；资源重关联、原机位、临时输出与 PNG 保护 | Hoyo-GI-Toon |
+| 编排与面板 | workflow、panels；导入、应用材质、参数、打光和输出分离 | Hoyo-GI-Toon |
 
-Better FBX 与 MMD Tools 为独立安装依赖，按所选文件格式调用公开导入接口。其余参考实现按模块适配，不要求安装整套参考插件。
-
-## 模块接口
-
-| 文件与入口 | 结果 | 边界 |
-|---|---|---|
-| `importers.import_character(filepath, context)` | `ImportBatch`：本次新增 ID、Operator、参数 | 先核对实际 RNA，再传递文件与数据保留参数；检查完成状态和网格 |
-| `mmd_importer.import_model` | MMD 模型根、骨架及修复前后记录 | 公开导入/修复接口，只处理本次导入实例 |
-| `pmx_materials.Catalog.resolve / build` | PMX 语义描述与渲染材质 | 原 Toon、Sphere、Alpha、双面与描边语义进入共用接口 |
-| `asset_tracking.derive_mesh / restore_mesh` | 派生网格、原 Mesh 引用、材质链接方式 | UV 与顶点色适配只作用于副本；原始形态键和属性保留 |
-| `asset_tracking.DataTransaction / remove_render_data` | 失败回滚、按归属清理 | 沿真实 ID 引用保留外部已使用的资源，不进行全场景清理 |
-| `subjects.initialize / classify / set_part / apply` | 统一部件记录、识别依据、派生面属性与可恢复显示 | 源材质槽、实际蒙皮骨与连通表面参与识别；未知用途保留显示，通过共用界面纠正 |
-| `AssetCatalog.resolve(name, material)` | `MaterialAssets`：用途、参数、贴图与匹配依据 | JSON 优先，结合导入材质 Base Color 与精确名称；限定所选资产包 |
-| `shaders.ShaderLibrary.build_material(assets)` | 渲染材质和对应描边材质 | Body、Hair、Face、基础眼部与 Alpha；含贴图路径按材质独立 |
-| `material_protocol.describe / normal_maps.apply` | 实际模板与启用分支、切线或高度法线 | 按父开关、引用和强度校验，不位移原几何 |
-| `sampling.configure / node_graph.Graph.texture` | 源贴图缩放与偏移 | 自有节点采样，原 UV 不变，两条路径共用数值校验 |
-| `eye_surfaces.mark / attach / eye_layers.apply` | 派生眼层属性、独立虹膜与高光通道 | 原生 PupilaTodo 顺序，在求值几何上分派材质，不改原 UV 和材质槽索引 |
-| `textiles.apply / reflections.apply` | 源遮罩限定的面料与反射 | 各模块独立开关验证，保持底层 Toon 路径 |
-| `surface_layers.participation / mark_expression_faces / attach_expression` | 覆盖层可见性判定、派生表情属性及求值筛选 | 默认关闭的表情面退出深度与描边，基础网格和 UV 保留 |
-| `lighting.build / attach / update` | 头部参照、光向控制、Light Vectors | 只引用导入骨架，保留骨架数据和层级；参数更新不重复创建资源 |
-| `outlines.build / update` | 按材质分区的描边修改器 | 沿用材质颜色，位于原始修改器和 Light Vectors 之后，不应用到网格 |
-| `workflow.build / assemble / restore` | 资产根对象、装配或恢复结果 | 编排上述模块；同批重复装配复用根对象和已建资源 |
-| `rendering.prepare / frame_camera / preview` | 自有相机与视图预览 | 按有姿态且已勾选的表面构图，保留原始修改器和用户相机 |
-| `rendering.start / finish` | PNG、完成或取消结果 | 临时场景独立设置尺寸与透明背景，检查真实文件和 PNG 尺寸后清理资源 |
-| `framing.frame / points` | 全身、半身、头像与当前姿态构图 | 临时求值副本保留原形变和表面筛选，原生光向／描边实例不作为构图几何；手动机位保留 |
-| `presentation.background / floor` | 临时背景、地面及灯光资源 | 仅加入输出场景，完成或失败后按任务清理 |
-| `expressions.initialize / set_gaze / reset` | 已有派生形态键和可移除眼骨约束 | 源形态键、动作、骨架和 MMD 元数据保留；不加入逐角色预设 |
-| `project_io.stamp / relink / on_load` | 资源摘要、路径重关联与工程记录迁移 | 验证同一源文件后修正路径，保留网格和原材质 ID；旧工程不自动更换着色 |
-| `post_processing.configure` | 渲染副本的后期节点 | 保留原合成链，最终 Alpha 在输出模块统一恢复 |
-| `panels` | 导入、外观、光照、输出和渲染操作 | 一个导入入口，常用参数直接展示，其余折叠；错误使用 Blender 原生报告 |
-
-基础色、Ramp 与 Matcap 按 sRGB 读取；LightMap、法线、脸部 SDF 与 Specular Ramp 按 Non-Color 读取。生成图像使用 `CHANNEL_PACKED`，不改导入图像的设置。
-
-贴图引用、特效参与及表情覆盖层的基础装配规则见 [基础渲染装配](basic-rendering.md)。
-
-原生资源保留 Toon 明暗、脸部 SDF、Fresnel、高光、金属、Alpha 与材质描边路径。资源编译入口为 `tools/build_shader_library.py`，节点选择规则为 `tools/native_shader_paths.py`，输入版本与摘要保存在 `assets/upstream.json`。
-
-后台验证入口为 `tools/verify_development.py`、`tools/verify_integration.py` 和 `tools/verify_interface.py`，分别覆盖模型数据、输出与保存重开、真实界面及撤销重做。验证可将候选 ZIP 安装到项目内隔离仓库，再读取实际安装文件执行。私人路径与工程保留在 `.verification/`。
-
-`tools/verify_subjects.py` 检查真实风之翼、技能附件、两种格式的同材质混合网格夹具、保存重开、恢复与回滚；`verify_interface.py --subjects` 检查真实分组操作和撤销重做。主体管理及旧工程约定见 [主体与附件](subjects.md)。
-
-`tools/verify_material_pipeline.py` 检查跨格式材质近景矩阵，并通过 `verification_materials.py` 直接加载 Gacha Setup 的原生 PupilaTodo 进行同输入合成对照。源贴图变换、法线强度、剔除与 Alpha 使用实际渲染夹具检查；这些结果证明对应模块有效，不代表整套参考插件或游戏渲染已完全等价。覆盖范围见 [22–34 材质核对](../design/material-coverage.md)。
-
-`tools/build_release.py candidate` 生成并校验候选包。整体验收后，`release` 子命令只将已验证的候选字节推广为发布包并更新索引，历史 ZIP 不覆盖。
-
-`tools/verify_workflow.py` 检查真实 FBX／PMX 构图、表情与视线、姿态跟随、展示资源隔离、保存重开、资源移动和错误回滚，并记录导入、装配、反复刷新与构图耗时。`verify_interface.py --workflow` 检查实际 UI、撤销重做、注入取消回调后的部分文件清理、旧 PNG 保留和再次实际出图。原生 Esc／状态栏按钮属于最终人工操作验收，隐藏窗口的模拟事件不记作真实输入验证。使用流程见 [构图与出图](workflow.md)。
-
-## 接入要求
-
-1. 每个选用模块记录来源版本、代码范围、输入输出、适配理由和可分发资源。
-2. 模块只处理传入的资产与资源引用，不依赖全场景第一个骨架或固定全局名称。
-3. 原材质、贴图与数据引用保留；新建资源可以定位、恢复和回滚。
-4. 节点与接口必须在原生 Blender 中有效。只保留实际使用、已验证的着色分支。
-5. 资源解析与渲染装配分开，UI 只调用本项目的编排接口。
-6. 一项功能保留一份实现；接入后清理被替代的调用、资源和文档。
-
-## 来源入口
-
-- [Festivity Shader](https://github.com/festivities/Blender-miHoYo-Shaders)：现有资源来源版本和文件摘要见项目 `assets/upstream.json`。
-- [Gacha Setup](https://github.com/PaoloESAN/gacha-setup)：本地参考版本 `3.8.3`。
-- [晨星 Festivity 渲染助手](https://github.com/AstraMorningstar/Morningstar-Festivity-render-assistant)：本地参考版本 `1.0.2.1`。
-- 现有参数映射来源记录见项目 `NOTICE`。
-
-开发项、当前状态与用户验收统一见 [开发清单与验收进度](../design/DEVELOPMENT.md)。
+来源资源版本与摘要见 `assets/upstream.json`，版权与许可见 `NOTICE`。旧版完整功能及参考范围保留于 v1.0.1，当前不接入 FBX、附件分类、表情编辑、背景或地面模块。
