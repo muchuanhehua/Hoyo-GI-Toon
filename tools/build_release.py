@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 PAYLOAD={"__init__.py","asset_tracking.py","importers.py","mmd_importer.py","material_assets.py",
          "material_controls.py","pmx_materials.py","node_graph.py","sampling.py","shaders.py","lighting.py",
-         "outlines.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","post_processing.py","project_io.py",
+         "outlines.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
          "assets/original_shader.blend","assets/original_controls.blend","assets/upstream.json",
          "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE",
          "docs/upstream-baseline.md","docs/basic-rendering.md","docs/pmx-rendering.md","docs/workflow.md"}
@@ -13,10 +13,13 @@ def sha(data):return hashlib.sha256(data).hexdigest()
 def runtime_hashes():return {name:sha((ROOT/name).read_bytes()) for name in PAYLOAD if name.endswith('.py')}
 def validate_evidence(evidence,interface,integration=False):
     hashes=runtime_hashes()
-    assert evidence['scope']=='PMX-M01-M08' and interface['scope']=='PMX-M01-M08-UI'
+    assert evidence['scope']=='PMX-M09-M12' and interface['scope']=='PMX-M09-M12-UI'
     assert evidence['source_sha256']==interface['source_sha256']==hashes,'Runtime changed after verification'
-    assert len(evidence['models'])>=3 and all(evidence['checks'].values())
-    required=('source_data_unchanged','mmd_metadata_preserved','import_material_light_separate','manual_camera_preserved',
+    expected_background=('native_render_without_model','light_without_model','plugin_import_independent',
+                         'legacy_200_project','register_unregister','all_models','packed_scene')
+    assert len(evidence['models'])>=3 and all(evidence['checks'].get(key) is True for key in expected_background)
+    required=('source_data_unchanged','mmd_metadata_preserved','existing_model_without_reimport','no_bone_repair',
+              'manual_camera_light_preserved','native_render_scene_unchanged','whole_scene_render',
               'gaze_live','reset_and_restore','save_reload_exact','resource_counts_stable',
               'bone_and_vertex_morph_animation','material_failure_rollback')
     for model in evidence['models']:
@@ -25,8 +28,8 @@ def validate_evidence(evidence,interface,integration=False):
         assert model['shadow_position_response']>.02 and model['light_response']>.05
         if model['source_edges_enabled']:
             assert model['outline_response']>.01 and model['outline_color_response']>.01
-    expected=('split_actions','undo_redo','material_params_undo','light_undo','gaze_undo','panel_inventory',
-              'cancel_cleanup','save_project','async_render')
+    expected=('empty_scene_controls','no_output_panel','light_without_model_undo','camera_without_model_undo',
+              'existing_model_apply_undo','material_params_undo','gaze_undo','save_project','native_async_render')
     assert not interface.get('error') and all(interface['checks'].get(key) is True for key in expected)
     if integration:
         assert evidence['package_sha256'] and evidence['package_sha256']==interface['package_sha256']
@@ -78,7 +81,7 @@ def main():
     (release/'index.json').write_text(json.dumps({'version':'v1','blocklist':[],'data':[item]},ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     summary={'scope':evidence['scope'],'version':record['version'],'archive_sha256':record['sha256'],
              'models':evidence['models'],'checks':evidence['checks'],'interface_checks':interface['checks'],
-             'native_cancel_input':interface['native_cancel_input'],'source_sha256':evidence['source_sha256']}
+             'render_mode':'native_current_scene','source_sha256':evidence['source_sha256']}
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('HGT_RELEASE',record['version'],record['sha256'])
 if __name__=='__main__':main()

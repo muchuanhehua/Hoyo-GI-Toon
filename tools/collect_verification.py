@@ -18,7 +18,7 @@ assert hashlib.sha256(archive.read_bytes()).hexdigest()==record['sha256']==evide
 assert validate_archive(archive)==record['payload']
 report={'scope':evidence['scope'],'version':record['version'],'candidate':{k:record[k] for k in ('archive','bytes','sha256')},
         'payload_files':len(record['payload']),'models':evidence['models'],'checks':evidence['checks'],
-        'interface_checks':interface['checks'],'native_cancel_input':interface['native_cancel_input'],
+        'interface_checks':interface['checks'],'render_mode':'native_current_scene',
         'acceptance':'pending_user_review','published_version':json.loads((root/'release/index.json').read_text(encoding='utf-8'))['data'][0]['version']}
 path=out/'verification.json';path.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
 checkpoint={'git_head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),

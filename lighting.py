@@ -76,22 +76,16 @@ def update(root):
     shaders.set_controls(root)
 
 
-def default_light(root, scene):
-    settings = root.hgt_character
-    light = next((obj for obj in scene.objects if obj.get('hgt_owner') == settings.uid
-                  and obj.get('hgt_stage') == 'lighting' and obj.type == 'LIGHT'), None)
+def default_light(scene):
+    light = next((obj for obj in scene.objects if obj.get('hgt_scene_light') and obj.type == 'LIGHT'), None)
     if light is None:
         data = bpy.data.lights.new('HGT • 默认光', 'SUN')
         light = bpy.data.objects.new(data.name, data)
-        for item in (data, light):
-            item['hgt_owner'], item['hgt_stage'] = settings.uid, 'lighting'
-        light['hgt_helper'] = True
-        root.users_collection[0].objects.link(light)
+        light['hgt_scene_light'] = True
+        scene.collection.objects.link(light)
     light.data.energy = 2
     direction = Vector((math.sin(.35)*math.cos(.35), -math.cos(.35)*math.cos(.35), math.sin(.35)))
     light.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
-    settings.light_source = light
+    scene.hgt_light = light
     bpy.context.view_layer.update()
-    if settings.managed:
-        update(root)
     return light

@@ -1,6 +1,6 @@
 schema_version = "1.0.0"
 id = "hoyo_gi_toon"
-version = "2.0.0"
+version = "2.1.0"
 name = "Hoyo-GI-Toon"
 tagline = "面向 MMD 流程的原神 PMX 角色材质渲染"
 maintainer = "muchuanhehua"

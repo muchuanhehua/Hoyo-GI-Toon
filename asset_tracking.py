@@ -21,12 +21,10 @@ def scene_state(context):
               (scene.unit_settings, "system"), (scene.unit_settings, "scale_length"),
               (scene.render, "fps"), (scene.render, "fps_base"),
               (scene.render, "engine"), (scene.view_settings, "view_transform"),
+              (scene.view_settings, "look"), (scene.view_settings, "exposure"), (scene.view_settings, "gamma"),
               (scene.render, "film_transparent"), (scene.render.image_settings, "file_format"),
               (scene.render.image_settings, "color_mode"), (scene, "camera"), (scene, "hgt_target"),
-              (scene, 'mmd_validation_results'))
-    if hasattr(scene, "hgt_output"):
-        fields += tuple((scene.hgt_output, name) for name in
-                        ("camera", "width", "height", "transparent", "filepath", "post_processing"))
+              (scene, 'hgt_model'), (scene, 'hgt_light'), (scene, 'mmd_validation_results'))
     return [(owner, name, getattr(owner, name)) for owner, name in fields if hasattr(owner, name)]
 
 

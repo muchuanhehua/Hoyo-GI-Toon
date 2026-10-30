@@ -1,9 +1,11 @@
 # 材质装配与参数
 
-`pmx_materials.Catalog`读取所选 PMX 的原材质引用与 MMD 语义；`ShaderLibrary`负责自有原生节点与贴图；`workflow.apply_materials`负责单独装配及失败回滚。
+`scene_models`识别场景中的 MMD 根、骨架和网格；`pmx_materials.Catalog`直接读取已有材质引用与 MMD 语义，不依赖 PMX 文件路径。`ShaderLibrary`负责自有原生节点与贴图；`workflow.apply_materials`负责单独装配及失败回滚。
 
 默认颜色调节为中性乘色，保留源贴图和 PMX Diffuse。阴影色读取装配时的原生输入；描边色读取 PMX 边线颜色。`material_controls`只修改生成材质的节点，不写原材质和图片。
 
 描边复用原六材质几何节点分支，按 PMX 原边线权重和开关选择有效材质，保留源拓扑与材质槽。原生头部参照和光向节点属于材质计算资源；实际场景灯光由用户单独添加或选择。
 
 材质初始化不创建场景灯、不摆相机、不控制表情或附件显隐。恢复只撤去材质装配，独立相机、灯光与可选视线继续归各自模块管理。
+
+应用材质时同步 Eevee、Standard 和中性色彩条件；相机、分辨率、保存路径及原合成设置沿用当前场景。渲染按钮调用 Blender 原生渲染，输出整个可见场景的当前帧，保存由原生功能管理。

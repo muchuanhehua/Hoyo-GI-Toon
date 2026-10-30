@@ -23,6 +23,15 @@ def walk(tree, seen=None):
 
 def load_image(path, data=False, owner=""):
     colorspace = "Non-Color" if data else "sRGB"
+    if isinstance(path, bpy.types.Image):
+        image = next((i for i in bpy.data.images if i.get('hgt_source_image') == path
+                      and i.get('hgt_owner') == owner and i.colorspace_settings.name == colorspace), None)
+        if image is None:
+            image = path.copy()
+            image.colorspace_settings.name = colorspace
+            image.alpha_mode = 'CHANNEL_PACKED'
+            image['hgt_owner'], image['hgt_source_image'] = owner, path
+        return image
     key = str(path.resolve()).casefold()
     image = next((i for i in bpy.data.images if i.get("hgt_file") == key
                   and i.get("hgt_owner") == owner
@@ -64,7 +73,7 @@ class ShaderLibrary:
         self.uid = root.hgt_character.uid
         with bpy.data.libraries.load(str(LIBRARY_PATH), link=False) as (source, target):
             target.materials = source.materials
-            target.node_groups = source.node_groups
+            target.node_groups = [name for name in source.node_groups if name != 'HoYoverse - Post Processing']
         self.materials = {m["hgt_upstream"]:m for m in target.materials}
         self.groups = {g["hgt_upstream"]:g for g in target.node_groups}
         for tree in (*self.groups.values(), *(m.node_tree for m in self.materials.values())):
@@ -136,7 +145,6 @@ class ShaderLibrary:
         for material in self.materials.values():
             if material.users == 0:
                 bpy.data.materials.remove(material)
-        self.groups["HoYoverse - Post Processing"].use_fake_user = True
 
     def build_material(self, assets):
         from .pmx_materials import build

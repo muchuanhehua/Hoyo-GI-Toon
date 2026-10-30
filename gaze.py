@@ -2,9 +2,12 @@
 import math
 import bpy
 from mathutils import Quaternion, Vector
+from . import scene_models
 
 def head_bone(root):
-    armature = root.hgt_character.source_armature
+    armature = scene_models.armature(root)
+    if armature is None:
+        raise ValueError('无法确定唯一 MMD 骨架')
     names = {'head', '頭', '头', 'あたま'}
     values = [bone for bone in armature.pose.bones if not bone.name.startswith('_') and any((name.strip().casefold() in names for name in (bone.name, bone.mmd_bone.name_j, bone.mmd_bone.name_e)))]
     if len(values) != 1:
@@ -12,7 +15,7 @@ def head_bone(root):
     return values[0]
 
 def eye_bones(root):
-    armature = root.hgt_character.source_armature
+    armature = scene_models.armature(root)
     if armature is None:
         return []
     aliases = {'左目', '右目', '左眼', '右眼', 'eye_l', 'eye_r', 'left eye', 'right eye'}
@@ -73,7 +76,7 @@ def update_gaze(root, scene):
     settings = root.hgt_character
     if not settings.look_camera:
         return
-    camera = scene.hgt_output.camera or settings.camera
+    camera = scene.camera
     if camera is None:
         raise ValueError('请先选择相机')
     armature = settings.source_armature

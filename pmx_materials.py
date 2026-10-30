@@ -31,8 +31,7 @@ def role_for(material):
 
 
 class Catalog:
-    def __init__(self, filepath):
-        self.model = Path(filepath).resolve()
+    def __init__(self):
         self.alpha_min = {}
 
     def resolve(self, name, material):
@@ -52,27 +51,28 @@ class Catalog:
             image = node.image if node else None
             if image is None:
                 continue
-            path = Path(bpy.path.abspath(image.filepath)).resolve()
+            path = Path(bpy.path.abspath(image.filepath, library=image.library)).resolve()
             basis = f'PMX {node_name} reference'
-            if role == 'toon' and data.is_shared_toon_texture and not path.is_file():
+            packed = bool(image.packed_file) or image.source == 'GENERATED'
+            if role == 'toon' and data.is_shared_toon_texture and not path.is_file() and not packed:
                 # MMD's indexed shared ramp belongs to its importer package.
                 # An unconfigured MMD preference can leave a relative image path.
                 package = sys.modules.get(type(data).__module__.split('.properties.')[0])
                 if package and getattr(package, '__file__', None):
                     path = Path(package.__file__).parent / 'externals' / 'MikuMikuDance' / f'toon{data.shared_toon_texture+1:02d}.bmp'
                     basis = f'MMD shared Toon index {data.shared_toon_texture}'
-            if not path.is_file():
+            if not path.is_file() and not packed:
                 raise AssetError(f'{name} 缺少 PMX {role} 贴图：{path.name}')
-            result.textures[role] = path
+            result.textures[role] = image if packed else path
             result.evidence[role] = basis
             if role == 'diffuse':
-                if path not in self.alpha_min:
+                if image not in self.alpha_min:
                     pixels = np.empty(len(image.pixels), dtype=np.float32)
                     image.pixels.foreach_get(pixels)
                     if not len(pixels):
                         raise AssetError(f'{name} 的基础贴图无法读取：{path.name}')
-                    self.alpha_min[path] = float(pixels[3::4].min())
-                result.pmx['texture_alpha_min'] = self.alpha_min[path]
+                    self.alpha_min[image] = float(pixels[3::4].min())
+                result.pmx['texture_alpha_min'] = self.alpha_min[image]
         if 'diffuse' not in result.textures:
             # PMX permits solid-color materials. Preserve their explicit color.
             result.pmx['solid_color'] = True
@@ -161,7 +161,7 @@ def build(library, assets):
     material.use_backface_culling = not assets.pmx['double_sided']
     import json
     material['hgt_features'] = json.dumps(assets.features, sort_keys=True)
-    material['hgt_texture_matches'] = json.dumps({role: {'file': str(path), 'basis': assets.evidence[role]} for role, path in assets.textures.items()}, ensure_ascii=False)
+    material['hgt_texture_matches'] = json.dumps({role: {'file': path.filepath if isinstance(path, bpy.types.Image) else str(path), 'basis': assets.evidence[role]} for role, path in assets.textures.items()}, ensure_ascii=False)
     material['hgt_pmx'] = json.dumps(assets.pmx, ensure_ascii=False)
     material['hgt_json'] = ''
     material['hgt_applied_parameters'] = ['PMX diffuse', 'Toon', 'Sphere', 'Alpha', 'double-sided', 'edge']

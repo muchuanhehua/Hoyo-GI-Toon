@@ -1,39 +1,22 @@
 """Import, materials and lighting are independent, reversible user actions."""
-from pathlib import Path
-import uuid
 import bpy
 from mathutils import Vector
 from bpy.app.handlers import persistent
-from . import asset_tracking, importers, lighting, outlines, rendering, shaders, project_io, gaze, material_controls
+from . import asset_tracking, importers, lighting, outlines, rendering, shaders, project_io, gaze, material_controls, scene_models
 from .pmx_materials import Catalog
 _REFRESHING = False
 
 def current(root):
-    return bool(root and root.hgt_character.imported and (root.hgt_character.schema_version == 2))
+    return bool(root and root.hgt_character.uid and root.hgt_character.source_root and root.hgt_character.schema_version == 2)
 
 def build(filepath, context):
     transaction = asset_tracking.DataTransaction(context)
     try:
         batch = importers.import_character(filepath, context)
-        collection = bpy.data.collections.new(Path(batch.source).stem + ' • HGT')
-        context.scene.collection.children.link(collection)
-        root = bpy.data.objects.new(Path(batch.source).stem, None)
-        collection.objects.link(root)
+        root = scene_models.ensure(batch.model_root, context, batch.source)
         settings = root.hgt_character
-        settings.uid = uuid.uuid4().hex
-        settings.source_file = batch.source
-        settings.source_format = 'pmx'
-        settings.schema_version = 2
-        settings.source_root, settings.source_armature = (batch.model_root, batch.armature)
-        root['hgt_owner'] = collection['hgt_owner'] = settings.uid
-        for obj in batch.objects:
-            obj['hgt_owner'] = settings.uid
-            if obj.type == 'MESH' and getattr(obj, 'mmd_type', '') not in {'RIGID_BODY', 'JOINT'}:
-                entry = settings.meshes.add()
-                entry.object = obj
-                entry.original_hidden, entry.original_view_hidden = (obj.hide_render, obj.hide_get())
         settings.imported = True
-        rendering.prepare(context.scene, root, collection)
+        settings.camera = rendering.prepare(context.scene)
         project_io.stamp(root)
         context.scene.hgt_target = root
         return root
@@ -42,21 +25,25 @@ def build(filepath, context):
         raise
 
 def apply_materials(root, context):
-    if not current(root):
-        raise ValueError('请先导入 PMX 模型')
-    settings = root.hgt_character
-    if settings.managed:
-        refresh_character(root)
-        return root
+    rendering.check_idle()
+    if context.mode != 'OBJECT':
+        raise ValueError('请切换到对象模式后应用材质')
     transaction = asset_tracking.DataTransaction(context)
-    settings.building = True
+    settings = None
     try:
+        root = scene_models.ensure(root, context)
+        settings = root.hgt_character
+        if settings.managed:
+            rendering.configure_material_render(context.scene)
+            refresh_character(root, scene=context.scene)
+            return root
+        settings.building = True
         context.view_layer.update()
         points = [entry.object.matrix_world @ Vector(corner) for entry in settings.meshes for corner in entry.object.bound_box]
         settings.height = max((p.z for p in points)) - min((p.z for p in points))
         if settings.height < 1e-05:
             raise ValueError('模型尺寸无效')
-        catalog = Catalog(settings.source_file)
+        catalog = Catalog()
         library = shaders.ShaderLibrary(root)
         controls = lighting.build(root, root.users_collection[0], [settings.source_armature], library)
         settings.shadow_position = library.groups['Global Material Properties'].nodes['Global Properties'].inputs['Shadow Position'].default_value
@@ -93,35 +80,39 @@ def apply_materials(root, context):
             raise ValueError('模型没有可应用的材质')
         settings.has_outline = any((modifier.type == 'NODES' and modifier.node_group and modifier.node_group.get('hgt_pmx_outline') for entry in settings.meshes for modifier in entry.object.modifiers))
         library.finish()
+        rendering.configure_material_render(context.scene)
         settings.managed = True
         settings.building = False
         project_io.stamp(root)
-        refresh_character(root)
+        refresh_character(root, scene=context.scene)
         return root
     except Exception:
-        for entry in settings.meshes:
-            asset_tracking.restore_mesh(entry)
-        for snap in settings.slots:
-            if snap.mesh and snap.index < len(snap.mesh.material_slots):
-                snap.mesh.material_slots[snap.index].material = snap.original
-        settings.bindings.clear()
-        settings.slots.clear()
-        settings.controls.clear()
-        settings.global_properties = settings.light_vectors = settings.outline_graph = None
-        settings.light = settings.head = None
-        settings.managed = settings.building = False
+        if settings:
+            for entry in settings.meshes:
+                asset_tracking.restore_mesh(entry)
+            for snap in settings.slots:
+                if snap.mesh and snap.index < len(snap.mesh.material_slots):
+                    snap.mesh.material_slots[snap.index].material = snap.original
+            settings.bindings.clear()
+            settings.slots.clear()
+            settings.controls.clear()
+            settings.global_properties = settings.light_vectors = settings.outline_graph = None
+            settings.light = settings.head = None
+            settings.managed = settings.building = False
         transaction.rollback()
         raise
 
-def refresh_character(root, depsgraph=None):
+def refresh_character(root, depsgraph=None, scene=None):
     global _REFRESHING
     if _REFRESHING or not current(root) or root.hgt_character.building:
         return
     _REFRESHING = True
     try:
         settings = root.hgt_character
+        scene = scene or next((s for s in bpy.data.scenes if root.name in s.objects), bpy.context.scene)
+        if scene.hgt_light and settings.light_source != scene.hgt_light:
+            settings.light_source = scene.hgt_light
         if settings.look_camera:
-            scene = next((s for s in bpy.data.scenes if root.name in s.objects and s.hgt_target == root), bpy.context.scene)
             gaze.update_gaze(root, scene)
         if settings.managed:
             lighting.update(root)
@@ -157,15 +148,17 @@ def restore(root):
 
 @persistent
 def update_scene(scene, depsgraph=None):
+    scene_models.sync_active(scene)
     for obj in tuple(scene.objects):
         if current(obj):
-            refresh_character(obj, depsgraph)
+            refresh_character(obj, depsgraph, scene)
 
 def register():
     bpy.app.handlers.depsgraph_update_post.append(update_scene)
     bpy.app.handlers.frame_change_post.append(update_scene)
 
 def unregister():
+    scene_models.reset_selection_cache()
     for handlers in (bpy.app.handlers.depsgraph_update_post, bpy.app.handlers.frame_change_post):
         if update_scene in handlers:
             handlers.remove(update_scene)

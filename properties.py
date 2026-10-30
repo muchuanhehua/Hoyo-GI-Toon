@@ -76,30 +76,40 @@ class HGTCharacterSettings(PropertyGroup):
     gaze_bones: CollectionProperty(type=HGTGazeBone)
     look_camera: BoolProperty(default=False)
 
-class HGTOutputSettings(PropertyGroup):
-    camera: PointerProperty(name='相机', type=bpy.types.Object, poll=lambda self, obj: obj.type == 'CAMERA')
-    filepath: StringProperty(name='保存到', subtype='FILE_PATH')
-    last_render: StringProperty(subtype='FILE_PATH')
-    last_auto_path: StringProperty(subtype='FILE_PATH')
-    post_processing: BoolProperty(name='后期', default=False)
-    rendering: BoolProperty(options={'HIDDEN', 'SKIP_SAVE'})
+def model_poll(self, obj):
+    from .scene_models import source_root
+    return source_root(obj) is not None and obj.name in self.objects
 
-def update_target(self, context):
-    root = self.hgt_target
-    if root and root.hgt_character.imported:
-        self.hgt_output.camera = root.hgt_character.camera
-CLASSES = (HGTGazeBone, HGTMaterialBinding, HGTSlotSnapshot, HGTMeshReference, HGTControlReference, HGTCharacterSettings, HGTOutputSettings)
+
+def update_model(self, context):
+    from . import scene_models
+    scene_models.remember_active(context)
+    self.hgt_target = scene_models.tracked(self.hgt_model, self) if self.hgt_model else None
+
+
+def update_light(self, context):
+    from .workflow import current, refresh_character
+    for root in tuple(self.objects):
+        if current(root):
+            if self.hgt_light is None:
+                root.hgt_character.light_source = None
+            refresh_character(root, scene=self)
+
+
+CLASSES = (HGTGazeBone, HGTMaterialBinding, HGTSlotSnapshot, HGTMeshReference, HGTControlReference, HGTCharacterSettings)
 
 def register():
     for cls in CLASSES:
         bpy.utils.register_class(cls)
     bpy.types.Object.hgt_character = PointerProperty(type=HGTCharacterSettings)
-    bpy.types.Scene.hgt_output = PointerProperty(type=HGTOutputSettings)
-    bpy.types.Scene.hgt_target = PointerProperty(type=bpy.types.Object, update=update_target)
+    bpy.types.Scene.hgt_target = PointerProperty(type=bpy.types.Object)
+    bpy.types.Scene.hgt_model = PointerProperty(name='模型', type=bpy.types.Object, poll=model_poll, update=update_model)
+    bpy.types.Scene.hgt_light = PointerProperty(name='灯光', type=bpy.types.Object, poll=lambda self, obj: obj.type == 'LIGHT' and obj.data.type == 'SUN' and obj.name in self.objects, update=update_light)
 
 def unregister():
     del bpy.types.Scene.hgt_target
-    del bpy.types.Scene.hgt_output
+    del bpy.types.Scene.hgt_model
+    del bpy.types.Scene.hgt_light
     del bpy.types.Object.hgt_character
     for cls in reversed(CLASSES):
         bpy.utils.unregister_class(cls)
