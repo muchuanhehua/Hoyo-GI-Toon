@@ -5,9 +5,9 @@
     {
       "schema_version": "1.0.0",
       "id": "hoyo_gi_toon",
-      "version": "1.0.1",
+      "version": "2.0.0",
       "name": "Hoyo-GI-Toon",
-      "tagline": "原神角色导入、卡通材质、描边与调光",
+      "tagline": "面向 MMD 流程的原神 PMX 角色材质渲染",
       "maintainer": "muchuanhehua",
       "type": "add-on",
       "website": "https://github.com/muchuanhehua/Hoyo-GI-Toon",
@@ -23,9 +23,9 @@
       "permissions": {
         "files": "读取所选角色及本地贴图与材质参数，保存渲染结果"
       },
-      "archive_url": "https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/v1.0.1/release/hoyo_gi_toon-1.0.1.zip",
-      "archive_size": 701397,
-      "archive_hash": "sha256:89f93ec77b23d6b53937cfa22b42d4d8c1c4fb9e7d299138ddf3c7315bc92ce9"
+      "archive_url": "https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/v2.0.0/release/hoyo_gi_toon-2.0.0.zip",
+      "archive_size": 654238,
+      "archive_hash": "sha256:05207a84703b73ad9e2a19a20b2c8e2ad5044fdc11def24432631cdb5c98abd4"
     }
   ]
 }
