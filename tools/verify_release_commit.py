@@ -9,9 +9,11 @@ import zipfile
 
 ROOT=Path(__file__).resolve().parents[1]
 parser=argparse.ArgumentParser()
-parser.add_argument('--ref',default='HEAD')
+parser.add_argument('--ref')
 parser.add_argument('--candidate',type=Path)
 args=parser.parse_args()
+if args.ref is None:
+    args.ref='HEAD' if args.candidate else 'v'+json.loads((ROOT/'release/index.json').read_text(encoding='utf-8'))['data'][0]['version']
 
 
 def committed(path):

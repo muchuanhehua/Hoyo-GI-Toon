@@ -2,7 +2,7 @@
 
 面向原神 PMX 角色的材质渲染插件，以接近游戏内的 Toon 表现、接入 MMD 流程为目标。
 
-当前分支是 2.0 模块拆分候选，正式发布和实际安装仍为 1.0.1。当前进度、实施清单和验收状态统一见 [开发记录](design/DEVELOPMENT.md)。
+当前发布为 [2.0.0](https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/tag/v2.0.0)，已更新本机 Blender，供实际操作验收。使用新场景重新导入 PMX。当前进度、实施清单和验收状态统一见 [开发记录](design/DEVELOPMENT.md)。
 
 ## 使用流程
 

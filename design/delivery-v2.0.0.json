@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "release": "https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/tag/v2.0.0",
+  "tag_commit": "30c224ac172137761ca1c124a53022970069c807",
+  "archive_sha256": "05207a84703b73ad9e2a19a20b2c8e2ad5044fdc11def24432631cdb5c98abd4",
+  "archive_bytes": 654238,
+  "payload_files": 31,
+  "published": true,
+  "remote_download_verified": true,
+  "installed": true,
+  "fresh_process": true,
+  "interactive_blender_open": true,
+  "pmx_panel_ready": true,
+  "previous_version": "1.0.1",
+  "existing_addons_preserved": true,
+  "repositories_preserved": true,
+  "startup_file_unchanged": true,
+  "previous_install_and_preferences_backed_up": true,
+  "acceptance": "pending_user_operation_and_appearance_review",
+  "character_material_review": "deferred_until_last",
+  "native_cancel_input": "not_verified"
+}
