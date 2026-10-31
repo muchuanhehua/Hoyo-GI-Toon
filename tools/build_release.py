@@ -4,11 +4,12 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 PAYLOAD={"__init__.py","asset_tracking.py","importers.py","mmd_importer.py","material_assets.py",
          "material_controls.py","pmx_materials.py","node_graph.py","sampling.py","shaders.py","lighting.py",
-         "face_assets.py","face_sdf.py","head_binding.py",
+         "face_assets.py","face_sdf.py","head_binding.py","scene_presets.py",
          "outlines.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
          "assets/original_shader.blend","assets/original_controls.blend","assets/upstream.json",
+         "assets/scenes.json","assets/scene_city_terrace.blend","assets/scene_stage.blend",
          "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE",
-         "docs/upstream-baseline.md","docs/basic-rendering.md","docs/pmx-rendering.md","docs/workflow.md"}
+         "docs/upstream-baseline.md","docs/basic-rendering.md","docs/pmx-rendering.md","docs/workflow.md","docs/scene-presets.md"}
 
 def sha(data):return hashlib.sha256(data).hexdigest()
 def runtime_hashes():return {name:sha((ROOT/name).read_bytes()) for name in PAYLOAD if name.endswith('.py')}
@@ -59,6 +60,27 @@ def validate_sdf_evidence(evidence,hashes,package_sha256=None):
         if model['candidate_kind']=='ra_half':assert model['checks']['ra_softness_response_and_reset_equal']
     if package_sha256 is not None:assert evidence['package_sha256']==package_sha256
 
+def validate_scene_evidence(evidence,interface,hashes,package_sha256=None):
+    assert evidence['scope']=='SCENE-PRESETS' and interface['scope']=='SCENE-PRESETS-UI'
+    assert evidence['complete'] and interface['complete'] and not interface.get('error')
+    assert evidence['source_sha256']==interface['source_sha256']==hashes,'Scene runtime changed after verification'
+    assets={name:sha((ROOT/'assets'/name).read_bytes()) for name in ('scenes.json','scene_city_terrace.blend','scene_stage.blend')}
+    assert evidence['asset_sha256']==interface['asset_sha256']==assets,'Scene asset changed after verification'
+    required=('clean_assets_and_packed_images','empty_scene_both_presets',
+              'repeat_load_and_remove_no_resource_growth','output_units_compositor_unchanged',
+              'switch_replaces_only_previous_preset','previous_camera_light_world_restored',
+              'default_light_still_works','manual_pointer_changes_preserved',
+              'two_scenes_isolated_and_shared_light_preserved','manual_collection_deletion_can_restore',
+              'invalid_asset_failure_rollback','user_added_and_reused_data_preserved',
+              'existing_pmx_source_and_mmd_metadata_unchanged','packed_scene_save_reopen_and_restore',
+              'original_files_unchanged','register_unregister')
+    assert all(evidence['checks'].get(key) is True for key in required)
+    assert set(evidence['presets'])=={'CITY_TERRACE','STAGE'}
+    assert all(interface['checks'].get(key) is True for key in
+               ('always_visible_without_model','load_undo_redo','switch_undo_redo','remove_undo_redo'))
+    if package_sha256 is not None:
+        assert evidence['package_sha256']==interface['package_sha256']==package_sha256
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('action',choices=('candidate','release'))
@@ -67,6 +89,8 @@ def main():
     parser.add_argument('--interface-verification',type=Path,required=True)
     parser.add_argument('--sdf-verification',type=Path,required=True)
     parser.add_argument('--sdf-interface-verification',type=Path)
+    parser.add_argument('--scene-verification',type=Path,required=True)
+    parser.add_argument('--scene-interface-verification',type=Path,required=True)
     args=parser.parse_args()
     manifest=tomllib.loads((ROOT/'blender_manifest.toml').read_text(encoding='utf-8'))
     init=ast.parse((ROOT/'__init__.py').read_text(encoding='utf-8'))
@@ -80,6 +104,9 @@ def main():
     hashes=validate_evidence(evidence,interface,integration=args.action=='release')
     sdf=json.loads(args.sdf_verification.read_text(encoding='utf-8'))
     validate_sdf_evidence(sdf,hashes,evidence.get('package_sha256') if args.action=='release' else None)
+    scene=json.loads(args.scene_verification.read_text(encoding='utf-8'))
+    scene_ui=json.loads(args.scene_interface_verification.read_text(encoding='utf-8'))
+    validate_scene_evidence(scene,scene_ui,hashes,evidence.get('package_sha256') if args.action=='release' else None)
     sdf_ui=None
     if args.action=='release':
         assert args.sdf_interface_verification,'Actual ZIP SDF interface verification is required'
@@ -119,6 +146,7 @@ def main():
              'sdf_models':{name:{'sampling':model['candidate_kind'],'checks':model['checks'],
                                  'key_light_conditions':len(model['frames'])} for name,model in sdf['models'].items()},
              'sdf_interface_checks':sdf_ui['checks'],
+             'scene_presets':scene['presets'],'scene_checks':scene['checks'],'scene_interface_checks':scene_ui['checks'],
              'new_full_game_algorithm_recovered':sdf['full_new_game_shader_recovered']}
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('HGT_RELEASE',record['version'],record['sha256'])

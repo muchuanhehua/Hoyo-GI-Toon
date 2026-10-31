@@ -1,6 +1,6 @@
 """PMX workflow state, owned material controls and optional eye tracking."""
 import bpy
-from bpy.props import BoolProperty, CollectionProperty, FloatProperty, FloatVectorProperty, IntProperty, PointerProperty, StringProperty
+from bpy.props import BoolProperty, CollectionProperty, EnumProperty, FloatProperty, FloatVectorProperty, IntProperty, PointerProperty, StringProperty
 from bpy.types import PropertyGroup
 
 def update_appearance(self, context):
@@ -42,6 +42,20 @@ class HGTMeshReference(PropertyGroup):
 class HGTControlReference(PropertyGroup):
     object: PointerProperty(type=bpy.types.Object)
     key: StringProperty()
+
+class HGTScenePresetSettings(PropertyGroup):
+    preset: StringProperty()
+    uid: StringProperty()
+    collection: PointerProperty(type=bpy.types.Collection)
+    previous_world: PointerProperty(type=bpy.types.World)
+    previous_camera: PointerProperty(type=bpy.types.Object)
+    previous_light: PointerProperty(type=bpy.types.Object)
+    world: PointerProperty(type=bpy.types.World)
+    camera: PointerProperty(type=bpy.types.Object)
+    light: PointerProperty(type=bpy.types.Object)
+    muted_light: PointerProperty(type=bpy.types.Object)
+    muted_render: BoolProperty()
+    muted_viewport: BoolProperty()
 
 class HGTCharacterSettings(PropertyGroup):
     imported: BoolProperty()
@@ -99,17 +113,22 @@ def update_light(self, context):
             refresh_character(root, scene=self)
 
 
-CLASSES = (HGTGazeBone, HGTMaterialBinding, HGTSlotSnapshot, HGTMeshReference, HGTControlReference, HGTCharacterSettings)
+CLASSES = (HGTGazeBone, HGTMaterialBinding, HGTSlotSnapshot, HGTMeshReference, HGTControlReference, HGTScenePresetSettings, HGTCharacterSettings)
 
 def register():
+    from .scene_presets import PRESET_ITEMS
     for cls in CLASSES:
         bpy.utils.register_class(cls)
     bpy.types.Object.hgt_character = PointerProperty(type=HGTCharacterSettings)
     bpy.types.Scene.hgt_target = PointerProperty(type=bpy.types.Object)
     bpy.types.Scene.hgt_model = PointerProperty(name='模型', type=bpy.types.Object, poll=model_poll, update=update_model)
     bpy.types.Scene.hgt_light = PointerProperty(name='灯光', type=bpy.types.Object, poll=lambda self, obj: obj.type == 'LIGHT' and obj.data.type in {'SUN', 'AREA', 'POINT', 'SPOT'} and obj.name in self.objects, update=update_light)
+    bpy.types.Scene.hgt_scene = PointerProperty(type=HGTScenePresetSettings)
+    bpy.types.Scene.hgt_scene_preset = EnumProperty(name='场景预设', items=PRESET_ITEMS)
 
 def unregister():
+    del bpy.types.Scene.hgt_scene_preset
+    del bpy.types.Scene.hgt_scene
     del bpy.types.Scene.hgt_target
     del bpy.types.Scene.hgt_model
     del bpy.types.Scene.hgt_light

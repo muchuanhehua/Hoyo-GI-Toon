@@ -1,0 +1,19 @@
+{
+  "version": "2.3.0",
+  "archive_sha256": "d7c111f54bbb424a9d5a07c4492d19030b56140005f0a18b50844ec8e757a621",
+  "archive_bytes": 4631499,
+  "payload_files": 39,
+  "user_confirmed_scene_feature_and_publication": true,
+  "user_authorized_blender_update": true,
+  "source_and_actual_archive_verification_passed": true,
+  "source_and_package_sdf_key_pixels_match_approved": true,
+  "package_scene_checks_passed": 16,
+  "package_scene_interface_checks_passed": 4,
+  "scene_assets": ["城市露台", "舞台"],
+  "published": false,
+  "installed": false,
+  "remote_download_verified": false,
+  "remote_index_synced": false,
+  "previous_install_and_preferences_backed_up": true,
+  "acceptance": "feature_confirmed_pending_user_operation_of_published_build"
+}

@@ -1,6 +1,6 @@
 schema_version = "1.0.0"
 id = "hoyo_gi_toon"
-version = "2.2.0"
+version = "2.3.0"
 name = "Hoyo-GI-Toon"
 tagline = "面向 MMD 流程的原神 PMX 角色材质渲染"
 maintainer = "muchuanhehua"
@@ -11,7 +11,7 @@ license = ["SPDX:GPL-3.0-only"]
 tags = ["Material", "Import-Export", "Render"]
 
 [permissions]
-files = "读取所选角色及本地贴图与材质参数，保存渲染结果"
+files = "读取本地角色、贴图、材质参数与内置场景资产"
 
 [build]
 paths_exclude_pattern = ["__pycache__/", ".git/", ".verification/", ".runtime/", ".build/", "tools/", "tests/", "release/", "design/", "AGENTS.md", ".gitignore", ".gitattributes"]

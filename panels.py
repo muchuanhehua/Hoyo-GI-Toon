@@ -5,7 +5,7 @@ import bpy
 from bpy.types import Operator, Panel, UIList, Menu
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ImportHelper
-from . import workflow, rendering, lighting, gaze, material_controls, scene_models
+from . import workflow, rendering, lighting, gaze, material_controls, scene_models, scene_presets
 
 
 def target(context):
@@ -144,6 +144,42 @@ class HGT_OT_default_light(Operator):
         return {'FINISHED'}
 
 
+class HGT_OT_load_scene(Operator):
+    bl_idname = 'hgt.load_scene'
+    bl_label = '载入场景'
+    bl_description = '载入预设布景、相机、灯光和世界；不移动角色'
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return idle(context) and context.mode == 'OBJECT'
+
+    def execute(self, context):
+        try:
+            scene_presets.load(context, context.scene.hgt_scene_preset)
+        except (ValueError, RuntimeError, OSError) as exc:
+            return report_error(self, exc)
+        return {'FINISHED'}
+
+
+class HGT_OT_remove_scene(Operator):
+    bl_idname = 'hgt.remove_scene'
+    bl_label = '移除场景'
+    bl_description = '移除预设布景，恢复原相机、主光和世界；保留手动改选及复用的资产'
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return bool(idle(context) and context.mode == 'OBJECT' and context.scene.hgt_scene.uid)
+
+    def execute(self, context):
+        try:
+            scene_presets.remove(context)
+        except (ValueError, RuntimeError, OSError) as exc:
+            return report_error(self, exc)
+        return {'FINISHED'}
+
+
 class HGT_OT_look_camera(Operator):
     bl_idname = 'hgt.look_camera'
     bl_label = '看向相机'
@@ -263,6 +299,12 @@ class HGT_PT_main(Panel):
         layout.separator()
         draw_materials(layout, context)
         layout.separator()
+        layout.label(text='场景预设', icon='SCENE_DATA')
+        row = layout.row(align=True)
+        row.prop(context.scene, 'hgt_scene_preset', text='')
+        row.operator('hgt.load_scene', text='载入', icon='IMPORT')
+        row.operator('hgt.remove_scene', text='', icon='X')
+        layout.separator()
         layout.label(text='打光', icon='LIGHT_SUN')
         layout.operator('hgt.default_light', icon='LIGHT_SUN')
         layout.prop(context.scene, 'hgt_light')
@@ -277,7 +319,7 @@ class HGT_PT_main(Panel):
 
 
 CLASSES = (HGT_OT_import_character, HGT_OT_apply_materials, HGT_OT_face_resources, HGT_OT_restore, HGT_OT_reset_materials,
-           HGT_OT_default_light, HGT_OT_look_camera, HGT_OT_align_camera, HGT_OT_render,
+           HGT_OT_default_light, HGT_OT_load_scene, HGT_OT_remove_scene, HGT_OT_look_camera, HGT_OT_align_camera, HGT_OT_render,
            HGT_MT_tools, HGT_UL_materials, HGT_PT_main)
 
 

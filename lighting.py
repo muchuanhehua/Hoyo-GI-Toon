@@ -89,6 +89,8 @@ def update(root, depsgraph=None, scene=None):
 
 
 def default_light(scene):
+    from .scene_presets import restore_default_light
+    restore_default_light(scene)
     light = next((obj for obj in scene.objects if obj.get('hgt_scene_light') and obj.type == 'LIGHT'), None)
     if light is None:
         data = bpy.data.lights.new('HGT • 默认光', 'SUN')

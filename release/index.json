@@ -5,7 +5,7 @@
     {
       "schema_version": "1.0.0",
       "id": "hoyo_gi_toon",
-      "version": "2.2.0",
+      "version": "2.3.0",
       "name": "Hoyo-GI-Toon",
       "tagline": "面向 MMD 流程的原神 PMX 角色材质渲染",
       "maintainer": "muchuanhehua",
@@ -21,11 +21,11 @@
         "Render"
       ],
       "permissions": {
-        "files": "读取所选角色及本地贴图与材质参数，保存渲染结果"
+        "files": "读取本地角色、贴图、材质参数与内置场景资产"
       },
-      "archive_url": "https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/v2.2.0/release/hoyo_gi_toon-2.2.0.zip",
-      "archive_size": 659331,
-      "archive_hash": "sha256:ab777ee40fc184e2bf7bd0eee92ebd74f2156577af922eba87c3a12d7e2ef9b6"
+      "archive_url": "https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/v2.3.0/release/hoyo_gi_toon-2.3.0.zip",
+      "archive_size": 4631499,
+      "archive_hash": "sha256:d7c111f54bbb424a9d5a07c4492d19030b56140005f0a18b50844ec8e757a621"
     }
   ]
 }

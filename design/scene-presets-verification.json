@@ -1,0 +1,89 @@
+{
+  "version": "2.3.0",
+  "status": "release_checked_pending_publication",
+  "source_checks_passed": true,
+  "interface_checks_passed": true,
+  "source_sha256": {
+    "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+    "face_assets.py": "b3c030457f921f96eacc41d6d64c62116963f8b2213bb81861649e75e22944f5",
+    "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+    "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+    "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+    "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+    "lighting.py": "434ac14eb3abde63b7fb9813a777faa072f41d2c9508ff8f0cc3e682782bad29",
+    "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+    "material_controls.py": "88ae312c011d43576045df798f92eb0f63ffcfc2fd4f2a71eb75f617fecefb9c",
+    "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+    "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+    "outlines.py": "8d00ffd5261fe0b09c2640cd4b91b4c805cc654e4beefa16b4d5735911f31472",
+    "panels.py": "9b2b5c78ee27524e38b4a4a8a13f1a6f249a79d47049b71f15956737cadb2d5f",
+    "pmx_materials.py": "a66d9cb9860f49da84b1d302ce3df39ae502f687767698761b3e3ab1d07ed9d8",
+    "project_io.py": "46afc1acc0ab1929828a6c2bfb3beee4519d6c77178e0fb54120718c21f05045",
+    "properties.py": "a04a38d4bae934603d4e078c78326b173b080af5d405add8a8f7ef07186dca34",
+    "rendering.py": "6a38970034cef9a8a8a86b8283235f32f44582e3961465b3181bc1e5ece7515e",
+    "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+    "scene_models.py": "d498a0bfeea4288375323e309f3ac677f806e4860a78e39966cda702206dfde0",
+    "scene_presets.py": "2115a42bea15bba684a19ed5ec78345e90adcac89f78df8ae7d77c23ce233d19",
+    "shaders.py": "a88c18427b53ed374c2f4f263385010f9ae85907c7508e57f1c2018327852434",
+    "workflow.py": "f306d6c5ea8d7f570d181e7d25343ab32102f5b1f990672eec1647bd88523be6",
+    "__init__.py": "5b279736453c80cc33d86dd49d3ca5a50b43b9f48aca33b365ffcf826bef6651"
+  },
+  "asset_sha256": {
+    "scenes.json": "414777a255ee005925fcb9875acf97dc99d91cf54e5a5a38d7e6c4ca90dd4f48",
+    "scene_city_terrace.blend": "117ccabbe5d4d74a6881123ba9c21642e4e95bf9347ff3be82b169bf7319c140",
+    "scene_stage.blend": "834fa851d8b4cf4c5f82dc2d092541cce96d5e70cbddcea1ae2d62e46fef5060"
+  },
+  "presets": {
+    "CITY_TERRACE": {
+      "objects": 321,
+      "packed_images": 3,
+      "rendered": true
+    },
+    "STAGE": {
+      "objects": 12,
+      "packed_images": 0,
+      "rendered": true
+    }
+  },
+  "checks": {
+    "clean_assets_and_packed_images": true,
+    "empty_scene_both_presets": true,
+    "repeat_load_and_remove_no_resource_growth": true,
+    "output_units_compositor_unchanged": true,
+    "switch_replaces_only_previous_preset": true,
+    "previous_camera_light_world_restored": true,
+    "default_light_still_works": true,
+    "manual_pointer_changes_preserved": true,
+    "two_scenes_isolated_and_shared_light_preserved": true,
+    "manual_collection_deletion_can_restore": true,
+    "invalid_asset_failure_rollback": true,
+    "user_added_and_reused_data_preserved": true,
+    "existing_pmx_source_and_mmd_metadata_unchanged": true,
+    "packed_scene_save_reopen_and_restore": true,
+    "original_files_unchanged": true,
+    "register_unregister": true
+  },
+  "interface_checks": {
+    "always_visible_without_model": true,
+    "load_undo_redo": true,
+    "switch_undo_redo": true,
+    "remove_undo_redo": true
+  },
+  "save_reopen_pixels": {
+    "strict_equal": false,
+    "max_channel_error": 0.003921568393707275,
+    "mean_channel_error": 2.345073681908616e-07,
+    "changed_pixel_fraction": 0.00022376543209876544
+  },
+  "original_scene_files_unchanged": true,
+  "published_2_2_0_zip_unchanged": true,
+  "package_built": true,
+  "actual_package_installed_and_verified": true,
+  "published": false,
+  "user_blender_updated": false,
+  "installed_and_public_version": "2.2.0",
+  "evidence": ".verification/development/scene-presets-20261031/",
+  "next_action": "Await S01-S04 user review; do not start other development batches.",
+  "user_confirmed_feature_and_release": true,
+  "package_checks": "release/verification-v2.3.0.json"
+}

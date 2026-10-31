@@ -1,0 +1,214 @@
+{
+  "scope": "PMX-M09-M12",
+  "version": "2.3.0",
+  "archive_sha256": "d7c111f54bbb424a9d5a07c4492d19030b56140005f0a18b50844ec8e757a621",
+  "models": [
+    {
+      "name": "安柏",
+      "source_files_unchanged": 9,
+      "source_data_unchanged": true,
+      "mmd_metadata_preserved": true,
+      "existing_model_without_reimport": true,
+      "no_bone_repair": true,
+      "manual_camera_light_preserved": true,
+      "native_render_scene_unchanged": true,
+      "whole_scene_render": true,
+      "packed_images": 0,
+      "material_tint_response": 0.33725494146347046,
+      "shadow_response": 0.7490196824073792,
+      "shadow_position_response": 0.3294118046760559,
+      "outline_response": 0.0,
+      "outline_color_response": 0,
+      "source_edges_enabled": false,
+      "light_response": 0.35294121503829956,
+      "gaze_live": true,
+      "reset_and_restore": true,
+      "save_reload_exact": true,
+      "bone_and_vertex_morph_animation": true,
+      "material_failure_rollback": true,
+      "resource_counts_stable": true,
+      "seconds": 16.26886829995783
+    },
+    {
+      "name": "纳西妲",
+      "source_files_unchanged": 12,
+      "source_data_unchanged": true,
+      "mmd_metadata_preserved": true,
+      "existing_model_without_reimport": true,
+      "no_bone_repair": true,
+      "manual_camera_light_preserved": true,
+      "native_render_scene_unchanged": true,
+      "whole_scene_render": true,
+      "packed_images": 0,
+      "material_tint_response": 0.3176470994949341,
+      "shadow_response": 0.6392157673835754,
+      "shadow_position_response": 0.2509804368019104,
+      "outline_response": 0.7529412508010864,
+      "outline_color_response": 0.6705882549285889,
+      "source_edges_enabled": true,
+      "light_response": 0.29019612073898315,
+      "gaze_live": true,
+      "reset_and_restore": true,
+      "save_reload_exact": true,
+      "bone_and_vertex_morph_animation": true,
+      "material_failure_rollback": true,
+      "resource_counts_stable": true,
+      "seconds": 35.22418329998618
+    },
+    {
+      "name": "奥黛塔",
+      "source_files_unchanged": 52,
+      "source_data_unchanged": true,
+      "mmd_metadata_preserved": true,
+      "existing_model_without_reimport": true,
+      "no_bone_repair": true,
+      "manual_camera_light_preserved": true,
+      "native_render_scene_unchanged": true,
+      "whole_scene_render": true,
+      "packed_images": 14,
+      "material_tint_response": 0.3176470994949341,
+      "shadow_response": 0.529411792755127,
+      "shadow_position_response": 0.2549020051956177,
+      "outline_response": 0.5647059082984924,
+      "outline_color_response": 0.8313725590705872,
+      "source_edges_enabled": true,
+      "light_response": 0.29411768913269043,
+      "gaze_live": true,
+      "reset_and_restore": true,
+      "save_reload_exact": true,
+      "bone_and_vertex_morph_animation": true,
+      "material_failure_rollback": true,
+      "resource_counts_stable": true,
+      "seconds": 84.55899099999806
+    }
+  ],
+  "checks": {
+    "native_render_without_model": true,
+    "light_without_model": true,
+    "plugin_import_independent": true,
+    "legacy_200_project": true,
+    "register_unregister": true,
+    "all_models": true,
+    "packed_scene": true
+  },
+  "interface_checks": {
+    "empty_scene_controls": true,
+    "no_output_panel": true,
+    "light_without_model_undo": true,
+    "camera_without_model_undo": true,
+    "existing_model_apply_undo": true,
+    "material_params_undo": true,
+    "gaze_undo": true,
+    "save_project": true,
+    "native_async_render": true
+  },
+  "render_mode": "native_current_scene",
+  "source_sha256": {
+    "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+    "face_assets.py": "b3c030457f921f96eacc41d6d64c62116963f8b2213bb81861649e75e22944f5",
+    "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+    "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+    "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+    "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+    "lighting.py": "434ac14eb3abde63b7fb9813a777faa072f41d2c9508ff8f0cc3e682782bad29",
+    "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+    "material_controls.py": "88ae312c011d43576045df798f92eb0f63ffcfc2fd4f2a71eb75f617fecefb9c",
+    "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+    "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+    "outlines.py": "8d00ffd5261fe0b09c2640cd4b91b4c805cc654e4beefa16b4d5735911f31472",
+    "panels.py": "9b2b5c78ee27524e38b4a4a8a13f1a6f249a79d47049b71f15956737cadb2d5f",
+    "pmx_materials.py": "a66d9cb9860f49da84b1d302ce3df39ae502f687767698761b3e3ab1d07ed9d8",
+    "project_io.py": "46afc1acc0ab1929828a6c2bfb3beee4519d6c77178e0fb54120718c21f05045",
+    "properties.py": "a04a38d4bae934603d4e078c78326b173b080af5d405add8a8f7ef07186dca34",
+    "rendering.py": "6a38970034cef9a8a8a86b8283235f32f44582e3961465b3181bc1e5ece7515e",
+    "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+    "scene_models.py": "d498a0bfeea4288375323e309f3ac677f806e4860a78e39966cda702206dfde0",
+    "scene_presets.py": "2115a42bea15bba684a19ed5ec78345e90adcac89f78df8ae7d77c23ce233d19",
+    "shaders.py": "a88c18427b53ed374c2f4f263385010f9ae85907c7508e57f1c2018327852434",
+    "workflow.py": "f306d6c5ea8d7f570d181e7d25343ab32102f5b1f990672eec1647bd88523be6",
+    "__init__.py": "5b279736453c80cc33d86dd49d3ca5a50b43b9f48aca33b365ffcf826bef6651"
+  },
+  "sdf_models": {
+    "安柏": {
+      "sampling": "alpha",
+      "checks": {
+        "fresh_assembly_preserves_originals": true,
+        "approved_key_light_material_and_factor_pixels_equal": true,
+        "owned_textures_pack_save_reopen_equal": true,
+        "restore_and_reapply_preserves_data_and_pixels": true
+      },
+      "key_light_conditions": 7
+    },
+    "纳西妲": {
+      "sampling": "alpha",
+      "checks": {
+        "fresh_assembly_preserves_originals": true,
+        "approved_key_light_material_and_factor_pixels_equal": true,
+        "owned_textures_pack_save_reopen_equal": true,
+        "restore_and_reapply_preserves_data_and_pixels": true
+      },
+      "key_light_conditions": 7
+    },
+    "奥黛塔": {
+      "sampling": "ra_half",
+      "checks": {
+        "fresh_assembly_preserves_originals": true,
+        "approved_key_light_material_and_factor_pixels_equal": true,
+        "ra_softness_response_and_reset_equal": true,
+        "owned_textures_pack_save_reopen_equal": true,
+        "restore_and_reapply_preserves_data_and_pixels": true
+      },
+      "key_light_conditions": 7
+    }
+  },
+  "sdf_interface_checks": {
+    "empty_scene_controls": true,
+    "no_output_panel": true,
+    "light_without_model_undo": true,
+    "camera_without_model_undo": true,
+    "face_resource_directory_undo_redo": true,
+    "existing_model_apply_undo": true,
+    "material_params_undo": true,
+    "face_softness_undo_redo": true,
+    "gaze_undo": true,
+    "save_project": true,
+    "native_async_render": true
+  },
+  "scene_presets": {
+    "CITY_TERRACE": {
+      "objects": 321,
+      "packed_images": 3,
+      "rendered": true
+    },
+    "STAGE": {
+      "objects": 12,
+      "packed_images": 0,
+      "rendered": true
+    }
+  },
+  "scene_checks": {
+    "clean_assets_and_packed_images": true,
+    "empty_scene_both_presets": true,
+    "repeat_load_and_remove_no_resource_growth": true,
+    "output_units_compositor_unchanged": true,
+    "switch_replaces_only_previous_preset": true,
+    "previous_camera_light_world_restored": true,
+    "default_light_still_works": true,
+    "manual_pointer_changes_preserved": true,
+    "two_scenes_isolated_and_shared_light_preserved": true,
+    "manual_collection_deletion_can_restore": true,
+    "invalid_asset_failure_rollback": true,
+    "user_added_and_reused_data_preserved": true,
+    "existing_pmx_source_and_mmd_metadata_unchanged": true,
+    "packed_scene_save_reopen_and_restore": true,
+    "original_files_unchanged": true,
+    "register_unregister": true
+  },
+  "scene_interface_checks": {
+    "always_visible_without_model": true,
+    "load_undo_redo": true,
+    "switch_undo_redo": true,
+    "remove_undo_redo": true
+  },
+  "new_full_game_algorithm_recovered": false
+}
