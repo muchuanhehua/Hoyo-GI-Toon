@@ -9,11 +9,27 @@
   "source_and_package_sdf_key_pixels_match_approved": true,
   "package_scene_checks_passed": 16,
   "package_scene_interface_checks_passed": 4,
-  "scene_assets": ["城市露台", "舞台"],
-  "published": false,
-  "installed": false,
-  "remote_download_verified": false,
-  "remote_index_synced": false,
+  "scene_assets": [
+    "城市露台",
+    "舞台"
+  ],
+  "published": true,
+  "installed": true,
+  "remote_download_verified": true,
+  "remote_index_synced": true,
   "previous_install_and_preferences_backed_up": true,
-  "acceptance": "feature_confirmed_pending_user_operation_of_published_build"
+  "acceptance": "feature_confirmed_pending_user_operation_of_published_build",
+  "release_url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/tag/v2.3.0",
+  "release_commit": "b638f7d1c057fb8bae6ef05d3bcc5f8190fe9677",
+  "release_workflow_run": 41173212509,
+  "release_workflow_conclusion": "success",
+  "tag_and_release_asset_sha256_match": true,
+  "committed_payload_verified": true,
+  "blender_remote_index_version": "2.3.0",
+  "installed_from": "verified-public-release-download",
+  "loaded_python_code_verified": true,
+  "existing_scene_preserved": true,
+  "existing_addons_preserved": true,
+  "repositories_preserved": true,
+  "startup_file_unchanged": true
 }

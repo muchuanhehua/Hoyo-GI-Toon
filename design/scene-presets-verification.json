@@ -1,6 +1,6 @@
 {
   "version": "2.3.0",
-  "status": "release_checked_pending_publication",
+  "status": "published_pending_user_operation",
   "source_checks_passed": true,
   "interface_checks_passed": true,
   "source_sha256": {
@@ -79,11 +79,12 @@
   "published_2_2_0_zip_unchanged": true,
   "package_built": true,
   "actual_package_installed_and_verified": true,
-  "published": false,
-  "user_blender_updated": false,
-  "installed_and_public_version": "2.2.0",
+  "published": true,
+  "user_blender_updated": true,
+  "installed_and_public_version": "2.3.0",
   "evidence": ".verification/development/scene-presets-20261031/",
-  "next_action": "Await S01-S04 user review; do not start other development batches.",
+  "next_action": "Await user operation and appearance feedback; do not start another development batch.",
   "user_confirmed_feature_and_release": true,
-  "package_checks": "release/verification-v2.3.0.json"
+  "package_checks": "release/verification-v2.3.0.json",
+  "release_url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/tag/v2.3.0"
 }

@@ -42,8 +42,8 @@
 - 用户已授权本项目必要的 Blender 验证在后台自行完成。使用独立进程和工程，当前前台工程保持独立。
 - 本轮 PMX 私有资产索引为 `.verification/development/pmx/assets.json`；测试工程和原始证据均放在忽略的 `.verification/`，不进入发布仓库和安装包。
 - 每项交付记录实际代码范围、数据核对、图片或工程、已执行检查与用户验收结论。仅验证本次改动及其影响范围。
-- GitHub 已公开发布 `2.2.0`，本地 Blender 已安装、启用并同步同版本远程索引；用户已明确允许两个通用 `.blend` 库随安装包公开。状态见 `design/DEVELOPMENT.md`。旧发布与更新前备份保留，通用交付、逐角色材质和未验证操作分别记录，不使用发布授权代替外观验收。
-- `2.3.0` 场景预设已获用户确认和发布／本地更新授权，当前源码与实际 ZIP 的全部发布检查已通过，正在交付。场景证据见 `design/scene-presets-verification.json`，交付状态见 `design/delivery-v2.3.0.json`，前台实测待用户进行。
+- GitHub、本地 Blender 和远程索引均为 `2.3.0`，已核对公开下载、39 文件载荷及 11 个实际加载函数；当前工程、其他插件、仓库与启动文件保持。交付见 `design/delivery-v2.3.0.json`。
+- 用户已确认 S01–S04 场景模块并授权公开两个场景资产及本地更新，当前等待正式版实际操作反馈。源代码与实际 ZIP 的完整发布检查通过，不自动进入后续开发批次。
 - GitHub 仓库为 `https://github.com/muchuanhehua/Hoyo-GI-Toon`。扩展 ID 为 `hoyo_gi_toon`，本地模块为 `bl_ext.Hoyo_GI_Toon.hoyo_gi_toon`。
-- 发布索引为 `release/index.json`，通过 `tools/build_release.py` 的载荷清单构建，仅打包当前运行文件。安装包载荷变化递增版本，已发布标签和 ZIP 保持不变。2.2.0 已完成源码／实际 ZIP、SDF 与面板检查、本地更新、匿名下载摘要和远程索引核对，等待用户实测。发布不代表外观和操作验收通过。
+- 发布索引为 `release/index.json`，通过 `tools/build_release.py` 的载荷清单构建，仅打包当前运行文件。安装包载荷变化递增版本，已发布标签和 ZIP 保持不变。历史发布和更新前备份保留，发布不代替外观和完整 MMD 演出验收。
 - 冻结安装包对应的源码以发布标签为准；发布后可更新主分支进度和说明，不重新打包或替换同版本 ZIP。
