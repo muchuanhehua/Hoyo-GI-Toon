@@ -3,7 +3,7 @@ import bpy
 from mathutils import Vector
 from bpy.app.handlers import persistent
 from . import asset_tracking, importers, lighting, outlines, rendering, shaders, project_io, gaze, material_controls, scene_models
-from .pmx_materials import Catalog
+from .pmx_materials import Catalog, DEFAULT_SHADOW_POSITION, DEFAULT_OUTLINE
 _REFRESHING = False
 
 def current(root):
@@ -43,11 +43,15 @@ def apply_materials(root, context):
         settings.height = max((p.z for p in points)) - min((p.z for p in points))
         if settings.height < 1e-05:
             raise ValueError('模型尺寸无效')
-        catalog = Catalog()
+        catalog = Catalog(settings.source_file, settings.face_resource_directory)
         library = shaders.ShaderLibrary(root)
         controls = lighting.build(root, root.users_collection[0], [settings.source_armature], library)
-        settings.shadow_position = library.groups['Global Material Properties'].nodes['Global Properties'].inputs['Shadow Position'].default_value
+        # Set new assembly defaults here; RNA fallbacks stay stable for saved scenes.
+        settings.shadow_position = DEFAULT_SHADOW_POSITION
+        if not settings.is_property_set('outline'):
+            settings.outline = DEFAULT_OUTLINE
         settings.initial_shadow = settings.shadow_position
+        settings.initial_face_softness = settings.face_softness
         settings.initial_outline = settings.outline
         built = {}
         for entry in settings.meshes:
@@ -115,7 +119,7 @@ def refresh_character(root, depsgraph=None, scene=None):
         if settings.look_camera:
             gaze.update_gaze(root, scene)
         if settings.managed:
-            lighting.update(root)
+            lighting.update(root, depsgraph=depsgraph, scene=scene)
             material_controls.apply(root)
             for entry in settings.meshes:
                 outlines.update(entry.object, root)
@@ -156,9 +160,10 @@ def update_scene(scene, depsgraph=None):
 def register():
     bpy.app.handlers.depsgraph_update_post.append(update_scene)
     bpy.app.handlers.frame_change_post.append(update_scene)
+    bpy.app.handlers.render_pre.append(update_scene)
 
 def unregister():
     scene_models.reset_selection_cache()
-    for handlers in (bpy.app.handlers.depsgraph_update_post, bpy.app.handlers.frame_change_post):
+    for handlers in (bpy.app.handlers.depsgraph_update_post, bpy.app.handlers.frame_change_post, bpy.app.handlers.render_pre):
         if update_scene in handlers:
             handlers.remove(update_scene)

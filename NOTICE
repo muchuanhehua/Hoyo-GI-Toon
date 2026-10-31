@@ -24,6 +24,9 @@ https://github.com/AstraMorningstar/Morningstar-Festivity-render-assistant
 MMD Tools is a separately installed dependency. Hoyo-GI-Toon calls its public
 import and bone-repair operators and does not bundle it or its shared Toon data.
 
+Head-binding confidence checks and representative-light directions are adapted
+from the author's MAVR project, presets/face_normal.py and presets/light_source.py.
+
 FBX, layered-eye extensions, fabric/reflection modules and the previous display
 workflow are retained in the v1.0.1 Git tag, outside the current runtime.
 No game models, textures, material dumps or private validation projects ship.

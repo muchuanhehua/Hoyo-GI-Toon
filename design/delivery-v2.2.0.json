@@ -1,0 +1,30 @@
+{
+  "version": "2.2.0",
+  "archive_sha256": "ab777ee40fc184e2bf7bd0eee92ebd74f2156577af922eba87c3a12d7e2ef9b6",
+  "archive_bytes": 659331,
+  "payload_files": 34,
+  "published": false,
+  "github_current_release": "2.1.0",
+  "remote_download_verified": false,
+  "installed": true,
+  "installed_from": "validated-local-archive",
+  "loaded_python_code_verified": true,
+  "fresh_process": false,
+  "hgt_panel_selected": true,
+  "existing_scene_preserved": true,
+  "existing_addons_preserved": true,
+  "repositories_preserved": true,
+  "startup_file_unchanged": true,
+  "previous_install_and_preferences_backed_up": true,
+  "source_and_actual_archive_verification_passed": true,
+  "sdf_actual_archive_pixels_match_approved": true,
+  "publication_authorization": {
+    "source": "explicit user reply",
+    "public_plugin_archive_and_generic_libraries_allowed": true,
+    "resources": ["assets/original_shader.blend", "assets/original_controls.blend"],
+    "resources_anonymously_verified_identical_to_public_2_1_0": true,
+    "character_models_textures_and_private_validation_projects_in_archive": false,
+    "publication_in_progress": true
+  },
+  "acceptance": "pending_user_operation_and_appearance_review"
+}

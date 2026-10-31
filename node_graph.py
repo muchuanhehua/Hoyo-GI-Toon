@@ -7,7 +7,8 @@ class Graph:
     def __init__(self, material, assets, owner, load_image):
         self.material, self.assets, self.owner, self.load_image = material, assets, owner, load_image
         self.tree = material.node_tree
-        self.body = self.tree.nodes.get("Body Shader")
+        from .face_sdf import shader_node
+        self.shader = shader_node(material)
         self._geometry = None
         self._textures = {}
         self.normal_override = None

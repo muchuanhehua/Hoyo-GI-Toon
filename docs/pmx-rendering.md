@@ -14,7 +14,9 @@
 | 材质与贴图 Alpha | 覆盖率与叠加层 |
 | 双面与边线 | 剔除、描边开关、颜色和权重 |
 
-身体和头发使用原生 Festivity Toon 路径；眼睛与眉睫保持独立基础色及透明层。PMX 缺少游戏 LightMap／SDF 时使用 PMX 的 Toon／Sphere 语义，不借用相邻 FBX 的图像或参数。
+身体和头发使用原生 Festivity Toon 路径；眼睛与眉睫保持独立基础色及透明层。主脸通过明确的同角色 FBX 材质引用获取可用 SDF，使用原生 Face／Face Factor；缺少资源时使用基础阴影，保持 PMX 的 Toon／Sphere 语义。
+
+SDF 使用 Non-Color／Channel Packed。旧式 FaceLightmap 读取 Alpha；新式 FaceSDF 使用 `(R+A)/2` 重建主阴影，完整游戏算法及 G/B 用途仍未核实。Face Shadow／眼部遮罩与 SDF 分开，辅助眼口材质保持原用途；不把其他角色或体型的图像静默套入当前角色。
 
 材质装配使用派生网格和 UV 别名，原 UV、附加 UV、权重、形态键、动作和原材质引用保持。源材质、骨架及 MMD Morph 元数据可与导入基线严格核对。
 

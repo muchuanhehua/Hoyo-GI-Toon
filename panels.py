@@ -56,6 +56,44 @@ class HGT_OT_apply_materials(Operator):
         return {'FINISHED'}
 
 
+class HGT_OT_face_resources(Operator):
+    bl_idname = 'hgt.face_resources'
+    bl_label = '选择脸部资源'
+    bl_description = '选择同角色 FBX 资源包或 Textures 目录；更换前先恢复原材质'
+    bl_options = {'REGISTER', 'UNDO'}
+    directory: StringProperty(name='目录', subtype='DIR_PATH')
+    filter_folder: bpy.props.BoolProperty(default=True, options={'HIDDEN'})
+
+    @classmethod
+    def poll(cls, context):
+        root = target(context)
+        return bool(idle(context) and scene_models.selected(context)
+                    and (root is None or not root.hgt_character.managed))
+
+    def invoke(self, context, event):
+        root = target(context)
+        if root:
+            self.directory = root.hgt_character.face_resource_directory
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+
+    def execute(self, context):
+        transaction = workflow.asset_tracking.DataTransaction(context)
+        try:
+            from .face_assets import FaceResources
+            directory = bpy.path.abspath(self.directory) if self.directory else ''
+            if directory:
+                FaceResources(directory=directory).resolve()
+            root = scene_models.ensure(scene_models.selected(context), context)
+            if root.hgt_character.managed:
+                raise ValueError('请先恢复原材质，再更换脸部资源')
+            root.hgt_character.face_resource_directory = directory
+        except (ValueError, RuntimeError, OSError) as exc:
+            transaction.rollback()
+            return report_error(self, exc)
+        return {'FINISHED'}
+
+
 class HGT_OT_restore(Operator):
     bl_idname = 'hgt.restore_materials'
     bl_label = '恢复原材质'
@@ -167,6 +205,7 @@ class HGT_MT_tools(Menu):
 
     def draw(self, context):
         self.layout.operator('hgt.restore_materials', icon='LOOP_BACK')
+        self.layout.operator('hgt.face_resources', icon='FILE_FOLDER')
         self.layout.operator('file.find_missing_files', text='查找丢失贴图', icon='FILE_REFRESH')
 
 
@@ -185,6 +224,8 @@ def draw_materials(layout, context):
         return
     settings = root.hgt_character
     column.prop(settings, 'shadow_position', slider=True)
+    if any(b.generated and b.generated.get('hgt_template') == 'Face' for b in settings.bindings):
+        column.prop(settings, 'face_softness', slider=True)
     if settings.has_outline:
         column.prop(settings, 'outline', slider=True)
     column.template_list('HGT_UL_materials', '', settings, 'bindings', settings, 'active_material', rows=3, maxrows=3)
@@ -235,7 +276,7 @@ class HGT_PT_main(Panel):
         layout.operator('hgt.render', icon='RENDER_STILL')
 
 
-CLASSES = (HGT_OT_import_character, HGT_OT_apply_materials, HGT_OT_restore, HGT_OT_reset_materials,
+CLASSES = (HGT_OT_import_character, HGT_OT_apply_materials, HGT_OT_face_resources, HGT_OT_restore, HGT_OT_reset_materials,
            HGT_OT_default_light, HGT_OT_look_camera, HGT_OT_align_camera, HGT_OT_render,
            HGT_MT_tools, HGT_UL_materials, HGT_PT_main)
 

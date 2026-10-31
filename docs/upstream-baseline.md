@@ -8,7 +8,9 @@
 | 场景模型 | scene_models；已有 MMD 模型识别、当前选择与材质恢复记录，不重复导入或修骨 | Hoyo-GI-Toon |
 | 资产保护 | asset_tracking；导入引用、派生网格、恢复及事务 | Hoyo-GI-Toon |
 | 材质适配 | pmx_materials.Catalog / build；Toon、Sphere、Alpha、边线 | Gacha Setup 的 PMX 适配原则 |
-| 原生着色 | shaders.ShaderLibrary；Body、Hair、光向与描边节点 | Festivity、michael-gh1 的原生模板 |
+| 原生着色 | shaders.ShaderLibrary；Body、Hair、Face、光向与描边节点 | Festivity、michael-gh1 的原生模板 |
+| 脸部资源 | face_assets、face_sdf；只读同角色 FBX 材质引用，分离数据通道与眼部遮罩 | 原生 Festivity；资源与语义参考 Gacha Setup／晨星 |
+| 头部与光向 | head_binding、lighting；主脸权重校验、原生头部参照、单主光源代表方向 | 结合 MAVR 的头部置信检查与光向组织方式 |
 | 参数 | material_controls；逐材质颜色与全局阴影描边 | Hoyo-GI-Toon |
 | 默认光 | lighting.default_light；主动调用，复用自有灯 | Hoyo-GI-Toon |
 | 视线 | gaze；可移除眼骨约束及实时跟随 | Hoyo-GI-Toon；MMD 骨名语义参考晨星 |

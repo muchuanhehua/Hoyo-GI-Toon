@@ -1,0 +1,47 @@
+name: Publish verified Blender extension
+
+on:
+  push:
+    branches: ['release-*']
+    paths: ['release/index.json']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: verified-extension-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Read the exact release commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "$GITHUB_SHA"
+          git checkout --detach FETCH_HEAD
+      - name: Verify committed source and immutable archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/verify_release_commit.py --ref HEAD
+      - name: Create the version and attach the frozen archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(python3 -c 'import json; print(json.load(open("release/index.json"))["data"][0]["version"])')
+          archive=$(python3 -c 'import json; i=json.load(open("release/index.json"))["data"][0]; print(i["archive_url"].rsplit("/",1)[1])')
+          tag="v${version}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Version already published; refusing to replace its tag or archive."
+            exit 1
+          fi
+          gh release create "$tag" "release/${archive}" --target "$GITHUB_SHA" --title "Hoyo-GI-Toon ${version}" --notes-file "release/notes-v${version}.md" --latest
