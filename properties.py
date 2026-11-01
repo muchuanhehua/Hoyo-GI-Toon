@@ -9,6 +9,38 @@ def update_appearance(self, context):
         from .workflow import refresh_character
         refresh_character(root)
 
+
+def update_light_source(self, context):
+    if self.light_source:
+        self.light_reference_energy = (2 if self.light_source.get('hgt_scene_light')
+                                       else max(self.light_source.data.energy, 1))
+    update_appearance(self, context)
+
+
+def update_uniforms(self, context):
+    if self.managed and not self.building:
+        from .shaders import set_controls
+        set_controls(self.id_data)
+
+
+def update_outline(self, context):
+    if self.managed and not self.building:
+        from .outlines import update
+        for entry in self.meshes:
+            if entry.object:
+                update(entry.object, self.id_data)
+
+
+def update_material(self, context):
+    if not self.id_data.hgt_character.building:
+        from .material_controls import apply_binding
+        apply_binding(self)
+
+
+def update_lighting(self, context):
+    from .lighting import update_parameters
+    update_parameters(self.id_data, self)
+
 class HGTGazeBone(PropertyGroup):
     bone: StringProperty()
     helper: PointerProperty(type=bpy.types.Object)
@@ -20,9 +52,12 @@ class HGTMaterialBinding(PropertyGroup):
     outline: PointerProperty(type=bpy.types.Material)
     source_name: StringProperty()
     role: StringProperty()
-    tint: FloatVectorProperty(name='颜色', subtype='COLOR', size=3, default=(1, 1, 1), min=0, max=1, update=update_appearance)
-    shadow_color: FloatVectorProperty(name='阴影颜色', subtype='COLOR', size=3, default=(0.8, 0.8, 0.8), min=0, max=1, update=update_appearance)
-    outline_color: FloatVectorProperty(name='描边颜色', subtype='COLOR', size=3, default=(0, 0, 0), min=0, max=1, update=update_appearance)
+    tint: FloatVectorProperty(name='颜色', subtype='COLOR', size=3, default=(1, 1, 1), min=0, max=1, update=update_material)
+    shadow_color: FloatVectorProperty(name='阴影颜色', subtype='COLOR', size=3, default=(0.8, 0.8, 0.8), min=0, max=1, update=update_material)
+    outline_color: FloatVectorProperty(name='描边颜色', subtype='COLOR', size=3, default=(0, 0, 0), min=0, max=1, update=update_material)
+    brightness: FloatProperty(name='亮度', default=1, min=0, max=2, update=update_material)
+    saturation: FloatProperty(name='饱和度', default=1, min=0, max=2, update=update_material)
+    opacity: FloatProperty(name='不透明度', default=1, min=0, max=1, update=update_material)
     defaults: StringProperty()
 
 class HGTSlotSnapshot(PropertyGroup):
@@ -43,6 +78,11 @@ class HGTControlReference(PropertyGroup):
     object: PointerProperty(type=bpy.types.Object)
     key: StringProperty()
 
+
+class HGTVisibility(PropertyGroup):
+    object: PointerProperty(type=bpy.types.Object)
+    hidden: BoolProperty()
+
 class HGTScenePresetSettings(PropertyGroup):
     preset: StringProperty()
     uid: StringProperty()
@@ -56,6 +96,22 @@ class HGTScenePresetSettings(PropertyGroup):
     muted_light: PointerProperty(type=bpy.types.Object)
     muted_render: BoolProperty()
     muted_viewport: BoolProperty()
+
+
+class HGTLightParameters(PropertyGroup):
+    key: StringProperty()
+    energy: FloatProperty(name='强度', default=2, min=0, soft_max=10, update=update_lighting)
+    color: FloatVectorProperty(name='颜色', subtype='COLOR', size=3, default=(1, 1, 1), min=0, max=1, update=update_lighting)
+    azimuth: FloatProperty(name='光向方位', subtype='ANGLE', min=-3.141593, max=3.141593, update=update_lighting)
+    elevation: FloatProperty(name='光向高度', subtype='ANGLE', min=-1.570796, max=1.570796, update=update_lighting)
+    angle: FloatProperty(name='光源角度', subtype='ANGLE', default=.1, min=0, max=3.141593, update=update_lighting)
+
+
+class HGTLightingSettings(PropertyGroup):
+    selected: EnumProperty(name='打光预设', items=(('DEFAULT', '默认光', ''), ('SOFT', '柔和正面', ''),
+                         ('SIDE', '侧面塑形', ''), ('BACK', '背光轮廓', '')))
+    active: StringProperty()
+    presets: CollectionProperty(type=HGTLightParameters)
 
 class HGTCharacterSettings(PropertyGroup):
     imported: BoolProperty()
@@ -71,7 +127,8 @@ class HGTCharacterSettings(PropertyGroup):
     source_root: PointerProperty(type=bpy.types.Object)
     source_armature: PointerProperty(type=bpy.types.Object)
     camera: PointerProperty(type=bpy.types.Object)
-    light_source: PointerProperty(name='灯光', type=bpy.types.Object, poll=lambda self, obj: obj.type == 'LIGHT' and obj.data.type in {'SUN', 'AREA', 'POINT', 'SPOT'}, update=update_appearance)
+    light_source: PointerProperty(name='灯光', type=bpy.types.Object, poll=lambda self, obj: obj.type == 'LIGHT' and obj.data.type in {'SUN', 'AREA', 'POINT', 'SPOT'}, update=update_light_source)
+    light_reference_energy: FloatProperty(default=2, min=1e-6)
     light: PointerProperty(type=bpy.types.Object)
     head: PointerProperty(type=bpy.types.Object)
     global_properties: PointerProperty(type=bpy.types.NodeTree)
@@ -83,10 +140,13 @@ class HGTCharacterSettings(PropertyGroup):
     slots: CollectionProperty(type=HGTSlotSnapshot)
     bindings: CollectionProperty(type=HGTMaterialBinding)
     controls: CollectionProperty(type=HGTControlReference)
+    display_meshes: CollectionProperty(type=HGTVisibility)
     active_material: IntProperty(default=0)
-    shadow_position: FloatProperty(name='阴影位置', default=0.55, min=0, max=1, update=update_appearance)
-    face_softness: FloatProperty(name='脸部阴影软硬', default=0.02, min=0.001, max=0.2, update=update_appearance)
-    outline: FloatProperty(name='描边粗细', default=0.25, min=0, max=1, update=update_appearance)
+    shadow_position: FloatProperty(name='阴影位置', default=0.55, min=0, max=1, update=update_uniforms)
+    shadow_transition: FloatProperty(name='明暗过渡', default=0.035, min=0.001, max=0.5, update=update_uniforms)
+    face_softness: FloatProperty(name='脸部阴影软硬', default=0.02, min=0.001, max=0.2, update=update_uniforms)
+    outline: FloatProperty(name='描边粗细', default=0.25, min=0, max=1, update=update_outline)
+    outline_lower: FloatProperty(name='下部描边比例', description='脚部相对头部的线宽；1 为均匀，越小越上粗下细', default=0.35, min=0, max=1, update=update_outline)
     initial_shadow: FloatProperty(default=0.55)
     initial_face_softness: FloatProperty(default=0.02)
     initial_outline: FloatProperty(default=0.25)
@@ -105,15 +165,18 @@ def update_model(self, context):
 
 
 def update_light(self, context):
+    from .lighting import select_light
+    select_light(self)
     from .workflow import current, refresh_character
     for root in tuple(self.objects):
         if current(root):
             if self.hgt_light is None:
                 root.hgt_character.light_source = None
-            refresh_character(root, scene=self)
+            refresh_character(root, scene=self, appearance=False)
 
 
-CLASSES = (HGTGazeBone, HGTMaterialBinding, HGTSlotSnapshot, HGTMeshReference, HGTControlReference, HGTScenePresetSettings, HGTCharacterSettings)
+CLASSES = (HGTGazeBone, HGTMaterialBinding, HGTSlotSnapshot, HGTMeshReference, HGTControlReference, HGTVisibility,
+           HGTScenePresetSettings, HGTLightParameters, HGTLightingSettings, HGTCharacterSettings)
 
 def register():
     from .scene_presets import PRESET_ITEMS
@@ -125,8 +188,10 @@ def register():
     bpy.types.Scene.hgt_light = PointerProperty(name='灯光', type=bpy.types.Object, poll=lambda self, obj: obj.type == 'LIGHT' and obj.data.type in {'SUN', 'AREA', 'POINT', 'SPOT'} and obj.name in self.objects, update=update_light)
     bpy.types.Scene.hgt_scene = PointerProperty(type=HGTScenePresetSettings)
     bpy.types.Scene.hgt_scene_preset = EnumProperty(name='场景预设', items=PRESET_ITEMS)
+    bpy.types.Scene.hgt_lighting = PointerProperty(type=HGTLightingSettings)
 
 def unregister():
+    del bpy.types.Scene.hgt_lighting
     del bpy.types.Scene.hgt_scene_preset
     del bpy.types.Scene.hgt_scene
     del bpy.types.Scene.hgt_target

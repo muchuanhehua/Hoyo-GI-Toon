@@ -7,6 +7,8 @@
       "file": "scene_city_terrace.blend",
       "collection": "HGT • 城市露台",
       "key_light": "Daylight / warm key",
+      "layout": "compact-half-ring-v1",
+      "fit_model": true,
       "source": "City-Terrace/city-terrace-environment.blend",
       "source_sha256": "cbc7bae851c446567833d9f97296e7bd9c0cfc31a363d36818d826adbacb6ae2"
     },

@@ -107,7 +107,7 @@ def step():
                 phase = 1
                 return .5
             if phase == 1:
-                next(r for r in area.regions if r.type == 'UI').active_panel_category = 'Hoyo-GI-Toon'
+                next(r for r in area.regions if r.type == 'UI').active_panel_category = 'GI-Toon'
                 phase = 2
                 return .5
             if phase == 2:

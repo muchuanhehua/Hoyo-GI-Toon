@@ -204,14 +204,12 @@ def build(library, assets):
     outline['hgt_owner'], outline['hgt_source'] = library.uid, assets.source
     library._private_textures(outline.node_tree, {})
     node = outline.node_tree.nodes['Outlines']
-    for key, value in {'Outline Color 1': assets.pmx['edge_color'], 'Use Alpha': 1,
+    for key, value in {'Use Alpha': 1,
                        'Use Vertex Color AO': 0, 'Use Lightmap AO': 0}.items():
         if node.inputs.get(key):
             node.inputs[key].default_value = value
     for socket in node.inputs:
-        if socket.name.startswith('Outline Color '):
-            socket.default_value = assets.pmx['edge_color']
-        elif socket.name.startswith('Use Material '):
+        if socket.name.startswith('Use Material '):
             socket.default_value = 0
     for tree in walk(outline.node_tree):
         for image_node in tree.nodes:
@@ -223,16 +221,31 @@ def build(library, assets):
             outline.node_tree.links.remove(link)
         alpha.default_value = 1
     # PMX's edge alpha and material alpha also apply to a solid-color edge.
-    coverage = assets.pmx['alpha'] * assets.pmx['edge_color'][3]
-    if coverage < 1:
-        tree = outline.node_tree
-        output = next(n for n in tree.nodes if n.type == 'OUTPUT_MATERIAL' and n.is_active_output)
-        original = output.inputs['Surface'].links[0].from_socket
-        transparent = tree.nodes.new('ShaderNodeBsdfTransparent')
-        mix = tree.nodes.new('ShaderNodeMixShader')
-        mix.name = 'HGT • PMX Edge Alpha'
-        mix.inputs[0].default_value = coverage
-        tree.links.new(transparent.outputs[0], mix.inputs[1])
-        tree.links.new(original, mix.inputs[2])
-        tree.links.new(mix.outputs[0], output.inputs['Surface'])
+    configure_outline(outline, assets.pmx)
     return material, outline
+
+
+def configure_outline(outline, pmx):
+    color = pmx['edge_color'] if pmx['edge'] and pmx['edge_color'][3] > 0 else (.035, .025, .04, 1)
+    outline['hgt_edge_alpha'] = color[3]
+    for socket in outline.node_tree.nodes['Outlines'].inputs:
+        if socket.name.startswith('Outline Color '):
+            socket.default_value = color
+    coverage = pmx['alpha'] * color[3]
+    outline['hgt_edge_coverage'] = coverage
+    if 'hgt_surface_method' not in outline:
+        outline['hgt_surface_method'] = outline.surface_render_method
+    tree = outline.node_tree
+    previous = tree.nodes.get('HGT • PMX Edge Alpha')
+    if previous:
+        previous.inputs[0].default_value = coverage
+        return
+    output = next(n for n in tree.nodes if n.type == 'OUTPUT_MATERIAL' and n.is_active_output)
+    original = output.inputs['Surface'].links[0].from_socket
+    transparent = tree.nodes.new('ShaderNodeBsdfTransparent')
+    mix = tree.nodes.new('ShaderNodeMixShader')
+    mix.name = 'HGT • PMX Edge Alpha'
+    mix.inputs[0].default_value = coverage
+    tree.links.new(transparent.outputs[0], mix.inputs[1])
+    tree.links.new(original, mix.inputs[2])
+    tree.links.new(mix.outputs[0], output.inputs['Surface'])

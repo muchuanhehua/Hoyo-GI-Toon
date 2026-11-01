@@ -4,6 +4,7 @@ from pathlib import Path
 sys.dont_write_bytecode=True
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import bpy
+import numpy as np
 from mathutils import Vector,Euler
 from verification_runtime import load_mmd,load_addon,install_candidate,unload_addon,file_hash
 
@@ -37,6 +38,7 @@ window=bpy.context.window_manager.windows[0]
 area=next(a for a in window.screen.areas if a.type=='VIEW_3D')
 region=next(r for r in area.regions if r.type=='WINDOW')
 phase=0;started=time.monotonic()
+viewport_before=None
 
 def root():return addon.panels.target(bpy.context)
 
@@ -52,6 +54,18 @@ def screenshot(name):
     assert bpy.ops.screen.screenshot(filepath=str(out/name))=={'FINISHED'}
     report['screenshots'].append(name)
 
+
+def viewport_pixels(name):
+    screenshot(name)
+    image=bpy.data.images.load(str(out/name),check_existing=False)
+    width,height=image.size
+    pixels=np.array(image.pixels[:],dtype=np.float32).reshape((height,width,4))
+    ui=next(r for r in area.regions if r.type=='UI')
+    right=ui.x if ui.x>area.x else area.x+area.width-300
+    crop=pixels[area.y+50:area.y+area.height-50,area.x+80:right-10].copy()
+    bpy.data.images.remove(image)
+    return crop
+
 def finish(error=None):
     if error:report['error']=error
     assert hashes=={p.name:file_hash(p) for p in payload.glob('*.py')}
@@ -60,10 +74,10 @@ def finish(error=None):
     bpy.ops.wm.quit_blender()
 
 def step():
-    global phase
+    global phase,viewport_before
     try:
         hide()
-        if time.monotonic()-started>150:raise TimeoutError('Private UI verification timed out')
+        if time.monotonic()-started>240:raise TimeoutError('Private UI verification timed out')
         with bpy.context.temp_override(window=window,area=area,region=region):
             scene=bpy.context.scene
             if phase==0:
@@ -71,7 +85,7 @@ def step():
                 area.spaces.active.show_region_ui=True
                 phase=1;return .7
             if phase==1:
-                next(r for r in area.regions if r.type=='UI').active_panel_category='Hoyo-GI-Toon'
+                next(r for r in area.regions if r.type=='UI').active_panel_category='GI-Toon'
                 phase=2;return .7
             if phase==2:
                 assert not hasattr(bpy.types.Scene,'hgt_output')
@@ -122,6 +136,39 @@ def step():
                 assert bpy.ops.ed.redo()=={'FINISHED'} and abs(root().hgt_character.bindings[0].tint[0]-.4)<1e-5
                 bpy.ops.ed.undo()
                 report['checks']['material_params_undo']=True
+                source=addon.scene_models.selected(bpy.context)
+                visible=addon.scene_models.visible(source)
+                bpy.ops.ed.undo_push(message='Before display')
+                assert bpy.ops.hgt.toggle_display()=={'FINISHED'}
+                bpy.ops.ed.undo_push(message='Display')
+                assert bpy.ops.ed.undo()=={'FINISHED'}
+                assert addon.scene_models.visible(addon.scene_models.selected(bpy.context))==visible
+                assert bpy.ops.ed.redo()=={'FINISHED'}
+                assert addon.scene_models.visible(addon.scene_models.selected(bpy.context))!=visible
+                bpy.ops.ed.undo()
+                hidden=addon.scene_models.armature(addon.scene_models.selected(bpy.context)).hide_get()
+                assert bpy.ops.hgt.toggle_display(bones=True)=={'FINISHED'}
+                bpy.ops.ed.undo_push(message='Bones')
+                assert bpy.ops.ed.undo()=={'FINISHED'}
+                assert addon.scene_models.armature(addon.scene_models.selected(bpy.context)).hide_get()==hidden
+                assert bpy.ops.ed.redo()=={'FINISHED'}
+                bpy.ops.ed.undo()
+                report['checks']['display_controls_undo']=True
+                bpy.ops.ed.undo_push(message='Before preset')
+                bpy.context.scene.hgt_lighting.selected='SOFT'
+                assert bpy.ops.hgt.apply_light_preset()=={'FINISHED'}
+                bpy.ops.ed.undo_push(message='Preset')
+                assert bpy.ops.ed.undo()=={'FINISHED'} and bpy.context.scene.hgt_lighting.active=='DEFAULT'
+                assert bpy.ops.ed.redo()=={'FINISHED'} and bpy.context.scene.hgt_lighting.active=='SOFT'
+                parameters=addon.lighting.active_parameters(bpy.context.scene)
+                energy=parameters.energy
+                parameters.energy=3.7
+                bpy.ops.ed.undo_push(message='Preset parameter')
+                assert bpy.ops.ed.undo()=={'FINISHED'}
+                assert abs(addon.lighting.active_parameters(bpy.context.scene).energy-energy)<1e-5
+                assert bpy.ops.ed.redo()=={'FINISHED'}
+                assert abs(bpy.context.scene.hgt_light.data.energy-3.7)<1e-5
+                report['checks']['light_presets_undo']=True
                 assert bpy.ops.hgt.look_camera()=={'FINISHED'}
                 bpy.ops.ed.undo_push(message='Gaze')
                 assert bpy.ops.ed.undo()=={'FINISHED'} and not root().hgt_character.look_camera
@@ -145,6 +192,21 @@ def step():
                 phase=4;return .7
             if phase==4:
                 screenshot('panel-full.png')
+                area.spaces.active.shading.type='RENDERED'
+                root().hgt_character.shadow_position=.15
+                phase=6;return 5
+            if phase==6:
+                viewport_before=viewport_pixels('viewport-shadow-15.png')
+                root().hgt_character.shadow_position=.85
+                phase=7;return 2
+            if phase==7:
+                after=viewport_pixels('viewport-shadow-85.png')
+                response=float(np.abs(after-viewport_before).max())
+                assert response>.02,response
+                report['viewport_shadow_response']=response
+                report['checks']['realtime_viewport_shadow_response']=True
+                root().hgt_character.shadow_position=.52
+                area.spaces.active.shading.type='SOLID'
                 bpy.ops.wm.save_as_mainfile(filepath=str(out/'ui-preview.blend'),relative_remap=False)
                 report['checks']['save_project']=True
                 report['scene_count']=len(bpy.data.scenes)

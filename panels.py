@@ -1,11 +1,10 @@
 """Always-visible material, lighting and camera tools for scene MMD models."""
-import json
 import traceback
 import bpy
 from bpy.types import Operator, Panel, UIList, Menu
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ImportHelper
-from . import workflow, rendering, lighting, gaze, material_controls, scene_models, scene_presets
+from . import workflow, rendering, lighting, gaze, material_controls, scene_models, scene_presets, outlines
 
 
 def target(context):
@@ -52,6 +51,25 @@ class HGT_OT_apply_materials(Operator):
         try:
             workflow.apply_materials(scene_models.selected(context), context)
         except (ValueError, RuntimeError, OSError) as exc:
+            return report_error(self, exc)
+        return {'FINISHED'}
+
+
+class HGT_OT_toggle_display(Operator):
+    bl_idname = 'hgt.toggle_display'
+    bl_label = '模型显示'
+    bl_description = '切换所选模型的网格或骨骼在视口中的显示'
+    bl_options = {'REGISTER', 'UNDO'}
+    bones: bpy.props.BoolProperty(default=False, options={'SKIP_SAVE'})
+
+    @classmethod
+    def poll(cls, context):
+        return idle(context) and scene_models.selected(context) is not None
+
+    def execute(self, context):
+        try:
+            scene_models.toggle_visibility(scene_models.selected(context), self.bones)
+        except (ValueError, RuntimeError) as exc:
             return report_error(self, exc)
         return {'FINISHED'}
 
@@ -139,6 +157,24 @@ class HGT_OT_default_light(Operator):
     def execute(self, context):
         try:
             lighting.default_light(context.scene)
+        except (ValueError, RuntimeError) as exc:
+            return report_error(self, exc)
+        return {'FINISHED'}
+
+
+class HGT_OT_apply_light_preset(Operator):
+    bl_idname = 'hgt.apply_light_preset'
+    bl_label = '启用打光'
+    bl_description = '启用所选预设并保留在场景中；重复启用保留已调参数'
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return idle(context)
+
+    def execute(self, context):
+        try:
+            lighting.apply_preset(context.scene, context.scene.hgt_lighting.selected)
         except (ValueError, RuntimeError) as exc:
             return report_error(self, exc)
         return {'FINISHED'}
@@ -260,22 +296,26 @@ def draw_materials(layout, context):
         return
     settings = root.hgt_character
     column.prop(settings, 'shadow_position', slider=True)
+    column.prop(settings, 'shadow_transition', slider=True)
     if any(b.generated and b.generated.get('hgt_template') == 'Face' for b in settings.bindings):
         column.prop(settings, 'face_softness', slider=True)
     if settings.has_outline:
         column.prop(settings, 'outline', slider=True)
+        column.prop(settings, 'outline_lower', slider=True)
     column.template_list('HGT_UL_materials', '', settings, 'bindings', settings, 'active_material', rows=3, maxrows=3)
     if settings.bindings:
         item = settings.bindings[min(max(0, settings.active_material), len(settings.bindings) - 1)]
         row = column.row(align=True)
         row.label(text='颜色')
         row.prop(item, 'tint', text='')
+        column.prop(item, 'brightness', slider=True)
+        column.prop(item, 'saturation', slider=True)
+        column.prop(item, 'opacity', slider=True)
         if item.role not in {'eye', 'brow', 'expression'}:
             row = column.row(align=True)
             row.label(text='阴影颜色')
             row.prop(item, 'shadow_color', text='')
-        edge = json.loads(item.generated['hgt_pmx'])
-        if edge['edge'] and edge['edge_weight'] > 0 and edge['edge_color'][3] > 0 and edge['alpha'] > 0 and not edge['overlay'] and item.role not in {'eye', 'brow', 'expression'}:
+        if outlines.eligible(item):
             row = column.row(align=True)
             row.label(text='描边颜色')
             row.prop(item, 'outline_color', text='')
@@ -283,19 +323,25 @@ def draw_materials(layout, context):
 
 
 class HGT_PT_main(Panel):
-    bl_label = 'Hoyo-GI-Toon'
+    bl_label = 'GI-Toon'
     bl_idname = 'HGT_PT_main'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'Hoyo-GI-Toon'
+    bl_category = 'GI-Toon'
 
     def draw(self, context):
         layout = self.layout
         layout.enabled = idle(context)
+        source = scene_models.selected(context)
         row = layout.row(align=True)
         row.operator('hgt.import_character', icon='IMPORT')
+        row.operator('hgt.toggle_display', text='模型显示', icon='MESH_DATA',
+                     depress=scene_models.visible(source))
         row.menu('HGT_MT_tools', text='', icon='DOWNARROW_HLT')
-        layout.prop(context.scene, 'hgt_model')
+        row = layout.row(align=True)
+        row.prop(context.scene, 'hgt_model')
+        row.operator('hgt.toggle_display', text='骨骼显示', icon='ARMATURE_DATA',
+                     depress=scene_models.visible(source, bones=True)).bones = True
         layout.separator()
         draw_materials(layout, context)
         layout.separator()
@@ -306,8 +352,20 @@ class HGT_PT_main(Panel):
         row.operator('hgt.remove_scene', text='', icon='X')
         layout.separator()
         layout.label(text='打光', icon='LIGHT_SUN')
-        layout.operator('hgt.default_light', icon='LIGHT_SUN')
+        row = layout.row(align=True)
+        row.prop(context.scene.hgt_lighting, 'selected', text='')
+        row.operator('hgt.apply_light_preset', text='启用', icon='LIGHT_SUN')
         layout.prop(context.scene, 'hgt_light')
+        light = context.scene.hgt_light
+        if light:
+            parameters = lighting.active_parameters(context.scene) if light.get('hgt_scene_light') else None
+            if parameters:
+                for name in ('energy', 'color', 'azimuth', 'elevation', 'angle'):
+                    layout.prop(parameters, name)
+            else:
+                layout.prop(light.data, 'energy', text='强度')
+                layout.prop(light.data, 'color', text='颜色')
+                layout.prop(light, 'rotation_euler', text='旋转')
         layout.separator()
         layout.label(text='相机', icon='CAMERA_DATA')
         layout.prop(context.scene, 'camera', text='相机')
@@ -318,8 +376,8 @@ class HGT_PT_main(Panel):
         layout.operator('hgt.render', icon='RENDER_STILL')
 
 
-CLASSES = (HGT_OT_import_character, HGT_OT_apply_materials, HGT_OT_face_resources, HGT_OT_restore, HGT_OT_reset_materials,
-           HGT_OT_default_light, HGT_OT_load_scene, HGT_OT_remove_scene, HGT_OT_look_camera, HGT_OT_align_camera, HGT_OT_render,
+CLASSES = (HGT_OT_import_character, HGT_OT_apply_materials, HGT_OT_toggle_display, HGT_OT_face_resources, HGT_OT_restore, HGT_OT_reset_materials,
+           HGT_OT_default_light, HGT_OT_apply_light_preset, HGT_OT_load_scene, HGT_OT_remove_scene, HGT_OT_look_camera, HGT_OT_align_camera, HGT_OT_render,
            HGT_MT_tools, HGT_UL_materials, HGT_PT_main)
 
 

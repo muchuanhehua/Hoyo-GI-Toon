@@ -51,9 +51,14 @@ def validate(root):
 
 @persistent
 def on_load(_):
-    from . import scene_models
+    from . import scene_models, workflow, material_controls, outlines
     scene_models.reset_selection_cache()
     for scene in bpy.data.scenes:
+        for obj in tuple(scene.objects):
+            if workflow.current(obj) and obj.hgt_character.managed:
+                material_controls.upgrade(obj)
+                outlines.upgrade(obj)
+                workflow.refresh_character(obj, scene=scene)
         root = scene.hgt_target
         if root and root.hgt_character.schema_version == SCHEMA and root.hgt_character.source_root:
             scene.hgt_model = root.hgt_character.source_root

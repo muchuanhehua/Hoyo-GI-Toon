@@ -1,4 +1,4 @@
-"""Freeze and promote the exact PMX candidate after matching verification."""
+"""Build a local review archive or promote a fully verified PMX candidate."""
 import argparse,ast,hashlib,json,subprocess,tomllib,zipfile,shutil
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
@@ -28,7 +28,8 @@ def validate_evidence(evidence,interface,integration=False):
         assert all(model.get(key) is True for key in required)
         assert model['material_tint_response']>.05 and model['shadow_response']>.03
         assert model['shadow_position_response']>.02 and model['light_response']>.05
-        if model['source_edges_enabled']:
+        has_edges=model['toon_edges_enabled'] if 'toon_edges_enabled' in model else model['source_edges_enabled']
+        if has_edges:
             assert model['outline_response']>.01 and model['outline_color_response']>.01
     expected=('empty_scene_controls','no_output_panel','light_without_model_undo','camera_without_model_undo',
               'existing_model_apply_undo','material_params_undo','gaze_undo','save_project','native_async_render')
@@ -50,13 +51,25 @@ def validate_sdf_evidence(evidence,hashes,package_sha256=None):
     assert len(evidence['models'])>=3
     kinds={model['candidate_kind'] for model in evidence['models'].values()}
     assert {'alpha','ra_half'}<=kinds
-    required=('fresh_assembly_preserves_originals','approved_key_light_material_and_factor_pixels_equal',
+    isolated=evidence.get('scope')=='GI-TOON-2.4-SDF-REGRESSION'
+    required=('fresh_assembly_preserves_originals',
+              'face_factor_interior_matches_approved' if isolated else 'approved_key_light_material_and_factor_pixels_equal',
               'owned_textures_pack_save_reopen_equal','restore_and_reapply_preserves_data_and_pixels')
     for model in evidence['models'].values():
         assert all(model['checks'].get(key) is True for key in required)
         assert len(model['frames'])>=7
-        assert all(check['strict_pixels_equal_approved'] and check['max_image_buffer_error']==0
-                   for frame in model['frames'].values() for check in frame.values())
+        if isolated:
+            # The accepted outline style changed. Compare the SDF field on
+            # face interiors with outlines disabled, retaining strict pixels.
+            for frame in model['frames'].values():
+                factor=frame['factor']
+                assert frame['colour']['current_style_rendered']
+                assert factor['strict_face_interior_equal_approved'] and factor['max_image_buffer_error']==0
+                assert factor['compared_face_pixels']>2000 and factor['border_excluded_pixels']==4
+                assert factor['outline_disabled_for_algorithm_comparison'] is True
+        else:
+            assert all(check['strict_pixels_equal_approved'] and check['max_image_buffer_error']==0
+                       for frame in model['frames'].values() for check in frame.values())
         if model['candidate_kind']=='ra_half':assert model['checks']['ra_softness_response_and_reset_equal']
     if package_sha256 is not None:assert evidence['package_sha256']==package_sha256
 
@@ -81,13 +94,29 @@ def validate_scene_evidence(evidence,interface,hashes,package_sha256=None):
     if package_sha256 is not None:
         assert evidence['package_sha256']==interface['package_sha256']==package_sha256
 
+def validate_usability_evidence(evidence,interface,hashes):
+    assert evidence['scope']=='GI-TOON-USABILITY' and evidence['complete']
+    assert evidence['source_sha256']==hashes,'Usability verification does not match current runtime'
+    assert len(evidence['models'])>=3
+    for model in evidence['models']:
+        assert all(model.get(key) is True for key in ('source_and_mmd_unchanged','front_camera','visibility','light_presets_persist'))
+        assert all(model['responses'][key]>.001 for key in
+                   ('brightness','saturation','opacity','shadow_transition','outline_taper','outline','outline_color',
+                    'light_energy','light_color'))
+    assert all(evidence['checks'].get(key) is True for key in
+               ('parameters_save_reopen_exact','compact_half_ring_city_and_model_fit','original_scene_files_unchanged',
+                'sidebar_and_display_controls','multi_character_uniform_isolation','reused_material_survives_restore'))
+    assert all(interface['checks'].get(key) is True for key in
+               ('display_controls_undo','light_presets_undo','realtime_viewport_shadow_response'))
+
 def main():
     parser=argparse.ArgumentParser()
-    parser.add_argument('action',choices=('candidate','release'))
+    parser.add_argument('action',choices=('review','candidate','release'))
     parser.add_argument('--blender',type=Path,required=True)
     parser.add_argument('--verification',type=Path,required=True)
     parser.add_argument('--interface-verification',type=Path,required=True)
-    parser.add_argument('--sdf-verification',type=Path,required=True)
+    parser.add_argument('--sdf-verification',type=Path)
+    parser.add_argument('--usability-verification',type=Path)
     parser.add_argument('--sdf-interface-verification',type=Path)
     parser.add_argument('--scene-verification',type=Path,required=True)
     parser.add_argument('--scene-interface-verification',type=Path,required=True)
@@ -102,8 +131,17 @@ def main():
     evidence=json.loads(args.verification.read_text(encoding='utf-8'))
     interface=json.loads(args.interface_verification.read_text(encoding='utf-8'))
     hashes=validate_evidence(evidence,interface,integration=args.action=='release')
-    sdf=json.loads(args.sdf_verification.read_text(encoding='utf-8'))
-    validate_sdf_evidence(sdf,hashes,evidence.get('package_sha256') if args.action=='release' else None)
+    usability=None
+    if args.usability_verification:
+        usability=json.loads(args.usability_verification.read_text('utf-8'))
+        validate_usability_evidence(usability,interface,hashes)
+        if args.action=='release':assert usability['package_sha256']==evidence['package_sha256']
+    if args.action=='review':
+        assert args.usability_verification,'Local review builds require the current usability checks'
+    else:
+        assert args.sdf_verification,'Full candidate/release builds require matching SDF evidence'
+        sdf=json.loads(args.sdf_verification.read_text(encoding='utf-8'))
+        validate_sdf_evidence(sdf,hashes,evidence.get('package_sha256') if args.action=='release' else None)
     scene=json.loads(args.scene_verification.read_text(encoding='utf-8'))
     scene_ui=json.loads(args.scene_interface_verification.read_text(encoding='utf-8'))
     validate_scene_evidence(scene,scene_ui,hashes,evidence.get('package_sha256') if args.action=='release' else None)
@@ -116,7 +154,7 @@ def main():
         assert all(sdf_ui['checks'].get(key) is True for key in ('face_resource_directory_undo_redo','face_softness_undo_redo'))
     directory=ROOT/'.build/candidate';directory.mkdir(parents=True,exist_ok=True)
     name=f"{manifest['id']}-{manifest['version']}.zip";candidate=directory/name
-    if args.action=='candidate':
+    if args.action in {'review','candidate'}:
         assert not candidate.exists(),'Preserve frozen candidates; increment version if payload changes'
         source=ROOT/'.build'/('source-v'+manifest['version'])
         assert not source.exists(),'Preserve the source staging directory'
@@ -126,11 +164,12 @@ def main():
         command=[str(args.blender),'--background','--factory-startup','--command','extension']
         subprocess.run([*command,'build','--source-dir',str(source),'--output-filepath',str(candidate)],check=True)
         subprocess.run([*command,'validate',str(candidate)],check=True)
-        record={'version':manifest['version'],'archive':name,'bytes':candidate.stat().st_size,
+        record={'version':manifest['version'],'kind':args.action,'archive':name,'bytes':candidate.stat().st_size,
                 'sha256':sha(candidate.read_bytes()),'payload':validate_archive(candidate)}
         (directory/'candidate.json').write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8',newline='\n')
-        print('HGT_CANDIDATE',record['version'],record['sha256'],len(record['payload']));return
+        print('HGT_REVIEW' if args.action=='review' else 'HGT_CANDIDATE',record['version'],record['sha256'],len(record['payload']));return
     record=json.loads((directory/'candidate.json').read_text(encoding='utf-8'))
+    if record.get('kind')=='review':assert usability,'Promoting a review archive requires its actual-package usability evidence'
     assert record['sha256']==evidence['package_sha256']==sha(candidate.read_bytes())
     validate_archive(candidate)
     release=ROOT/'release';target=release/name;assert not target.exists()
@@ -147,6 +186,9 @@ def main():
                                  'key_light_conditions':len(model['frames'])} for name,model in sdf['models'].items()},
              'sdf_interface_checks':sdf_ui['checks'],
              'scene_presets':scene['presets'],'scene_checks':scene['checks'],'scene_interface_checks':scene_ui['checks'],
+             'sdf_comparison_scope':sdf.get('scope'),
+             'usability_models':usability['models'] if usability else [],
+             'usability_checks':usability['checks'] if usability else {},
              'new_full_game_algorithm_recovered':sdf['full_new_game_shader_recovered']}
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('HGT_RELEASE',record['version'],record['sha256'])

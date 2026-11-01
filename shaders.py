@@ -100,6 +100,7 @@ class ShaderLibrary:
                 source = node.outputs.get("Result") or node.outputs.get("Color")
                 if source:
                     tree.links.new(source, output.inputs[socket_name])
+        configure_controls(root)
 
     def controls(self, collection):
         before = data_pointers()
@@ -150,11 +151,56 @@ class ShaderLibrary:
         from .pmx_materials import build
         return build(self, assets)
 
+def uniform(tree, name, property_name, socket, uid, output='Fac'):
+    node = tree.nodes.get(name)
+    if node is None:
+        node = tree.nodes.new('ShaderNodeAttribute')
+        node.name = name
+        node.attribute_type = 'VIEW_LAYER'
+        node.attribute_name = f'hgt_{uid}_{property_name}'
+    if not socket.is_linked or socket.links[0].from_node != node:
+        tree.links.new(node.outputs[output], socket)
+
+
+def configure_controls(root):
+    tree = root.hgt_character.global_properties
+    if tree:
+        uniform(tree, 'HGT • Shadow Position', 'hgt_shadow_position',
+                tree.nodes['Global Properties'].inputs['Shadow Position'], root.hgt_character.uid)
+
+
 def set_controls(root):
     settings = root.hgt_character
     tree = settings.global_properties
     if tree is None:
         return
-    socket = tree.nodes["Global Properties"].inputs["Shadow Position"]
-    if abs(socket.default_value - settings.shadow_position) > 1e-6:
-        socket.default_value = settings.shadow_position
+    if tree.nodes.get('HGT • Shadow Position') is None:
+        socket = tree.nodes['Global Properties'].inputs['Shadow Position']
+        if abs(socket.default_value - settings.shadow_position) > 1e-6:
+            socket.default_value = settings.shadow_position
+        return
+    for scene in bpy.data.scenes:
+        for key, value in (('hgt_shadow_position', settings.shadow_position),
+                           ('hgt_shadow_transition', settings.shadow_transition),
+                           ('hgt_face_softness', settings.face_softness)):
+            key = f'hgt_{settings.uid}_{key}'
+            if abs(scene.get(key, -1) - value) > 1e-6:
+                scene[key] = value
+        source = settings.light_source
+        energy = source.data.energy / settings.light_reference_energy if source else 1
+        color = tuple(channel * energy for channel in source.data.color) if source else (1, 1, 1)
+        key = f'hgt_{settings.uid}_hgt_light_color'
+        value = (*color, 1)
+        if any(abs(a - b) > 1e-6 for a, b in zip(scene.get(key, (-1,) * 4), value)):
+            scene[key] = value
+
+
+def remove_controls(root):
+    # Adopted render materials still read these uniforms after model restore.
+    if any(material.get('hgt_owner') == root.hgt_character.uid for material in bpy.data.materials):
+        return
+    prefix = f'hgt_{root.hgt_character.uid}_hgt_'
+    for scene in bpy.data.scenes:
+        for key in tuple(scene.keys()):
+            if key.startswith(prefix):
+                del scene[key]

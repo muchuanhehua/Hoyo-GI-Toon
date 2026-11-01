@@ -101,7 +101,12 @@ models=json.loads(args.assets_index.read_text(encoding='utf-8'))['models']
 scene=empty()
 root=addon.workflow.build(models[0]['path'],bpy.context)
 assert root.hgt_character.imported and not root.hgt_character.managed
-assert scene.camera and tuple(scene.camera.location)==(0,0,0)
+assert scene.camera and scene.camera.data.type=='ORTHO' and scene.camera.location.y<0
+from bpy_extras.object_utils import world_to_camera_view
+bpy.context.view_layer.update()
+projected=[world_to_camera_view(scene,scene.camera,e.object.matrix_world@Vector(c))
+           for e in root.hgt_character.meshes for c in e.object.bound_box]
+assert all(.02<p.x<.98 and .02<p.y<.98 and p.z>0 for p in projected)
 assert not any(o.type=='LIGHT' for o in scene.objects)
 camera=scene.camera
 assert addon.rendering.prepare(scene)==camera and len(bpy.data.cameras)==1
@@ -193,9 +198,7 @@ for index,model in enumerate(models):
     edges=settings.has_outline
     if edges:assert diff(first,outline)>.01
     bpy.ops.hgt.reset_materials()
-    edge=next((b for b in settings.bindings if b.source.mmd_material.enabled_toon_edge
-               and b.source.mmd_material.edge_weight>0 and b.source.mmd_material.edge_color[3]>0
-               and b.source.mmd_material.alpha>0 and b.role in {'body','hair'}),None)
+    edge=next((b for b in settings.bindings if addon.outlines.eligible(b) and b.role in {'body','hair'}),None)
     edge_response=0
     if edge:
         edge.outline_color=(1,.05,.05);edge_response=diff(first,render(folder/'edge-color.png'))
@@ -244,7 +247,7 @@ for index,model in enumerate(models):
         'manual_camera_light_preserved':True,'native_render_scene_unchanged':True,'whole_scene_render':True,'packed_images':packed,
         'material_tint_response':diff(first,tinted),'shadow_response':diff(first,shadow),
         'shadow_position_response':diff(first,threshold),'outline_response':diff(first,outline),
-        'outline_color_response':edge_response,'source_edges_enabled':bool(edges),'light_response':diff(first,angled),
+        'outline_color_response':edge_response,'toon_edges_enabled':bool(edges),'light_response':diff(first,angled),
         'gaze_live':True,'reset_and_restore':True,'save_reload_exact':True,'bone_and_vertex_morph_animation':True,
         'material_failure_rollback':True,'resource_counts_stable':True,'seconds':time.monotonic()-started})
     save();print('HGT_SCENE_PMX_PASSED',model['name'],flush=True)

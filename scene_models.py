@@ -38,6 +38,40 @@ def selected(context):
     return root if root and root.name in context.scene.objects else None
 
 
+def meshes(source):
+    root = source_root(source)
+    return [obj for obj in root.children_recursive if obj.type == 'MESH' and source_root(obj) == root
+            and getattr(obj, 'mmd_type', '') not in {'RIGID_BODY', 'JOINT'}] if root else []
+
+
+def visible(source, bones=False):
+    values = [armature(source)] if bones else meshes(source)
+    return any(obj and not obj.hide_get() for obj in values)
+
+
+def toggle_visibility(source, bones=False):
+    values = [armature(source)] if bones else meshes(source)
+    values = [obj for obj in values if obj]
+    if not values:
+        raise ValueError('当前模型没有可显示的' + ('骨架' if bones else '网格'))
+    hide = visible(source, bones)
+    snapshots = source_root(source).hgt_character.display_meshes
+    if not bones:
+        if hide:
+            snapshots.clear()
+            for obj in values:
+                entry = snapshots.add()
+                entry.object, entry.hidden = obj, obj.hide_get()
+        elif snapshots:
+            for entry in snapshots:
+                if entry.object and entry.object in values:
+                    entry.object.hide_set(entry.hidden)
+            snapshots.clear()
+            return
+    for obj in values:
+        obj.hide_set(hide)
+
+
 def tracked(source, scene):
     root = source_root(source)
     if root is None:

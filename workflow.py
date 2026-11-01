@@ -16,7 +16,8 @@ def build(filepath, context):
         root = scene_models.ensure(batch.model_root, context, batch.source)
         settings = root.hgt_character
         settings.imported = True
-        settings.camera = rendering.prepare(context.scene)
+        context.view_layer.update()
+        settings.camera = rendering.prepare(context.scene, root)
         project_io.stamp(root)
         context.scene.hgt_target = root
         return root
@@ -34,6 +35,8 @@ def apply_materials(root, context):
         root = scene_models.ensure(root, context)
         settings = root.hgt_character
         if settings.managed:
+            material_controls.upgrade(root)
+            outlines.upgrade(root)
             rendering.configure_material_render(context.scene)
             refresh_character(root, scene=context.scene)
             return root
@@ -106,7 +109,7 @@ def apply_materials(root, context):
         transaction.rollback()
         raise
 
-def refresh_character(root, depsgraph=None, scene=None):
+def refresh_character(root, depsgraph=None, scene=None, appearance=True):
     global _REFRESHING
     if _REFRESHING or not current(root) or root.hgt_character.building:
         return
@@ -120,9 +123,11 @@ def refresh_character(root, depsgraph=None, scene=None):
             gaze.update_gaze(root, scene)
         if settings.managed:
             lighting.update(root, depsgraph=depsgraph, scene=scene)
-            material_controls.apply(root)
-            for entry in settings.meshes:
-                outlines.update(entry.object, root)
+            if appearance:
+                material_controls.apply(root)
+                for entry in settings.meshes:
+                    if entry.object:
+                        outlines.update(entry.object, root)
     finally:
         _REFRESHING = False
 
@@ -149,21 +154,35 @@ def restore(root):
     settings.managed = False
     settings.building = False
     asset_tracking.remove_render_data(settings.uid)
+    shaders.remove_controls(root)
 
 @persistent
 def update_scene(scene, depsgraph=None):
     scene_models.sync_active(scene)
     for obj in tuple(scene.objects):
         if current(obj):
+            refresh_character(obj, depsgraph, scene, appearance=False)
+
+
+@persistent
+def update_frame(scene, depsgraph=None):
+    # A material can be reused in a scene that does not contain its source rig.
+    for obj in bpy.data.objects:
+        if current(obj) and obj.hgt_character.managed:
+            shaders.set_controls(obj)
+    for obj in tuple(scene.objects):
+        if current(obj):
             refresh_character(obj, depsgraph, scene)
 
 def register():
     bpy.app.handlers.depsgraph_update_post.append(update_scene)
-    bpy.app.handlers.frame_change_post.append(update_scene)
-    bpy.app.handlers.render_pre.append(update_scene)
+    bpy.app.handlers.frame_change_post.append(update_frame)
+    bpy.app.handlers.render_pre.append(update_frame)
 
 def unregister():
     scene_models.reset_selection_cache()
-    for handlers in (bpy.app.handlers.depsgraph_update_post, bpy.app.handlers.frame_change_post, bpy.app.handlers.render_pre):
-        if update_scene in handlers:
-            handlers.remove(update_scene)
+    for handlers, callback in ((bpy.app.handlers.depsgraph_update_post, update_scene),
+                               (bpy.app.handlers.frame_change_post, update_frame),
+                               (bpy.app.handlers.render_pre, update_frame)):
+        if callback in handlers:
+            handlers.remove(callback)
