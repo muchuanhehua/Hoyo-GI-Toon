@@ -16,3 +16,5 @@ __pycache__/
 *.log
 !assets/
 !assets/*.blend
+!assets/faces/
+!assets/faces/*.png

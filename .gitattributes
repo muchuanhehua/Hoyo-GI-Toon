@@ -1,3 +1,5 @@
 * text=auto eol=lf
 *.zip binary
 *.blend binary
+# Keep the asset catalog identical to the frozen extension archive.
+assets/faces.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

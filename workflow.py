@@ -1,5 +1,6 @@
 """Import, materials and lighting are independent, reversible user actions."""
 import bpy
+from types import SimpleNamespace
 from mathutils import Vector
 from bpy.app.handlers import persistent
 from . import asset_tracking, importers, lighting, outlines, rendering, shaders, project_io, gaze, material_controls, scene_models
@@ -39,6 +40,7 @@ def apply_materials(root, context):
             outlines.upgrade(root)
             rendering.configure_material_render(context.scene)
             refresh_character(root, scene=context.scene)
+            rendering.preview_materials(context)
             return root
         settings.building = True
         context.view_layer.update()
@@ -46,7 +48,7 @@ def apply_materials(root, context):
         settings.height = max((p.z for p in points)) - min((p.z for p in points))
         if settings.height < 1e-05:
             raise ValueError('模型尺寸无效')
-        catalog = Catalog(settings.source_file, settings.face_resource_directory)
+        catalog = Catalog(settings.source_file, settings.face_resource_directory, settings.face_sdf_preset)
         library = shaders.ShaderLibrary(root)
         controls = lighting.build(root, root.users_collection[0], [settings.source_armature], library)
         # Set new assembly defaults here; RNA fallbacks stay stable for saved scenes.
@@ -89,9 +91,11 @@ def apply_materials(root, context):
         library.finish()
         rendering.configure_material_render(context.scene)
         settings.managed = True
+        settings.applied_sdf_preset = settings.face_sdf_preset
         settings.building = False
         project_io.stamp(root)
         refresh_character(root, scene=context.scene)
+        rendering.preview_materials(context)
         return root
     except Exception:
         if settings:
@@ -108,6 +112,89 @@ def apply_materials(root, context):
             settings.managed = settings.building = False
         transaction.rollback()
         raise
+
+def change_face_sdf(root, context):
+    """Rebuild only face surfaces; keep bindings, controls and source IDs intact."""
+    from .face_assets import skin_material
+    settings = root.hgt_character
+    previous = settings.applied_sdf_preset
+    originals = [(binding, binding.generated) for binding in settings.bindings
+                 if binding.source and skin_material(binding.source)]
+    changed, sockets, mesh_slots = [], [], []
+    before = asset_tracking.data_pointers()
+    settings.building = True
+    try:
+        rendering.check_idle()
+        if not originals:
+            raise ValueError('当前模型没有可绑定 SDF 的脸部皮肤材质')
+        catalog = Catalog(settings.source_file, settings.face_resource_directory, settings.face_sdf_preset)
+        library = shaders.ShaderLibrary(root, reuse_controls=True)
+        replacements = {}
+        for binding, original in originals:
+            assets = catalog.resolve(binding.source_name, binding.source)
+            generated, outline = library.build_material(assets)
+            draft = SimpleNamespace(id_data=root, generated=generated, outline=outline, role=binding.role)
+            material_controls.initialize(draft)
+            for name in ('tint', 'brightness', 'saturation', 'opacity', 'shadow_color', 'outline_color'):
+                value = getattr(binding, name)
+                setattr(draft, name, tuple(value) if name.endswith('color') or name == 'tint' else value)
+            material_controls.apply_binding(draft)
+            replacements[original] = generated
+        # Stage all replacements first, so a bad resource cannot partly change a character.
+        for snap in settings.slots:
+            if snap.generated in replacements:
+                changed.append((snap, snap.generated))
+                if snap.mesh and snap.index < len(snap.mesh.material_slots):
+                    slot = snap.mesh.material_slots[snap.index]
+                    if slot.material == snap.generated:
+                        slot.material = replacements[snap.generated]
+                snap.generated = replacements[snap.generated]
+        for entry in settings.meshes:
+            if not entry.object:
+                continue
+            if entry.render_data:
+                for index, material in enumerate(entry.render_data.materials):
+                    if material in replacements:
+                        mesh_slots.append((entry.render_data, index, material))
+                        entry.render_data.materials[index] = replacements[material]
+            for modifier in entry.object.modifiers:
+                tree = modifier.node_group if modifier.type == 'NODES' else None
+                if not tree or tree.get('hgt_owner') != settings.uid:
+                    continue
+                for node in tree.nodes:
+                    for socket in node.inputs:
+                        if socket.type == 'MATERIAL' and socket.default_value in replacements:
+                            sockets.append((socket, socket.default_value))
+                            socket.default_value = replacements[socket.default_value]
+        for binding, original in originals:
+            binding.generated = replacements[original]
+        settings.applied_sdf_preset = settings.face_sdf_preset
+        settings.preview_error = ''
+        library.finish()
+    except Exception as error:
+        for binding, original in originals:
+            binding.generated = original
+        for socket, original in sockets:
+            socket.default_value = original
+        for mesh, index, original in mesh_slots:
+            mesh.materials[index] = original
+        for snap, original in changed:
+            if snap.mesh and snap.index < len(snap.mesh.material_slots):
+                slot = snap.mesh.material_slots[snap.index]
+                if slot.material == snap.generated:
+                    slot.material = original
+            snap.generated = original
+        settings.face_sdf_preset = previous
+        settings.applied_sdf_preset = previous
+        settings.preview_error = str(error)
+        bpy.data.batch_remove(ids={item for values in asset_tracking.new_data(before).values() for item in values})
+        raise
+    finally:
+        settings.building = False
+    asset_tracking.remove_render_data(settings.uid)
+    shaders.set_controls(root)
+    rendering.preview_materials(context)
+
 
 def refresh_character(root, depsgraph=None, scene=None, appearance=True):
     global _REFRESHING

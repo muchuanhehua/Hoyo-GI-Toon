@@ -42,6 +42,8 @@ def load_image(path, data=False, owner=""):
         image.alpha_mode = "CHANNEL_PACKED"
         image["hgt_file"] = key
         image["hgt_owner"] = owner
+        if path.is_relative_to(Path(__file__).resolve().parent / 'assets/faces'):
+            image.pack()
     return image
 
 def neutral_packed(owner):
@@ -68,7 +70,7 @@ def set_input(modifier, name, value):
     input_value(modifier, name).value = value
 
 class ShaderLibrary:
-    def __init__(self, root):
+    def __init__(self, root, reuse_controls=False):
         self.root = root
         self.uid = root.hgt_character.uid
         with bpy.data.libraries.load(str(LIBRARY_PATH), link=False) as (source, target):
@@ -85,6 +87,19 @@ class ShaderLibrary:
             item.use_fake_user = False
             item.name = f"HGT • {root.name} • {item['hgt_upstream']}"
         settings = root.hgt_character
+        if reuse_controls:
+            existing = {'Global Material Properties': settings.global_properties,
+                        'Light Vectors': settings.light_vectors,
+                        'HoYoverse - Genshin Impact Outlines': settings.outline_graph}
+            replacements = {self.groups[key]: value for key, value in existing.items()}
+            if any(value is None for value in replacements.values()):
+                raise ValueError('角色材质控制已丢失，请恢复原材质后重新应用')
+            for tree in (*self.groups.values(), *(m.node_tree for m in self.materials.values())):
+                for node in tree.nodes:
+                    if node.type == 'GROUP' and node.node_tree in replacements:
+                        node.node_tree = replacements[node.node_tree]
+            self.groups.update(existing)
+            return
         settings.global_properties = self.groups["Global Material Properties"]
         settings.light_vectors = self.groups["Light Vectors"]
         settings.outline_graph = self.groups["HoYoverse - Genshin Impact Outlines"]
@@ -180,12 +195,14 @@ def set_controls(root):
             socket.default_value = settings.shadow_position
         return
     for scene in bpy.data.scenes:
+        changed = False
         for key, value in (('hgt_shadow_position', settings.shadow_position),
                            ('hgt_shadow_transition', settings.shadow_transition),
                            ('hgt_face_softness', settings.face_softness)):
             key = f'hgt_{settings.uid}_{key}'
             if abs(scene.get(key, -1) - value) > 1e-6:
                 scene[key] = value
+                changed = True
         source = settings.light_source
         energy = source.data.energy / settings.light_reference_energy if source else 1
         color = tuple(channel * energy for channel in source.data.color) if source else (1, 1, 1)
@@ -193,6 +210,12 @@ def set_controls(root):
         value = (*color, 1)
         if any(abs(a - b) > 1e-6 for a, b in zip(scene.get(key, (-1,) * 4), value)):
             scene[key] = value
+            changed = True
+        if changed:
+            # ID properties do not notify the VIEW_LAYER attribute uniforms.
+            scene.update_tag()
+            from .rendering import redraw_materials
+            redraw_materials(scene)
 
 
 def remove_controls(root):

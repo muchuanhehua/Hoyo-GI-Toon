@@ -75,9 +75,9 @@ def role_for(material):
 
 
 class Catalog:
-    def __init__(self, source='', face_directory=''):
+    def __init__(self, source='', face_directory='', face_preset='AUTO'):
         from .face_assets import FaceResources
-        self.face_resources=FaceResources(source, face_directory)
+        self.face_resources=FaceResources(source, face_directory, face_preset)
         self.alpha_min = {}
 
     def resolve(self, name, material):

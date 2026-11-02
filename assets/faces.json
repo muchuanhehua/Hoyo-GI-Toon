@@ -1,0 +1,533 @@
+{
+  "schema_version": 1,
+  "source": "HoYoverse / Genshin Impact",
+  "presets": [
+    {
+      "id": "LEGACY_BOY",
+      "name": "少年 · FaceLightmap",
+      "encoding": "genshin_face_lightmap_alpha",
+      "property": "_FaceMapTex",
+      "textures": {
+        "face_sdf": "faces/Avatar_Boy_Tex_FaceLightmap-9ccfc2afa92e.png",
+        "face_mask": "faces/Avatar_Tex_Face_Shadow-5c1756318175.png"
+      },
+      "sha256": {
+        "face_sdf": "9ccfc2afa92e7a3ad1810b8e93280d5b14d3ae1d3ea2b0ea4661ccb5b7a7de6a",
+        "face_mask": "5c1756318175dafd8fcd6b459be3f0d27dc2dd5959f5c09108e82ec49e5d882e"
+      },
+      "settings": {
+        "face_sdf": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        },
+        "face_mask": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        }
+      },
+      "source_materials": [
+        "Avatar_Boy_Sword_PlayerBoy_Mat_Face.json",
+        "Avatar_Girl_Bow_Yoimiya_Mat_Face.json",
+        "Avatar_Girl_Pole_Yunjin_Mat_Face.json"
+      ]
+    },
+    {
+      "id": "LEGACY_BOY01",
+      "name": "少年 01 · FaceLightmap",
+      "encoding": "genshin_face_lightmap_alpha",
+      "property": "_FaceMapTex",
+      "textures": {
+        "face_sdf": "faces/Avatar_Boy01_Tex_FaceLightmap-44fd079baba2.png",
+        "face_mask": "faces/Avatar_Tex_Face01_Shadow-599506e91234.png"
+      },
+      "sha256": {
+        "face_sdf": "44fd079baba247211576ad7bb54ca4190f6972c840500d3c5df125f18f521c1f",
+        "face_mask": "599506e91234e2968f7ef7f4ff81bb0bbc15b47f631fed0bdf9ec12c9a1f6449"
+      },
+      "settings": {
+        "face_sdf": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        },
+        "face_mask": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        }
+      },
+      "source_materials": [
+        "Avatar_Boy_Sword_PlayerBoyCostumeCWXR_Mat_Face.json"
+      ]
+    },
+    {
+      "id": "LEGACY_GIRL",
+      "name": "少女 · FaceLightmap",
+      "encoding": "genshin_face_lightmap_alpha",
+      "property": "_FaceMapTex",
+      "textures": {
+        "face_sdf": "faces/Avatar_Girl_Tex_FaceLightmap-236dab958cf6.png",
+        "face_mask": "faces/Avatar_Tex_Face_Shadow-5c1756318175.png"
+      },
+      "sha256": {
+        "face_sdf": "236dab958cf60e35601697b3217314da389822f651ac570585be4de4709a8478",
+        "face_mask": "5c1756318175dafd8fcd6b459be3f0d27dc2dd5959f5c09108e82ec49e5d882e"
+      },
+      "settings": {
+        "face_sdf": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        },
+        "face_mask": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        }
+      },
+      "source_materials": [
+        "Avatar_Girl_Sword_PlayerGirl_Mat_Face.json",
+        "Avatar_Girl_Bow_AmborCostumeWic_Mat_Face.json",
+        "Avatar_Girl_Bow_Ambor_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Barbara_Mat_Face.json",
+        "Avatar_Girl_Sword_KeqingCostumeFeather_Mat_Face.json",
+        "Avatar_Girl_Sword_Keqing_Mat_Face.json",
+        "Avatar_Girl_Claymore_Xinyan_Mat_Face.json",
+        "Avatar_Girl_Bow_GanyuCostumeYu_Mat_Face.json",
+        "Avatar_Girl_Bow_Ganyu_Mat_Face.json",
+        "Avatar_Girl_Pole_HutaoCostumeWinter_Mat_Face.json",
+        "Avatar_Girl_Pole_Hutao_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Feiyan_Mat_Face.json",
+        "Avatar_Girl_Sword_AyakaCostumeFruhling_Mat_Face.json",
+        "Avatar_Girl_Sword_Ayaka_Mat_Face.json",
+        "Avatar_Girl_Bow_Aloy_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Kokomi_Mat_Face.json",
+        "Avatar_Girl_Catalyst_BarbaraCostumeSummertime_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Barbara_Mat_Face.json",
+        "Avatar_Girl_Sword_Shinobu_Mat_Face.json",
+        "Avatar_Girl_Bow_Collei_Mat_Face.json",
+        "Avatar_Girl_Sword_NilouCostumeFairy_Mat_Face.json",
+        "Avatar_Girl_Sword_Nilou_Mat_Face.json",
+        "Avatar_Girl_Sword_Layla_Mat_Face.json",
+        "Avatar_Girl_Pole_XianglingCostumeWinter_Mat_Face.json",
+        "Avatar_Girl_Pole_Xiangling_Mat_Face.json",
+        "Avatar_Girl_Bow_Faruzan_Mat_Face.json",
+        "Avatar_Girl_Sword_MomokaCostumeErrantry_Mat_Face.json",
+        "Avatar_Girl_Sword_Momoka_Mat_Face.json",
+        "Avatar_Girl_Sword_Linette_Mat_Face.json",
+        "Avatar_Girl_Sword_Furina_Mat_Face.json",
+        "Avatar_Girl_Catalyst_CharlotteCostumeDong_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Charlotte_Mat_Face.json",
+        "Avatar_Girl_Pole_Chevreuse_Mat_Face.json",
+        "Avatar_Girl_Sword_Chiori_Mat_Face.json",
+        "Avatar_Girl_Pole_Emilie_Mat_Face.json",
+        "Avatar_Girl_Bow_FischlCostumeHighness_Mat_Face.json",
+        "Avatar_Girl_Bow_Fischl_Mat_Face.json",
+        "Avatar_Girl_Claymore_Noel_Mat_Face.json"
+      ]
+    },
+    {
+      "id": "LEGACY_GIRL01",
+      "name": "少女 01 · FaceLightmap",
+      "encoding": "genshin_face_lightmap_alpha",
+      "property": "_FaceMapTex",
+      "textures": {
+        "face_sdf": "faces/Avatar_Girl01_Tex_FaceLightmap-bbf751d27d04.png",
+        "face_mask": "faces/Avatar_Tex_Face01_Shadow-599506e91234.png"
+      },
+      "sha256": {
+        "face_sdf": "bbf751d27d04ff58166fdbaaa92b8b44889cdb8d90f0ca680bee12dc313e9ac4",
+        "face_mask": "599506e91234e2968f7ef7f4ff81bb0bbc15b47f631fed0bdf9ec12c9a1f6449"
+      },
+      "settings": {
+        "face_sdf": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        },
+        "face_mask": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        }
+      },
+      "source_materials": [
+        "Avatar_Girl_Sword_PlayerGirlCostumeCWXR_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Mualani_Mat_Face.json",
+        "Avatar_Girl_Catalyst_CitlaliCostumeXia_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Citlali_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Lanyan_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Mizuki_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Varesa_Mat_Face.json",
+        "Avatar_Girl_Pole_Escoffier_Mat_Face.json",
+        "Avatar_Girl_Sword_SkirkNew_Mat_Face.json",
+        "Avatar_Girl_Pole_Ineffa_Mat_Face.json",
+        "Avatar_Girl_Bow_Jahoda_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Columbina_Mat_Face.json",
+        "Avatar_Girl_Bow_Linnea_Mat_Face.json"
+      ]
+    },
+    {
+      "id": "LEGACY_LADY",
+      "name": "成女 · FaceLightmap",
+      "encoding": "genshin_face_lightmap_alpha",
+      "property": "_FaceMapTex",
+      "textures": {
+        "face_sdf": "faces/Avatar_Lady_Tex_FaceLightmap-b894021d8e75.png",
+        "face_mask": "faces/Avatar_Tex_Face_Shadow-5c1756318175.png"
+      },
+      "sha256": {
+        "face_sdf": "b894021d8e75e9a46e868134bcc7258b856f8ec26643b1b18e1ab0d332f87eba",
+        "face_mask": "5c1756318175dafd8fcd6b459be3f0d27dc2dd5959f5c09108e82ec49e5d882e"
+      },
+      "settings": {
+        "face_sdf": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        },
+        "face_mask": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        }
+      },
+      "source_materials": [
+        "Avatar_Lady_Sword_QinCostumeWic_Mat_Face.json",
+        "Avatar_Lady_Sword_QinCostumeSea_Mat_Face.json",
+        "Avatar_Lady_Sword_Qin_Mat_Face.json",
+        "Avatar_Girl_Catalyst_MonaCostumeWic_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Mona_Mat_Face.json",
+        "Avatar_Lady_Pole_RosariaCostumeWic_Mat_Face.json",
+        "Avatar_Lady_Pole_Rosaria_Mat_Face.json",
+        "Avatar_Lady_Catalyst_LisaCostumeStudentin_Mat_Face.json",
+        "Avatar_Lady_Catalyst_Lisa_Mat_Face.json",
+        "Avatar_Lady_Claymore_Eula_Mat_Face.json",
+        "Avatar_Lady_Pole_Shougun_Mat_Face.json",
+        "Avatar_Lady_Bow_Sara_Mat_Face.json",
+        "Avatar_Lady_Pole_ShenheCostumeDai_Mat_Face.json",
+        "Avatar_Lady_Pole_Shenhe_Mat_Face.json",
+        "Avatar_Lady_Catalyst_Yae_Mat_Face.json",
+        "Avatar_Lady_Bow_YelanCostumeSummer_Mat_Face.json",
+        "Avatar_Lady_Bow_Yelan_Mat_Face.json",
+        "Avatar_Lady_Pole_Candace_Mat_Face.json",
+        "Avatar_Lady_Claymore_Dehya_Mat_Face.json",
+        "Avatar_Lady_Claymore_Navia_Mat_Face.json",
+        "Avatar_Lady_Catalyst_Liuyun_Mat_Face.json",
+        "Avatar_Lady_Claymore_Beidou_Mat_Face.json",
+        "Avatar_Lady_Pole_Arlecchino_Mat_Face.json",
+        "Avatar_Lady_Sword_Clorinde_Mat_Face.json",
+        "Avatar_Lady_Catalyst_NingguangCostumeFloral_Mat_Face.json",
+        "Avatar_Lady_Catalyst_Ningguang_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Sucrose_Mat_Face.json"
+      ]
+    },
+    {
+      "id": "LEGACY_LADY01",
+      "name": "成女 01 · FaceLightmap",
+      "encoding": "genshin_face_lightmap_alpha",
+      "property": "_FaceMapTex",
+      "textures": {
+        "face_sdf": "faces/Avatar_Lady01_Tex_FaceLightmap-11411ed3cf36.png",
+        "face_mask": "faces/Avatar_Tex_Face01_Shadow-599506e91234.png"
+      },
+      "sha256": {
+        "face_sdf": "11411ed3cf362dba4c897c83e6dea752f9b22315604cfffcbf412413d24e25be",
+        "face_mask": "599506e91234e2968f7ef7f4ff81bb0bbc15b47f631fed0bdf9ec12c9a1f6449"
+      },
+      "settings": {
+        "face_sdf": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        },
+        "face_mask": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        }
+      },
+      "source_materials": [
+        "Avatar_Lady_Sword_Xilonen_Mat_Face.json",
+        "Avatar_Lady_Bow_Chasca_Mat_Face.json",
+        "Avatar_Lady_Claymore_Mavuika_Mat_Face.json",
+        "Avatar_Lady_Catalyst_Lauma_Mat_Face.json",
+        "Avatar_Lady_Catalyst_Nefer_Mat_Face.json",
+        "Avatar_Lady_Sword_Zibai_Mat_Face.json",
+        "Avatar_Lady_Catalyst_Nicole_Mat_Face.json"
+      ]
+    },
+    {
+      "id": "LEGACY_LOLI",
+      "name": "幼女 · FaceLightmap",
+      "encoding": "genshin_face_lightmap_alpha",
+      "property": "_FaceMapTex",
+      "textures": {
+        "face_sdf": "faces/Avatar_Loli_Tex_FaceLightmap-29cd27de16f3.png",
+        "face_mask": "faces/Avatar_Tex_Face_Shadow-5c1756318175.png"
+      },
+      "sha256": {
+        "face_sdf": "29cd27de16f3e4fcdce601abe57e817292907ea707d50633f69123e34ecfc4c4",
+        "face_mask": "5c1756318175dafd8fcd6b459be3f0d27dc2dd5959f5c09108e82ec49e5d882e"
+      },
+      "settings": {
+        "face_sdf": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        },
+        "face_mask": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        }
+      },
+      "source_materials": [
+        "Avatar_Loli_Catalyst_Klee_Mat_Face.json",
+        "Avatar_Loli_Sword_Qiqi_Mat_Face.json",
+        "Avatar_Loli_Catalyst_KleeCostumeWitch_Mat_Face.json",
+        "Avatar_Loli_Catalyst_Klee_Mat_Face.json",
+        "Avatar_Loli_Bow_Diona_Mat_Face.json",
+        "Avatar_Loli_Catalyst_Klee_Mat_Face.json",
+        "Avatar_Loli_Claymore_Sayu_Mat_Face.json",
+        "Avatar_Loli_Claymore_Dori_Mat_Face.json",
+        "Avatar_Loli_Catalyst_Nahida_Mat_Face.json",
+        "Avatar_Loli_Pole_YaoyaoCostumeWinter_Mat_Face.json",
+        "Avatar_Loli_Pole_Yaoyao_Mat_Face.json",
+        "Avatar_Loli_Bow_Sigewinne_Mat_Face.json"
+      ]
+    },
+    {
+      "id": "LEGACY_LOLI01",
+      "name": "幼女 01 · FaceLightmap",
+      "encoding": "genshin_face_lightmap_alpha",
+      "property": "_FaceMapTex",
+      "textures": {
+        "face_sdf": "faces/Avatar_Loli01_Tex_FaceLightmap-1c922484f206.png",
+        "face_mask": "faces/Avatar_Tex_Face01_Shadow-599506e91234.png"
+      },
+      "sha256": {
+        "face_sdf": "1c922484f206ce2e8e78a59c43ba7f88e8a48945ce1a431dfdd88095a2a495f9",
+        "face_mask": "599506e91234e2968f7ef7f4ff81bb0bbc15b47f631fed0bdf9ec12c9a1f6449"
+      },
+      "settings": {
+        "face_sdf": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        },
+        "face_mask": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        }
+      },
+      "source_materials": [
+        "Avatar_Loli_Pole_Kachina_Mat_Face.json",
+        "Avatar_Loli_Pole_Iansan_Mat_Face.json",
+        "Avatar_Loli_Claymore_Aino_Mat_Face.json",
+        "Avatar_Loli_Catalyst_Prune_Mat_Face.json"
+      ]
+    },
+    {
+      "id": "SDF_GIRL_7F0B40B9_599506E9",
+      "name": "少女 · FaceSDF B / 遮罩 01",
+      "encoding": "genshin_face_sdf_rgba",
+      "property": "_FaceSdfMap",
+      "textures": {
+        "face_sdf": "faces/Avatar_Girl_Tex_FaceSDF-7f0b40b93f56.png",
+        "face_mask": "faces/Avatar_Tex_Face01_Shadow-599506e91234.png"
+      },
+      "sha256": {
+        "face_sdf": "7f0b40b93f56dc3e5ecfe353befef2cffe1ee778c211c1e3c6a039cc61936e94",
+        "face_mask": "599506e91234e2968f7ef7f4ff81bb0bbc15b47f631fed0bdf9ec12c9a1f6449"
+      },
+      "settings": {
+        "face_sdf": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        },
+        "face_mask": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        }
+      },
+      "source_materials": [
+        "Avatar_Girl_Sword_Vesna_Mat_Face.json",
+        "Avatar_Girl_Catalyst_Vodyanitsa_Mat_Face.json"
+      ]
+    },
+    {
+      "id": "SDF_GIRL_7F0B40B9_D625173C",
+      "name": "少女 · FaceSDF B / 遮罩 02",
+      "encoding": "genshin_face_sdf_rgba",
+      "property": "_FaceSdfMap",
+      "textures": {
+        "face_sdf": "faces/Avatar_Girl_Tex_FaceSDF-7f0b40b93f56.png",
+        "face_mask": "faces/Avatar_Tex_Face02_Shadow-d625173c8a08.png"
+      },
+      "sha256": {
+        "face_sdf": "7f0b40b93f56dc3e5ecfe353befef2cffe1ee778c211c1e3c6a039cc61936e94",
+        "face_mask": "d625173c8a086e0d624fcdab08d8054b79d95e979529025c62ef58f859ebe7ac"
+      },
+      "settings": {
+        "face_sdf": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        },
+        "face_mask": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        }
+      },
+      "source_materials": [
+        "Avatar_Girl_Sword_Odette_Mat_Face.json"
+      ]
+    },
+    {
+      "id": "SDF_GIRL_C622A8AE_599506E9",
+      "name": "少女 · FaceSDF A / 遮罩 01",
+      "encoding": "genshin_face_sdf_rgba",
+      "property": "_FaceSdfMap",
+      "textures": {
+        "face_sdf": "faces/Avatar_Girl_Tex_FaceSDF-c622a8ae45e6.png",
+        "face_mask": "faces/Avatar_Tex_Face01_Shadow-599506e91234.png"
+      },
+      "sha256": {
+        "face_sdf": "c622a8ae45e671b8dbb4e4085b424599777b69ee552d560f23f55889029b2604",
+        "face_mask": "599506e91234e2968f7ef7f4ff81bb0bbc15b47f631fed0bdf9ec12c9a1f6449"
+      },
+      "settings": {
+        "face_sdf": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        },
+        "face_mask": {
+          "m_Scale": {
+            "X": 1.0,
+            "Y": 1.0
+          },
+          "m_Offset": {
+            "X": 0.0,
+            "Y": 0.0
+          }
+        }
+      },
+      "source_materials": [
+        "Avatar_Girl_Claymore_MarionetteNew_Mat_Face.json"
+      ]
+    }
+  ]
+}

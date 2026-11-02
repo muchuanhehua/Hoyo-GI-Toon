@@ -1,0 +1,18 @@
+{
+  "version": "2.5.0",
+  "archive": "hoyo_gi_toon-2.5.0.zip",
+  "sha256": "69f5c77870aacb21687c8d62469e1e7bb86135b821c7a18c4273f2132b0bcece",
+  "bytes": 6272311,
+  "payload_files": 54,
+  "published": false,
+  "installed": false,
+  "source_and_actual_zip_verified": true,
+  "sdf_presets": 11,
+  "sdf_images": 13,
+  "three_models": true,
+  "cross_character_four_view_cases": 13,
+  "cross_character_max_source_image_error": 0.0,
+  "source_data_and_mmd_preserved": true,
+  "city_terrace_asset_and_catalog_exact_v230": true,
+  "next": "Publish immutable verified archive, verify public downloads, update owned extension only"
+}

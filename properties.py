@@ -2,6 +2,7 @@
 import bpy
 from bpy.props import BoolProperty, CollectionProperty, EnumProperty, FloatProperty, FloatVectorProperty, IntProperty, PointerProperty, StringProperty
 from bpy.types import PropertyGroup
+from .face_catalog import ITEMS as SDF_ITEMS
 
 def update_appearance(self, context):
     root = self.id_data
@@ -21,6 +22,8 @@ def update_uniforms(self, context):
     if self.managed and not self.building:
         from .shaders import set_controls
         set_controls(self.id_data)
+        from .rendering import preview_materials
+        preview_materials(context)
 
 
 def update_outline(self, context):
@@ -29,12 +32,25 @@ def update_outline(self, context):
         for entry in self.meshes:
             if entry.object:
                 update(entry.object, self.id_data)
+        from .rendering import preview_materials
+        preview_materials(context)
 
 
 def update_material(self, context):
     if not self.id_data.hgt_character.building:
         from .material_controls import apply_binding
         apply_binding(self)
+        from .rendering import preview_materials
+        if context.scene:
+            preview_materials(context)
+
+
+def update_sdf(self, context):
+    if self.building:
+        return
+    if self.managed:
+        from .workflow import change_face_sdf
+        change_face_sdf(self.id_data, context)
 
 
 def update_lighting(self, context):
@@ -121,6 +137,9 @@ class HGTCharacterSettings(PropertyGroup):
     uid: StringProperty()
     source_file: StringProperty(subtype='FILE_PATH')
     face_resource_directory: StringProperty(subtype='DIR_PATH')
+    face_sdf_preset: EnumProperty(name='脸部 SDF', items=SDF_ITEMS, default='AUTO', update=update_sdf)
+    applied_sdf_preset: StringProperty(default='AUTO')
+    preview_error: StringProperty(options={'SKIP_SAVE'})
     source_format: StringProperty(default='pmx')
     source_digest: StringProperty()
     resource_digests: StringProperty(default='{}')
@@ -145,7 +164,7 @@ class HGTCharacterSettings(PropertyGroup):
     shadow_position: FloatProperty(name='阴影位置', default=0.55, min=0, max=1, update=update_uniforms)
     shadow_transition: FloatProperty(name='明暗过渡', default=0.035, min=0.001, max=0.5, update=update_uniforms)
     face_softness: FloatProperty(name='脸部阴影软硬', default=0.02, min=0.001, max=0.2, update=update_uniforms)
-    outline: FloatProperty(name='描边粗细', default=0.25, min=0, max=1, update=update_outline)
+    outline: FloatProperty(name='描边粗细', default=0.25, min=0, soft_max=5, update=update_outline)
     outline_lower: FloatProperty(name='下部描边比例', description='脚部相对头部的线宽；1 为均匀，越小越上粗下细', default=0.35, min=0, max=1, update=update_outline)
     initial_shadow: FloatProperty(default=0.55)
     initial_face_softness: FloatProperty(default=0.02)
@@ -154,12 +173,17 @@ class HGTCharacterSettings(PropertyGroup):
     look_camera: BoolProperty(default=False)
 
 def model_poll(self, obj):
-    from .scene_models import source_root
-    return source_root(obj) is not None and obj.name in self.objects
+    from .scene_models import model_root
+    return model_root(obj) and obj.name in self.objects
 
 
 def update_model(self, context):
     from . import scene_models
+    obj = self.hgt_model
+    root = scene_models.source_root(obj)
+    if obj and (obj != root or not scene_models.model_root(obj)):
+        self.hgt_model = root if scene_models.model_root(root) and root.name in self.objects else None
+        return
     scene_models.remember_active(context)
     self.hgt_target = scene_models.tracked(self.hgt_model, self) if self.hgt_model else None
 

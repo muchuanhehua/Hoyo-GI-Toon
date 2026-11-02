@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 from uuid import uuid4
 import bpy
-from mathutils import Matrix, Vector
 from . import asset_tracking, rendering
 
 ASSETS = Path(__file__).resolve().parent / 'assets'
@@ -74,39 +73,6 @@ def _mute_default_light(scene):
         light.hide_render = light.hide_viewport = True
 
 
-def _fit_model(context, collection):
-    from . import scene_models
-    source = scene_models.selected(context)
-    objects = scene_models.meshes(source)
-    if not objects:
-        return
-    tracked = scene_models.tracked(source, context.scene)
-    original = {entry.object: entry.original_data for entry in tracked.hgt_character.meshes
-                if entry.object and entry.original_data} if tracked else {}
-    # A rendered bound box includes the outline shell; fit to the source body.
-    points = [obj.matrix_world @ coordinate for obj in objects
-              for coordinate in ([v.co for v in original[obj].vertices] if obj in original
-                                 else [Vector(corner) for corner in obj.bound_box])]
-    low = Vector(tuple(min(p[i] for p in points) for i in range(3)))
-    high = Vector(tuple(max(p[i] for p in points) for i in range(3)))
-    height = high.z - low.z
-    if height < 1e-5:
-        raise ValueError('模型高度无效，无法匹配城市露台尺寸')
-    scale = height / collection['hgt_nominal_height']
-    anchor = Vector(((low.x + high.x) * .5, (low.y + high.y) * .5, low.z))
-    transform = Matrix.Translation(anchor) @ Matrix.Scale(scale, 4)
-    members = set(collection.all_objects)
-    for obj in members:
-        if obj.parent not in members:
-            obj.matrix_world = transform @ obj.matrix_world
-        if obj.type == 'CAMERA':
-            obj.data.ortho_scale *= scale
-        elif obj.type == 'LIGHT' and obj.data.type == 'AREA':
-            obj.data.energy *= scale * scale
-            obj.data.size *= scale
-    collection['hgt_model_scale'] = scale
-
-
 def load(context, preset_id):
     rendering.check_idle()
     if context.mode != 'OBJECT':
@@ -118,7 +84,8 @@ def load(context, preset_id):
     if not path.is_file():
         raise ValueError('缺少场景资产：' + preset['name'])
     scene, state = context.scene, context.scene.hgt_scene
-    if state.collection and state.preset == preset_id and state.collection in scene.collection.children_recursive:
+    if (state.collection and state.preset == preset_id and state.collection in scene.collection.children_recursive
+            and state.collection.get('hgt_city_layout') == preset.get('layout')):
         return state.collection
     before = asset_tracking.data_pointers()
     previous = {name: getattr(state, name) for name in state.bl_rna.properties.keys() if name != 'rna_type'}
@@ -147,9 +114,6 @@ def load(context, preset_id):
             state.previous_world, state.previous_camera, state.previous_light = pointers
         _mute_default_light(scene)
         scene.collection.children.link(collection)
-        if preset.get('fit_model'):
-            context.view_layer.update()
-            _fit_model(context, collection)
         scene.world, scene.camera, scene.hgt_light = world, camera, light
         state.collection, state.uid, state.preset = collection, uid, preset_id
         state.world, state.camera, state.light = world, camera, light

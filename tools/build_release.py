@@ -4,12 +4,19 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 PAYLOAD={"__init__.py","asset_tracking.py","importers.py","mmd_importer.py","material_assets.py",
          "material_controls.py","pmx_materials.py","node_graph.py","sampling.py","shaders.py","lighting.py",
-         "face_assets.py","face_sdf.py","head_binding.py","scene_presets.py",
+         "face_assets.py","face_catalog.py","face_sdf.py","head_binding.py","scene_presets.py",
          "outlines.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
          "assets/original_shader.blend","assets/original_controls.blend","assets/upstream.json",
          "assets/scenes.json","assets/scene_city_terrace.blend","assets/scene_stage.blend",
          "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE",
          "docs/upstream-baseline.md","docs/basic-rendering.md","docs/pmx-rendering.md","docs/workflow.md","docs/scene-presets.md"}
+PAYLOAD.add('assets/faces.json')
+FACE_PRESETS=json.loads((ROOT/'assets/faces.json').read_text('utf-8'))['presets']
+for preset in FACE_PRESETS:
+    for role,name in preset['textures'].items():
+        assert Path(name).parent==Path('faces') and Path(name).suffix=='.png','Invalid face asset path'
+        assert hashlib.sha256((ROOT/'assets'/name).read_bytes()).hexdigest()==preset['sha256'][role]
+        PAYLOAD.add('assets/'+name)
 
 def sha(data):return hashlib.sha256(data).hexdigest()
 def runtime_hashes():return {name:sha((ROOT/name).read_bytes()) for name in PAYLOAD if name.endswith('.py')}
@@ -86,7 +93,7 @@ def validate_scene_evidence(evidence,interface,hashes,package_sha256=None):
               'two_scenes_isolated_and_shared_light_preserved','manual_collection_deletion_can_restore',
               'invalid_asset_failure_rollback','user_added_and_reused_data_preserved',
               'existing_pmx_source_and_mmd_metadata_unchanged','packed_scene_save_reopen_and_restore',
-              'original_files_unchanged','register_unregister')
+              'original_files_unchanged','register_unregister','existing_half_ring_replaced_on_explicit_load')
     assert all(evidence['checks'].get(key) is True for key in required)
     assert set(evidence['presets'])=={'CITY_TERRACE','STAGE'}
     assert all(interface['checks'].get(key) is True for key in
@@ -104,7 +111,7 @@ def validate_usability_evidence(evidence,interface,hashes):
                    ('brightness','saturation','opacity','shadow_transition','outline_taper','outline','outline_color',
                     'light_energy','light_color'))
     assert all(evidence['checks'].get(key) is True for key in
-               ('parameters_save_reopen_exact','compact_half_ring_city_and_model_fit','original_scene_files_unchanged',
+               ('parameters_save_reopen_exact','city_terrace_v230_restored','original_scene_files_unchanged',
                 'sidebar_and_display_controls','multi_character_uniform_isolation','reused_material_survives_restore'))
     assert all(interface['checks'].get(key) is True for key in
                ('display_controls_undo','light_presets_undo','realtime_viewport_shadow_response'))
@@ -127,6 +134,28 @@ def validate_outline_evidence(evidence,hashes,package_sha256=None):
 
 
 def validate_cross_character_evidence(evidence,hashes,package_sha256=None):
+    if evidence['scope']=='CROSS-CHARACTER-OUTLINE-PACKAGE':
+        # 2.5 changes selection/UI and the numeric limit, not the generic
+        # surface algorithm. Recheck all 13 regression/control fixtures now;
+        # do not relabel 2.4.2's 204-file/87-model audit as a new execution.
+        assert evidence['complete'] and evidence['source_sha256']==hashes
+        with zipfile.ZipFile(ROOT/'release/hoyo_gi_toon-2.4.2.zip') as baseline:
+            assert baseline.read('outlines.py')==(ROOT/'outlines.py').read_bytes()
+            old=ast.parse(baseline.read('pmx_materials.py'))
+            new=ast.parse((ROOT/'pmx_materials.py').read_text('utf-8'))
+            for name in ('is_inner_surface','visible_source_edge'):
+                select=lambda tree:ast.dump(next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==name))
+                assert select(old)==select(new)
+        assert len(evidence['models'])>=13
+        for model in evidence['models']:
+            assert model['source_data_preserved'] and model['migration_parameters_and_profile_preserved'] and model['save_reopen_exact']
+            assert model['source_image_max_error']<=1/255+1e-6
+            assert set(model['views'])=={'front','back','left','right'}
+            for view in model['views'].values():
+                assert set(view)=={'default','wide'}
+                assert all(row['largest_core_region']<20 and row['core_fraction']<.002 for row in view.values())
+        if package_sha256 is not None:assert evidence['package_sha256']==package_sha256
+        return
     assert evidence['scope']=='CROSS-CHARACTER-OUTLINE-COMPARISON' and evidence['complete']
     assert evidence['source_sha256']==hashes,'Cross-character evidence does not match runtime'
     assert evidence['inventory_pmx_files']>=204 and evidence['available_characters']>=81
@@ -149,6 +178,24 @@ def validate_cross_character_evidence(evidence,hashes,package_sha256=None):
             assert all(set(view)=={'default','wide'} for view in model['views'].values())
 
 
+def validate_panel_update(evidence,interface,hashes,package_sha256=None):
+    assert evidence['scope']=='GI-TOON-PANELS-SDF' and evidence['complete']
+    assert evidence['source_sha256']==hashes
+    assets={str(p.relative_to(ROOT)).replace('\\','/'):sha(p.read_bytes()) for p in (ROOT/'assets/faces').glob('*.png')}
+    assert evidence['asset_sha256']==assets and evidence['catalog_sha256']==sha((ROOT/'assets/faces.json').read_bytes())
+    assert len(evidence['models'])>=3
+    for model in evidence['models']:
+        assert model['auto_manual_max_error']<=1/255+1e-6 and model['outline_above_one_response']>.02
+        assert all(model[key] is True for key in ('source_and_mmd_preserved','only_face_rebuilt','controls_and_profiles_preserved',
+                                                'all_choices_without_external_fbx','repeat_no_resource_growth','save_reopen_exact'))
+        assert len(model['choices'])==2*(len(FACE_PRESETS)+1)
+    assert evidence['checks']['sdf_failure_atomic_and_visible'] and evidence['checks']['user_reused_face_material_preserved']
+    assert all(interface['checks'].get(key) is True for key in ('six_independent_panels','scene_light_default_closed',
+        'complete_models_only','automatic_material_preview','bundled_sdf_undo_redo','face_softness_undo_redo',
+        'realtime_viewport_shadow_response','realtime_viewport_local_response'))
+    if package_sha256 is not None:assert evidence['package_sha256']==package_sha256
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('action',choices=('review','candidate','release'))
@@ -160,6 +207,7 @@ def main():
     parser.add_argument('--outline-verification',type=Path)
     parser.add_argument('--cross-character-verification',type=Path)
     parser.add_argument('--sdf-interface-verification',type=Path)
+    parser.add_argument('--panel-verification',type=Path)
     parser.add_argument('--scene-verification',type=Path,required=True)
     parser.add_argument('--scene-interface-verification',type=Path,required=True)
     args=parser.parse_args()
@@ -173,6 +221,9 @@ def main():
     evidence=json.loads(args.verification.read_text(encoding='utf-8'))
     interface=json.loads(args.interface_verification.read_text(encoding='utf-8'))
     hashes=validate_evidence(evidence,interface,integration=args.action=='release')
+    assert args.panel_verification,'Current panel and bundled-SDF verification is required'
+    panel_update=json.loads(args.panel_verification.read_text('utf-8'))
+    validate_panel_update(panel_update,interface,hashes,evidence.get('package_sha256') if args.action=='release' else None)
     outline=None
     if tuple(info['version'])>=(2,4,1):
         assert args.outline_verification,'Inner-shell colour and exterior silhouette evidence is required'
@@ -201,9 +252,9 @@ def main():
     if args.action=='release':
         assert args.sdf_interface_verification,'Actual ZIP SDF interface verification is required'
         sdf_ui=json.loads(args.sdf_interface_verification.read_text(encoding='utf-8'))
-        assert sdf_ui['scope']=='P04-F06-UI' and not sdf_ui.get('error')
+        assert sdf_ui['scope']=='PMX-M09-M12-UI' and not sdf_ui.get('error')
         assert sdf_ui['source_sha256']==hashes and sdf_ui['package_sha256']==evidence['package_sha256']
-        assert all(sdf_ui['checks'].get(key) is True for key in ('face_resource_directory_undo_redo','face_softness_undo_redo'))
+        assert all(sdf_ui['checks'].get(key) is True for key in ('bundled_sdf_undo_redo','face_softness_undo_redo'))
     directory=ROOT/'.build/candidate';directory.mkdir(parents=True,exist_ok=True)
     name=f"{manifest['id']}-{manifest['version']}.zip";candidate=directory/name
     if args.action in {'review','candidate'}:
@@ -243,6 +294,7 @@ def main():
              'usability_checks':usability['checks'] if usability else {},
              'outline_surface_models':outline['models'] if outline else [],
              'cross_character_outlines':cross,
+             'panel_and_bundled_sdf':panel_update,
              'new_full_game_algorithm_recovered':sdf['full_new_game_shader_recovered']}
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('HGT_RELEASE',record['version'],record['sha256'])

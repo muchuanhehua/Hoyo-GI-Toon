@@ -5,6 +5,11 @@ import bpy
 _ACTIVE = {}
 
 
+def model_root(obj):
+    return bool(obj and getattr(obj, 'mmd_type', '') == 'ROOT' and source_root(obj) == obj
+                and armature(obj) and meshes(obj))
+
+
 def source_root(obj):
     if obj is None:
         return None
@@ -129,6 +134,7 @@ def ensure(source, context, filepath=''):
     settings.source_format = 'pmx'
     settings.source_file = filepath
     settings.source_root, settings.source_armature = model, rig
+    settings.face_sdf_preset = model.hgt_character.face_sdf_preset
     root['hgt_owner'] = collection['hgt_owner'] = settings.uid
     root.hide_set(True)
     for mesh in meshes:

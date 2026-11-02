@@ -40,11 +40,6 @@ for preset in catalog['presets']:
     root['hgt_scene_camera'] = scene.camera
     root['hgt_scene_light'] = scene.objects[preset['key_light']]
     root['hgt_scene_world'] = scene.world
-    if preset.get('layout') == 'compact-half-ring-v1':
-        sys.path.insert(0, str(Path(__file__).resolve().parent))
-        from city_terrace_layout import reshape
-        reshape(root)
-        bpy.context.view_layer.update()
     for image in bpy.data.images:
         if image.source == 'FILE':
             assert image.packed_file or image.packed_files, 'Unpacked scene texture: ' + image.name

@@ -178,14 +178,15 @@ report['checks']['parameters_save_reopen_exact'] = True
 module = addon.panels.scene_presets
 source_hashes = {preset['source']: file_hash(project.parent / preset['source']) for preset in module.PRESETS.values()}
 collection = module.load(bpy.context, 'CITY_TERRACE')
-assert collection['hgt_city_layout'] == 'compact-half-ring-v1'
-assert abs(collection['hgt_model_scale'] - root.hgt_character.height / 1.7) < 1e-5
+assert 'hgt_city_layout' not in collection and 'hgt_model_scale' not in collection
+import zipfile, hashlib
+with zipfile.ZipFile(project/'release/hoyo_gi_toon-2.3.0.zip') as baseline:
+    assert hashlib.sha256(baseline.read('assets/scene_city_terrace.blend')).hexdigest()==file_hash(payload/'assets/scene_city_terrace.blend')
+    assert baseline.read('assets/scenes.json')==(payload/'assets/scenes.json').read_bytes()
 bpy.context.view_layer.update()
 projected = [world_to_camera_view(scene, scene.camera, entry.object.matrix_world @ Vector(corner))
              for entry in root.hgt_character.meshes for corner in entry.object.bound_box]
-assert all(0 < point.x < 1 and 0 < point.y < 1 and point.z > 0 for point in projected)
-water = next(o for o in collection.all_objects if o.name.startswith('Canal /'))
-assert max(water.dimensions) < root.hgt_character.height * 5
+assert len(collection.all_objects)==321
 render('city-terrace-model')
 camera = scene.camera
 camera.location = (0, -1, 9)
@@ -196,7 +197,7 @@ render('city-terrace-layout')
 assert module.load(bpy.context, 'CITY_TERRACE') == collection
 module.remove(bpy.context)
 assert all(file_hash(project.parent / path) == digest for path, digest in source_hashes.items())
-report['checks']['compact_half_ring_city_and_model_fit'] = True
+report['checks']['city_terrace_v230_restored'] = True
 report['checks']['original_scene_files_unchanged'] = True
 report['checks']['sidebar_and_display_controls'] = addon.panels.HGT_PT_main.bl_category == 'GI-Toon'
 previous = root

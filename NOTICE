@@ -29,4 +29,9 @@ from the author's MAVR project, presets/face_normal.py and presets/light_source.
 
 FBX, layered-eye extensions, fabric/reflection modules and the previous display
 workflow are retained in the v1.0.1 Git tag, outside the current runtime.
-No game models, textures, material dumps or private validation projects ship.
+assets/faces/ contains the shared Genshin Impact face SDF and mask images
+explicitly selected for this workflow. Image copyright belongs to HoYoverse;
+these images are separate from the GPL-licensed plugin code. Exact source
+texture hashes and referencing material names are recorded in assets/faces.json.
+No game models, diffuse character textures, material dumps or private validation
+projects ship.

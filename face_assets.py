@@ -20,12 +20,13 @@ def package_identity(name):
 
 
 class FaceResources:
-    def __init__(self, source='', directory=''):
+    def __init__(self, source='', directory='', preset='AUTO'):
         self.source = Path(source).resolve() if source else None
         self.directory = Path(directory).resolve() if directory else None
         self.record = None
         self.resolved = False
         self.status = 'not-resolved'
+        self.preset = preset
 
     def _packages(self, material):
         if self.directory:
@@ -67,6 +68,11 @@ class FaceResources:
     def resolve(self, material=None):
         if self.resolved:
             return self.record
+        if self.preset != 'AUTO':
+            from .face_catalog import resolve
+            self.record = resolve(self.preset) if self.preset != 'NONE' else None
+            self.resolved, self.status = True, 'bundled' if self.record else 'sdf-disabled'
+            return self.record
         candidates = [p for folder in self._packages(material)
                       for p in (folder / 'Materials').glob('*_Mat_Face.json')]
         if not candidates:
@@ -100,6 +106,10 @@ class FaceResources:
             'source_parameters': {k: floats[k] for k in (
                 '_UseFaceMapNew', '_UseFaceSDF', '_NewFaceUseLegacySampling',
                 '_FaceSdfShadowSharpness', '_FaceMapSoftness') if k in floats}}
+        from .face_catalog import matching, resolve
+        preset = matching(self.record)
+        if preset:
+            self.record.update(textures=resolve(preset)['textures'], preset=preset)
         self.resolved, self.status = True, 'matched'
         return self.record
 

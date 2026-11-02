@@ -276,6 +276,20 @@ assert all(file_hash(path) == value for path, value in protected.items())
 assert hashes == {p.name: file_hash(p) for p in payload.glob('*.py')}
 assert assets == {name: file_hash(payload / 'assets' / name) for name in assets}
 checks['original_files_unchanged'] = True
+import zipfile
+legacy_asset = out / 'legacy-city'
+legacy_asset.mkdir(exist_ok=True)
+with zipfile.ZipFile(project / 'release/hoyo_gi_toon-2.4.2.zip') as previous:
+    (legacy_asset / 'scene_city_terrace.blend').write_bytes(previous.read('assets/scene_city_terrace.blend'))
+with patch.object(module, 'ASSETS', legacy_asset):
+    legacy_collection = load('CITY_TERRACE')
+    assert legacy_collection['hgt_city_layout'] == 'compact-half-ring-v1'
+    legacy_uid = scene.hgt_scene.uid
+collection = load('CITY_TERRACE')
+assert scene.hgt_scene.uid != legacy_uid and 'hgt_city_layout' not in collection
+assert len(collection.all_objects) == 321
+remove()
+checks['existing_half_ring_replaced_on_explicit_load'] = True
 addon.unregister()
 assert not hasattr(bpy.types.Scene, 'hgt_scene')
 addon.register()

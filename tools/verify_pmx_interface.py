@@ -56,7 +56,10 @@ def screenshot(name):
 
 
 def viewport_pixels(name):
-    screenshot(name)
+    # Read the last naturally drawn frame: forcing DRAW_WIN_SWAP hid stale
+    # uniforms even when ordinary slider drags did not refresh the viewport.
+    assert bpy.ops.screen.screenshot(filepath=str(out/name))=={'FINISHED'}
+    report['screenshots'].append(name)
     image=bpy.data.images.load(str(out/name),check_existing=False)
     width,height=image.size
     pixels=np.array(image.pixels[:],dtype=np.float32).reshape((height,width,4))
@@ -74,9 +77,12 @@ def finish(error=None):
     bpy.ops.wm.quit_blender()
 
 def step():
-    global phase,viewport_before
+    global phase,viewport_before,window,area,region
     try:
         hide()
+        window=bpy.context.window_manager.windows[0]
+        area=next(a for a in window.screen.areas if a.type=='VIEW_3D')
+        region=next(r for r in area.regions if r.type=='WINDOW')
         if time.monotonic()-started>240:raise TimeoutError('Private UI verification timed out')
         with bpy.context.temp_override(window=window,area=area,region=region):
             scene=bpy.context.scene
@@ -90,7 +96,11 @@ def step():
             if phase==2:
                 assert not hasattr(bpy.types.Scene,'hgt_output')
                 panels=[c for c in addon.panels.CLASSES if issubclass(c,bpy.types.Panel)]
-                assert panels==[addon.panels.HGT_PT_main] and 'DEFAULT_CLOSED' not in getattr(panels[0],'bl_options',set())
+                assert [p.bl_label for p in panels]==['角色管理','材质','局部调色','场景','打光','相机']
+                assert [p.bl_label for p in panels if 'DEFAULT_CLOSED' in getattr(p,'bl_options',set())]==['场景','打光']
+                assert addon.panels.HGT_OT_import_character.bl_label=='导入模型'
+                assert not hasattr(addon.panels,'HGT_MT_tools') and not hasattr(addon.panels,'HGT_OT_face_resources')
+                report['checks']['six_independent_panels']=report['checks']['scene_light_default_closed']=True
                 assert not addon.panels.HGT_OT_apply_materials.poll(bpy.context)
                 assert addon.panels.HGT_OT_default_light.poll(bpy.context)
                 assert addon.panels.HGT_OT_align_camera.poll(bpy.context)
@@ -117,17 +127,41 @@ def step():
                 bpy.context.view_layer.objects.active=mesh
                 addon.scene_models.sync_active(bpy.context.scene)
                 assert bpy.context.scene.hgt_model==model_root and root() is None
+                assert addon.properties.model_poll(bpy.context.scene,model_root)
+                assert not addon.properties.model_poll(bpy.context.scene,mesh)
+                assert not addon.properties.model_poll(bpy.context.scene,addon.scene_models.armature(model_root))
+                bpy.context.scene.hgt_model=addon.scene_models.armature(model_root)
+                assert bpy.context.scene.hgt_model==model_root
+                report['checks']['complete_models_only']=True
                 assert addon.panels.HGT_OT_apply_materials.poll(bpy.context)
                 phase=3;return .7
             if phase==3:
                 screenshot('panel-existing.png')
                 bpy.ops.ed.undo_push(message='Existing MMD')
                 assert bpy.ops.hgt.apply_materials()=={'FINISHED'}
+                assert next(a for a in window.screen.areas if a.type=='VIEW_3D').spaces.active.shading.type=='MATERIAL'
+                report['checks']['automatic_material_preview']=True
                 bpy.ops.ed.undo_push(message='Applied')
                 assert bpy.ops.ed.undo()=={'FINISHED'} and (root() is None or not root().hgt_character.managed)
                 assert bpy.ops.ed.redo()=={'FINISHED'} and root().hgt_character.managed
                 assert not root().hgt_character.imported
                 report['checks']['existing_model_apply_undo']=True
+                bpy.ops.ed.undo_push(message='Before SDF choice')
+                root().hgt_character.face_sdf_preset='LEGACY_GIRL01'
+                assert root().hgt_character.applied_sdf_preset=='LEGACY_GIRL01'
+                bpy.ops.ed.undo_push(message='SDF choice')
+                assert bpy.ops.ed.undo()=={'FINISHED'} and root().hgt_character.face_sdf_preset=='AUTO'
+                assert bpy.ops.ed.redo()=={'FINISHED'} and root().hgt_character.applied_sdf_preset=='LEGACY_GIRL01'
+                bpy.ops.ed.undo()
+                report['checks']['bundled_sdf_undo_redo']=True
+                bpy.ops.ed.undo_push(message='Before face softness')
+                initial=root().hgt_character.face_softness
+                root().hgt_character.face_softness=.11
+                bpy.ops.ed.undo_push(message='Face softness')
+                assert bpy.ops.ed.undo()=={'FINISHED'} and abs(root().hgt_character.face_softness-initial)<1e-6
+                assert bpy.ops.ed.redo()=={'FINISHED'} and abs(root().hgt_character.face_softness-.11)<1e-6
+                bpy.ops.ed.undo()
+                report['checks']['face_softness_undo_redo']=True
                 color=tuple(root().hgt_character.bindings[0].tint)
                 bpy.ops.ed.undo_push(message='Before tint')
                 root().hgt_character.bindings[0].tint=(.4,.7,1)
@@ -139,7 +173,7 @@ def step():
                 source=addon.scene_models.selected(bpy.context)
                 visible=addon.scene_models.visible(source)
                 bpy.ops.ed.undo_push(message='Before display')
-                assert bpy.ops.hgt.toggle_display()=={'FINISHED'}
+                assert bpy.ops.hgt.toggle_display(bones=False)=={'FINISHED'}
                 bpy.ops.ed.undo_push(message='Display')
                 assert bpy.ops.ed.undo()=={'FINISHED'}
                 assert addon.scene_models.visible(addon.scene_models.selected(bpy.context))==visible
@@ -191,12 +225,13 @@ def step():
                 (out/'output-canary.png').write_bytes(b'preserve native output')
                 phase=4;return .7
             if phase==4:
-                screenshot('panel-full.png')
-                area.spaces.active.shading.type='RENDERED'
                 root().hgt_character.shadow_position=.15
-                phase=6;return 5
+                phase=6;return 8
             if phase==6:
+                assert bpy.context.space_data.shading.type=='MATERIAL'
+                assert bpy.context.space_data.shading.use_scene_lights and bpy.context.space_data.shading.use_scene_world
                 viewport_before=viewport_pixels('viewport-shadow-15.png')
+                screenshot('panel-full.png')
                 root().hgt_character.shadow_position=.85
                 phase=7;return 2
             if phase==7:
@@ -205,6 +240,18 @@ def step():
                 assert response>.02,response
                 report['viewport_shadow_response']=response
                 report['checks']['realtime_viewport_shadow_response']=True
+                viewport_before=after
+                body=next(b for b in root().hgt_character.bindings if b.role=='body')
+                body.tint=(.3,.7,1)
+                phase=8;return 3
+            if phase==8:
+                after=viewport_pixels('viewport-local-tint.png')
+                response=float(np.abs(after-viewport_before).max())
+                assert response>.02,response
+                report['viewport_local_response']=response
+                report['checks']['realtime_viewport_local_response']=True
+                body=next(b for b in root().hgt_character.bindings if b.role=='body')
+                body.tint=(1,1,1)
                 root().hgt_character.shadow_position=.52
                 area.spaces.active.shading.type='SOLID'
                 bpy.ops.wm.save_as_mainfile(filepath=str(out/'ui-preview.blend'),relative_remap=False)

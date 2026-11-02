@@ -44,6 +44,29 @@ def configure_material_render(scene):
     scene.view_settings.gamma = 1
 
 
+def redraw_materials(scene):
+    for window in bpy.context.window_manager.windows:
+        if window.scene == scene:
+            for area in window.screen.areas:
+                if area.type == 'VIEW_3D':
+                    area.tag_redraw()
+
+
+def preview_materials(context):
+    areas = [context.area] if context.area and context.area.type == 'VIEW_3D' else []
+    if not areas and not bpy.app.background and context.window:
+        areas = [area for area in context.window.screen.areas if area.type == 'VIEW_3D']
+    for area in areas:
+        shading = area.spaces.active.shading
+        if shading.type not in {'MATERIAL', 'RENDERED'}:
+            shading.type = 'MATERIAL'
+        if not shading.use_scene_world:
+            shading.use_scene_world = True
+        if not shading.use_scene_lights:
+            shading.use_scene_lights = True
+    redraw_materials(context.scene)
+
+
 def start(scene, invoke=False):
     check_idle()
     if scene.camera is None:

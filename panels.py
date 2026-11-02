@@ -1,7 +1,7 @@
-"""Always-visible material, lighting and camera tools for scene MMD models."""
+"""Independent, collapsible character, material and scene panels."""
 import traceback
 import bpy
-from bpy.types import Operator, Panel, UIList, Menu
+from bpy.types import Operator, Panel, UIList
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ImportHelper
 from . import workflow, rendering, lighting, gaze, material_controls, scene_models, scene_presets, outlines
@@ -24,7 +24,7 @@ def report_error(operator, error):
 
 class HGT_OT_import_character(Operator, ImportHelper):
     bl_idname = 'hgt.import_character'
-    bl_label = '导入 PMX'
+    bl_label = '导入模型'
     bl_options = {'REGISTER', 'UNDO'}
     filename_ext = '.pmx'
     filter_glob: StringProperty(default='*.pmx', options={'HIDDEN'})
@@ -57,10 +57,10 @@ class HGT_OT_apply_materials(Operator):
 
 class HGT_OT_toggle_display(Operator):
     bl_idname = 'hgt.toggle_display'
-    bl_label = '模型显示'
-    bl_description = '切换所选模型的网格或骨骼在视口中的显示'
+    bl_label = '骨骼显示'
+    bl_description = '显示或隐藏所选角色的骨架（仅视口）'
     bl_options = {'REGISTER', 'UNDO'}
-    bones: bpy.props.BoolProperty(default=False, options={'SKIP_SAVE'})
+    bones: bpy.props.BoolProperty(default=True, options={'SKIP_SAVE'})
 
     @classmethod
     def poll(cls, context):
@@ -70,44 +70,6 @@ class HGT_OT_toggle_display(Operator):
         try:
             scene_models.toggle_visibility(scene_models.selected(context), self.bones)
         except (ValueError, RuntimeError) as exc:
-            return report_error(self, exc)
-        return {'FINISHED'}
-
-
-class HGT_OT_face_resources(Operator):
-    bl_idname = 'hgt.face_resources'
-    bl_label = '选择脸部资源'
-    bl_description = '选择同角色 FBX 资源包或 Textures 目录；更换前先恢复原材质'
-    bl_options = {'REGISTER', 'UNDO'}
-    directory: StringProperty(name='目录', subtype='DIR_PATH')
-    filter_folder: bpy.props.BoolProperty(default=True, options={'HIDDEN'})
-
-    @classmethod
-    def poll(cls, context):
-        root = target(context)
-        return bool(idle(context) and scene_models.selected(context)
-                    and (root is None or not root.hgt_character.managed))
-
-    def invoke(self, context, event):
-        root = target(context)
-        if root:
-            self.directory = root.hgt_character.face_resource_directory
-        context.window_manager.fileselect_add(self)
-        return {'RUNNING_MODAL'}
-
-    def execute(self, context):
-        transaction = workflow.asset_tracking.DataTransaction(context)
-        try:
-            from .face_assets import FaceResources
-            directory = bpy.path.abspath(self.directory) if self.directory else ''
-            if directory:
-                FaceResources(directory=directory).resolve()
-            root = scene_models.ensure(scene_models.selected(context), context)
-            if root.hgt_character.managed:
-                raise ValueError('请先恢复原材质，再更换脸部资源')
-            root.hgt_character.face_resource_directory = directory
-        except (ValueError, RuntimeError, OSError) as exc:
-            transaction.rollback()
             return report_error(self, exc)
         return {'FINISHED'}
 
@@ -271,16 +233,6 @@ class HGT_OT_render(Operator):
             return report_error(self, exc)
 
 
-class HGT_MT_tools(Menu):
-    bl_idname = 'HGT_MT_tools'
-    bl_label = '模型操作'
-
-    def draw(self, context):
-        self.layout.operator('hgt.restore_materials', icon='LOOP_BACK')
-        self.layout.operator('hgt.face_resources', icon='FILE_FOLDER')
-        self.layout.operator('file.find_missing_files', text='查找丢失贴图', icon='FILE_REFRESH')
-
-
 class HGT_UL_materials(UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         layout.label(text=item.source_name, icon='MATERIAL')
@@ -289,10 +241,12 @@ class HGT_UL_materials(UIList):
 def draw_materials(layout, context):
     column = layout.column()
     column.enabled = idle(context)
-    column.label(text='材质', icon='MATERIAL')
-    column.operator('hgt.apply_materials', icon='MATERIAL')
     root = target(context)
+    source = scene_models.selected(context)
+    if source:
+        column.prop((root or source).hgt_character, 'face_sdf_preset')
     if not root or not root.hgt_character.managed:
+        column.operator('hgt.apply_materials', icon='MATERIAL')
         return
     settings = root.hgt_character
     column.prop(settings, 'shadow_position', slider=True)
@@ -302,6 +256,21 @@ def draw_materials(layout, context):
     if settings.has_outline:
         column.prop(settings, 'outline', slider=True)
         column.prop(settings, 'outline_lower', slider=True)
+    row = column.row(align=True)
+    row.operator('hgt.reset_materials', text='重置参数', icon='LOOP_BACK')
+    row.operator('hgt.restore_materials', text='恢复原材质')
+    if settings.preview_error:
+        error = column.column()
+        error.alert = True
+        error.label(text=settings.preview_error, icon='ERROR')
+
+
+def draw_local_colors(column, context):
+    root = target(context)
+    if not root or not root.hgt_character.managed:
+        column.label(text='应用材质后调整局部颜色', icon='MATERIAL')
+        return
+    settings = root.hgt_character
     column.template_list('HGT_UL_materials', '', settings, 'bindings', settings, 'active_material', rows=3, maxrows=3)
     if settings.bindings:
         item = settings.bindings[min(max(0, settings.active_material), len(settings.bindings) - 1)]
@@ -319,15 +288,18 @@ def draw_materials(layout, context):
             row = column.row(align=True)
             row.label(text='描边颜色')
             row.prop(item, 'outline_color', text='')
-    column.operator('hgt.reset_materials', icon='LOOP_BACK')
 
 
-class HGT_PT_main(Panel):
-    bl_label = 'GI-Toon'
-    bl_idname = 'HGT_PT_main'
+class HGTPanel:
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = 'GI-Toon'
+
+
+class HGT_PT_main(HGTPanel, Panel):
+    bl_label = '角色管理'
+    bl_idname = 'HGT_PT_main'
+    bl_order = 0
 
     def draw(self, context):
         layout = self.layout
@@ -335,23 +307,55 @@ class HGT_PT_main(Panel):
         source = scene_models.selected(context)
         row = layout.row(align=True)
         row.operator('hgt.import_character', icon='IMPORT')
-        row.operator('hgt.toggle_display', text='模型显示', icon='MESH_DATA',
-                     depress=scene_models.visible(source))
-        row.menu('HGT_MT_tools', text='', icon='DOWNARROW_HLT')
-        row = layout.row(align=True)
-        row.prop(context.scene, 'hgt_model')
-        row.operator('hgt.toggle_display', text='骨骼显示', icon='ARMATURE_DATA',
-                     depress=scene_models.visible(source, bones=True)).bones = True
-        layout.separator()
-        draw_materials(layout, context)
-        layout.separator()
-        layout.label(text='场景预设', icon='SCENE_DATA')
+        row.prop(context.scene, 'hgt_model', text='')
+        visible = scene_models.visible(source, bones=True)
+        row.operator('hgt.toggle_display', text='', icon='HIDE_OFF' if visible else 'HIDE_ON',
+                     depress=visible).bones = True
+
+
+class HGT_PT_materials(HGTPanel, Panel):
+    bl_label = '材质'
+    bl_idname = 'HGT_PT_materials'
+    bl_order = 1
+
+    def draw(self, context):
+        draw_materials(self.layout, context)
+
+
+class HGT_PT_local_colors(HGTPanel, Panel):
+    bl_label = '局部调色'
+    bl_idname = 'HGT_PT_local_colors'
+    bl_order = 2
+
+    def draw(self, context):
+        self.layout.enabled = idle(context)
+        draw_local_colors(self.layout, context)
+
+
+class HGT_PT_scene(HGTPanel, Panel):
+    bl_label = '场景'
+    bl_idname = 'HGT_PT_scene'
+    bl_order = 3
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw(self, context):
+        layout = self.layout
+        layout.enabled = idle(context)
         row = layout.row(align=True)
         row.prop(context.scene, 'hgt_scene_preset', text='')
         row.operator('hgt.load_scene', text='载入', icon='IMPORT')
         row.operator('hgt.remove_scene', text='', icon='X')
-        layout.separator()
-        layout.label(text='打光', icon='LIGHT_SUN')
+
+
+class HGT_PT_lighting(HGTPanel, Panel):
+    bl_label = '打光'
+    bl_idname = 'HGT_PT_lighting'
+    bl_order = 4
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw(self, context):
+        layout = self.layout
+        layout.enabled = idle(context)
         row = layout.row(align=True)
         row.prop(context.scene.hgt_lighting, 'selected', text='')
         row.operator('hgt.apply_light_preset', text='启用', icon='LIGHT_SUN')
@@ -366,8 +370,16 @@ class HGT_PT_main(Panel):
                 layout.prop(light.data, 'energy', text='强度')
                 layout.prop(light.data, 'color', text='颜色')
                 layout.prop(light, 'rotation_euler', text='旋转')
-        layout.separator()
-        layout.label(text='相机', icon='CAMERA_DATA')
+
+
+class HGT_PT_camera(HGTPanel, Panel):
+    bl_label = '相机'
+    bl_idname = 'HGT_PT_camera'
+    bl_order = 5
+
+    def draw(self, context):
+        layout = self.layout
+        layout.enabled = idle(context)
         layout.prop(context.scene, 'camera', text='相机')
         layout.operator('hgt.align_camera', icon='VIEW_CAMERA')
         root = target(context)
@@ -376,9 +388,9 @@ class HGT_PT_main(Panel):
         layout.operator('hgt.render', icon='RENDER_STILL')
 
 
-CLASSES = (HGT_OT_import_character, HGT_OT_apply_materials, HGT_OT_toggle_display, HGT_OT_face_resources, HGT_OT_restore, HGT_OT_reset_materials,
+CLASSES = (HGT_OT_import_character, HGT_OT_apply_materials, HGT_OT_toggle_display, HGT_OT_restore, HGT_OT_reset_materials,
            HGT_OT_default_light, HGT_OT_apply_light_preset, HGT_OT_load_scene, HGT_OT_remove_scene, HGT_OT_look_camera, HGT_OT_align_camera, HGT_OT_render,
-           HGT_MT_tools, HGT_UL_materials, HGT_PT_main)
+           HGT_UL_materials, HGT_PT_main, HGT_PT_materials, HGT_PT_local_colors, HGT_PT_scene, HGT_PT_lighting, HGT_PT_camera)
 
 
 def register():
