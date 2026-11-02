@@ -24,4 +24,4 @@
 
 埃洛伊与女性奇偶没有本地 PMX，不在 81 个可用条目中。204 份只读材质扫描不等于 204 份全部完成实渲染；其余变体仅完成源数据扫描。本轮是静态描边遮挡检查，不代替完整 VMD、物理及材质／组 Morph 演出验证。
 
-源码新建工程与 13 个旧工程迁移的相机图像逐像素一致，四视角、参数、静止高度及保存重开检查通过；实际 ZIP 的同一 13 例迁移与图像检查、三角色参数、原生渲染、SDF、场景与界面发布检查均已通过，发布状态见开发记录。原始图像、工程、清单及像素报告保留在 `.verification/development/outline-cross-character-20261102/` 与 `.verification/release-v2.4.2/`；机器摘要见 [检查数据](outline-cross-character-v2.4.2.json)。
+源码新建工程与 13 个旧工程迁移的相机图像逐像素一致，四视角、参数、静止高度及保存重开检查通过；实际 ZIP 的同一 13 例迁移与图像检查、三角色参数、原生渲染、SDF、场景与界面发布检查均已通过，[2.4.2 已正式发布](https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/tag/v2.4.2)，本地 Blender 与远程更新索引已同步；当前工程、参数及原模型数据保留。原始图像、工程、清单及像素报告保留在 `.verification/development/outline-cross-character-20261102/` 与 `.verification/release-v2.4.2/`；机器摘要见 [检查数据](outline-cross-character-v2.4.2.json)。
