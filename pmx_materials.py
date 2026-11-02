@@ -1,5 +1,6 @@
 """PMX material semantics adapted from the two reference render workflows."""
 from pathlib import Path
+import re
 import unicodedata
 import sys
 import bpy
@@ -16,6 +17,22 @@ DEFAULT_SHADOW_POSITION = .52
 DEFAULT_OUTLINE = .18
 SHADOW_TRANSITION = .035
 AMBIENT_COLOR_STRENGTH = .20
+
+
+def is_inner_surface(material):
+    """Linings need their surface shader, but must not grow an inverted shell."""
+    data = material.mmd_material
+    for value in (data.name_j, data.name_e, material.name):
+        # Separate English CamelCase before folding, retaining PMX's names.
+        name = unicodedata.normalize('NFKC', value)
+        name = re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', name).casefold()
+        if re.search(r'\b(inner|inside|lining|underside)\b', name.replace('_', ' ')):
+            return True
+        if any(token in name for token in ('内衬', '內襯', '里衬', '裡襯', '内侧', '內側', '内面', '內面', '裏地', '裏面')):
+            return True
+        if re.search(r'(裙|衣|布|袖|裤|褲|领|領|袍|披风|披風|斗篷|服|裾)(内|內|里|裏|裡)(?:[. _-]*\d+)?$', name):
+            return True
+    return False
 
 
 def material_color(pmx):

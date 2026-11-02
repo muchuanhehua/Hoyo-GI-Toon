@@ -109,6 +109,23 @@ def validate_usability_evidence(evidence,interface,hashes):
     assert all(interface['checks'].get(key) is True for key in
                ('display_controls_undo','light_presets_undo','realtime_viewport_shadow_response'))
 
+def validate_outline_evidence(evidence,hashes,package_sha256=None):
+    assert evidence['scope']=='GI-TOON-OUTLINE-SURFACES' and evidence['complete']
+    assert evidence['source_sha256']==hashes,'Outline verification does not match current runtime'
+    assert len(evidence['models'])>=3
+    required=('material_colors_restored','outer_contours_preserved','legacy_upgrade_preserves_parameters_and_source',
+              'source_disabled_outer_edges_preserved','no_resource_growth','save_reopen_exact','restore_reapply_exact')
+    for model in evidence['models']:
+        assert all(model['checks'].get(key) is True for key in required)
+        assert model['silhouette_pixels_with_outline']>5 and model['silhouette_pixels_with_wide_outline']>20
+        assert model['source_disabled_outer_surfaces']
+        assert set(model['widths'])=={'default','wide'}
+        assert all(row['reference_max_error']<=1/255+1e-6 for row in model['widths'].values())
+    assert any(model.get('restored_color_pixels',0)>500 and model['excluded_inner_surfaces']
+               for model in evidence['models']),'Missing actual inner-shell colour regression'
+    if package_sha256 is not None:assert evidence['package_sha256']==package_sha256
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('action',choices=('review','candidate','release'))
@@ -117,6 +134,7 @@ def main():
     parser.add_argument('--interface-verification',type=Path,required=True)
     parser.add_argument('--sdf-verification',type=Path)
     parser.add_argument('--usability-verification',type=Path)
+    parser.add_argument('--outline-verification',type=Path)
     parser.add_argument('--sdf-interface-verification',type=Path)
     parser.add_argument('--scene-verification',type=Path,required=True)
     parser.add_argument('--scene-interface-verification',type=Path,required=True)
@@ -131,6 +149,11 @@ def main():
     evidence=json.loads(args.verification.read_text(encoding='utf-8'))
     interface=json.loads(args.interface_verification.read_text(encoding='utf-8'))
     hashes=validate_evidence(evidence,interface,integration=args.action=='release')
+    outline=None
+    if tuple(info['version'])>=(2,4,1):
+        assert args.outline_verification,'Inner-shell colour and exterior silhouette evidence is required'
+        outline=json.loads(args.outline_verification.read_text('utf-8'))
+        validate_outline_evidence(outline,hashes,evidence.get('package_sha256') if args.action=='release' else None)
     usability=None
     if args.usability_verification:
         usability=json.loads(args.usability_verification.read_text('utf-8'))
@@ -189,6 +212,7 @@ def main():
              'sdf_comparison_scope':sdf.get('scope'),
              'usability_models':usability['models'] if usability else [],
              'usability_checks':usability['checks'] if usability else {},
+             'outline_surface_models':outline['models'] if outline else [],
              'new_full_game_algorithm_recovered':sdf['full_new_game_shader_recovered']}
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('HGT_RELEASE',record['version'],record['sha256'])

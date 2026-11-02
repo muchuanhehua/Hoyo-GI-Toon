@@ -4,13 +4,18 @@ import json
 import bpy
 from mathutils import Vector
 
-from .shaders import input_value, set_input
+from .shaders import input_value
+from .pmx_materials import is_inner_surface
 
 PAIRS = ("Hair", "Body", "Face", "Dress", "Dress 2", "Other")
+GRAPH_VERSION = 3
 
 
 def eligible(binding):
     if not binding.generated:
+        return False
+    # Shader roles stay unchanged: inner cloth still uses Body shading.
+    if binding.source and is_inner_surface(binding.source):
         return False
     pmx = json.loads(binding.generated['hgt_pmx'])
     return binding.role not in {'eye', 'brow', 'expression'} and pmx['alpha'] > 0 and not pmx['overlay']
@@ -47,7 +52,7 @@ def build(mesh, root):
         return None
     graph = bpy.data.node_groups.new(f'HGT • {mesh.name} • PMX Outlines', 'GeometryNodeTree')
     graph['hgt_owner'], graph['hgt_pmx_outline'] = settings.uid, True
-    graph['hgt_outline_version'] = 2
+    graph['hgt_outline_version'] = GRAPH_VERSION
     for name, direction, kind in [('Geometry', 'INPUT', 'NodeSocketGeometry'),
                                   ('Outline Thickness', 'INPUT', 'NodeSocketFloat'),
                                   ('Lower Thickness', 'INPUT', 'NodeSocketFloat'),
@@ -125,7 +130,7 @@ def update(mesh, root):
         if abs(field.value - value) > 1e-7:
             field.value = value
             mesh.update_tag(refresh={'OBJECT'})
-        if graph.get('hgt_outline_version') == 2:
+        if graph.get('hgt_outline_version', 0) >= 2:
             lower = input_value(modifier, 'Lower Thickness')
             if abs(lower.value - settings.outline_lower) > 1e-7:
                 lower.value = settings.outline_lower
@@ -145,7 +150,7 @@ def upgrade(root):
             continue
         owned = [m for m in mesh.modifiers if m.type == 'NODES' and m.node_group
                  and m.node_group.get('hgt_owner') == settings.uid and m.node_group.get('hgt_pmx_outline')]
-        if owned and all(m.node_group.get('hgt_outline_version') == 2 for m in owned):
+        if owned and all(m.node_group.get('hgt_outline_version') == GRAPH_VERSION for m in owned):
             continue
         for modifier in owned:
             graph = modifier.node_group

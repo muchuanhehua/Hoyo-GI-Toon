@@ -1,0 +1,145 @@
+{
+  "version": "2.4.1",
+  "scope": "GI-TOON-OUTLINE-SURFACES",
+  "source_verified": true,
+  "actual_package_verified": true,
+  "models": [
+    {
+      "name": "安柏",
+      "excluded_inner_surfaces": [],
+      "checks": {
+        "legacy_upgrade_preserves_parameters_and_source": true,
+        "material_colors_restored": true,
+        "outer_contours_preserved": true,
+        "source_disabled_outer_edges_preserved": true,
+        "no_resource_growth": true,
+        "save_reopen_exact": true,
+        "restore_reapply_exact": true
+      },
+      "widths": {
+        "default": {
+          "outline": 0.18000000715255737,
+          "reference_max_error": 0.0
+        },
+        "wide": {
+          "outline": 0.6642105579376221,
+          "reference_max_error": 0.0
+        }
+      },
+      "silhouette_pixels_with_outline": 57,
+      "silhouette_pixels_with_wide_outline": 2072,
+      "source_disabled_outer_surfaces": [
+        "眼白",
+        "脸",
+        "皮肤",
+        "衣服",
+        "头发",
+        "头饰",
+        "表情"
+      ]
+    },
+    {
+      "name": "纳西妲",
+      "excluded_inner_surfaces": [],
+      "checks": {
+        "legacy_upgrade_preserves_parameters_and_source": true,
+        "material_colors_restored": true,
+        "outer_contours_preserved": true,
+        "source_disabled_outer_edges_preserved": true,
+        "no_resource_growth": true,
+        "save_reopen_exact": true,
+        "restore_reapply_exact": true
+      },
+      "widths": {
+        "default": {
+          "outline": 0.18000000715255737,
+          "reference_max_error": 0.0
+        },
+        "wide": {
+          "outline": 0.6642105579376221,
+          "reference_max_error": 0.0
+        }
+      },
+      "silhouette_pixels_with_outline": 19,
+      "silhouette_pixels_with_wide_outline": 466,
+      "source_disabled_outer_surfaces": [
+        "颜2",
+        "齿",
+        "口舌",
+        "二重",
+        "白目",
+        "裙2"
+      ]
+    },
+    {
+      "name": "奥黛塔",
+      "excluded_inner_surfaces": [
+        "裙内"
+      ],
+      "checks": {
+        "legacy_upgrade_preserves_parameters_and_source": true,
+        "material_colors_restored": true,
+        "outer_contours_preserved": true,
+        "source_disabled_outer_edges_preserved": true,
+        "no_resource_growth": true,
+        "save_reopen_exact": true,
+        "restore_reapply_exact": true
+      },
+      "widths": {
+        "default": {
+          "outline": 0.18000000715255737,
+          "reference_max_error": 0.0
+        },
+        "wide": {
+          "outline": 0.6642105579376221,
+          "reference_max_error": 0.0
+        }
+      },
+      "restored_color_pixels": 9669,
+      "silhouette_pixels_with_outline": 16,
+      "silhouette_pixels_with_wide_outline": 1070,
+      "source_disabled_outer_surfaces": [
+        "颜饰",
+        "白目",
+        "口舌",
+        "齿",
+        "金属2",
+        "肌1_w",
+        "肌1_s",
+        "裙_d",
+        "裙_dp",
+        "裙p",
+        "裙t",
+        "裙2_w"
+      ]
+    }
+  ],
+  "source_sha256": {
+    "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+    "face_assets.py": "b3c030457f921f96eacc41d6d64c62116963f8b2213bb81861649e75e22944f5",
+    "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+    "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+    "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+    "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+    "lighting.py": "f85384591f66d4b21b80ada9c39415ce6cd17f7de7462bba554ce83e014f32f6",
+    "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+    "material_controls.py": "4c0892098e2afec22f996a425b7923c02a6e8f8f311123434e9133fd898132b6",
+    "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+    "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+    "outlines.py": "90ab75ad3e3be5639c46084f59c6bee9eddb6f8326bc66c68686e809ceb6a6bd",
+    "panels.py": "fd816450902d588ec89b5d59bc71619997e05c69314ddae65c7be3f1908d929e",
+    "pmx_materials.py": "ac7620dc7741bfbcd106f49ab28a9aca154564bd012df42402f9218556a0fc3f",
+    "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+    "properties.py": "02ad0b058fc4cf36a016c2f53f31a57e91a4179d83a745ac0d2738e7da38bf34",
+    "rendering.py": "ef95591f3774078395d3f65f1070bca3e378428cb1005a9ea813aed49425ccf1",
+    "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+    "scene_models.py": "c1ed9d5de2ea4f02c24edb807166b53b4b45a29d376c0246cea4c8a431ceb29f",
+    "scene_presets.py": "9d8579bb233e723f3ef7e304cb8410ebc11ab5b64bc2a2f93891f17c7afa1a74",
+    "shaders.py": "cfdf725c6b0e665c03920c6fd6b5b9378f1e6f726757a95407b9e59e71398270",
+    "workflow.py": "0e6c40723338051873fd68ccee8a9b1d53dfa011b739914ed486fec4856ff977",
+    "__init__.py": "399a65c582adf9bc3f731972ca5e9852b55500a19ccd6c93004f0b092460bcf1"
+  },
+  "comparison": "Published 2.4.0 projects with only the independently identified inner-shell selector disabled; all other outlines retained.",
+  "original_game_shader_fully_recovered": false,
+  "archive_sha256": "352cc2476a8484a80093bb719854c2ca5d3f96afc2c55e984bc3e811400c5b2f"
+}
