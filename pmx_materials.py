@@ -21,18 +21,24 @@ AMBIENT_COLOR_STRENGTH = .20
 
 def is_inner_surface(material):
     """Linings need their surface shader, but must not grow an inverted shell."""
-    data = material.mmd_material
-    for value in (data.name_j, data.name_e, material.name):
+    data = getattr(material, 'mmd_material', None)
+    names = (data.name_j, data.name_e, material.name) if data else (material.name,)
+    for value in names:
         # Separate English CamelCase before folding, retaining PMX's names.
         name = unicodedata.normalize('NFKC', value)
         name = re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', name).casefold()
-        if re.search(r'\b(inner|inside|lining|underside)\b', name.replace('_', ' ')):
+        stem = re.sub(r'(?:[+\s._-]*\d+)*[+\s._-]*$', '', name)
+        if re.search(r'\b(inner|inside|lining|underside)\b', stem.replace('_', ' ')):
             return True
         if any(token in name for token in ('内衬', '內襯', '里衬', '裡襯', '内侧', '內側', '内面', '內面', '裏地', '裏面')):
             return True
-        if re.search(r'(裙|衣|布|袖|裤|褲|领|領|袍|披风|披風|斗篷|服|裾)(内|內|里|裏|裡)(?:[. _-]*\d+)?$', name):
+        if stem.endswith(('内', '內', '裏', '裡', '里')) or re.search(r'(?:^|[\s_\[\]().-])[内內]', stem):
             return True
     return False
+
+
+def visible_source_edge(pmx):
+    return pmx['edge'] and pmx['edge_weight'] > 0 and pmx['edge_color'][3] > 0
 
 
 def material_color(pmx):

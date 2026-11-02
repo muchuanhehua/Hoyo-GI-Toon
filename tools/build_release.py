@@ -126,6 +126,29 @@ def validate_outline_evidence(evidence,hashes,package_sha256=None):
     if package_sha256 is not None:assert evidence['package_sha256']==package_sha256
 
 
+def validate_cross_character_evidence(evidence,hashes,package_sha256=None):
+    assert evidence['scope']=='CROSS-CHARACTER-OUTLINE-COMPARISON' and evidence['complete']
+    assert evidence['source_sha256']==hashes,'Cross-character evidence does not match runtime'
+    assert evidence['inventory_pmx_files']>=204 and evidence['available_characters']>=81
+    assert evidence['native_material_cases']>=78 and evidence['extra_variants']>=6
+    assert evidence['canonical_native_cases']+evidence['geometry_only_cases']==evidence['available_characters']
+    assert len(evidence['native_resource_failures'])==evidence['geometry_only_cases']
+    assert len(evidence['regression_cases'])>=11 and len(evidence['intentional_source_edges'])>=2
+    assert len(evidence['source_migration_cases'])>=13
+    required=('source_migration_and_profile_preserved','visual_reviewed_all_cases','all_local_pmx_scanned_readonly','four_views_and_both_widths','all_81_characters_geometry_covered',
+              'native_resource_errors_kept_explicit','source_files_and_verified_data_preserved',
+              'native_regressions_removed','normal_exterior_silhouettes_preserved','source_enabled_edges_preserved')
+    assert all(evidence['checks'].get(key) is True for key in required)
+    if package_sha256 is not None:
+        assert evidence['package_sha256']==package_sha256
+        assert evidence['checks']['actual_zip_migration_and_views'] and len(evidence['actual_package_cases'])>=13
+        for model in evidence['actual_package_cases']:
+            assert model['source_data_preserved'] and model['migration_parameters_and_profile_preserved'] and model['save_reopen_exact']
+            assert model['source_image_max_error']<=1/255+1e-6
+            assert set(model['views'])=={'front','back','left','right'}
+            assert all(set(view)=={'default','wide'} for view in model['views'].values())
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('action',choices=('review','candidate','release'))
@@ -135,6 +158,7 @@ def main():
     parser.add_argument('--sdf-verification',type=Path)
     parser.add_argument('--usability-verification',type=Path)
     parser.add_argument('--outline-verification',type=Path)
+    parser.add_argument('--cross-character-verification',type=Path)
     parser.add_argument('--sdf-interface-verification',type=Path)
     parser.add_argument('--scene-verification',type=Path,required=True)
     parser.add_argument('--scene-interface-verification',type=Path,required=True)
@@ -154,6 +178,11 @@ def main():
         assert args.outline_verification,'Inner-shell colour and exterior silhouette evidence is required'
         outline=json.loads(args.outline_verification.read_text('utf-8'))
         validate_outline_evidence(outline,hashes,evidence.get('package_sha256') if args.action=='release' else None)
+    cross=None
+    if tuple(info['version'])>=(2,4,2):
+        assert args.cross_character_verification,'Four-view cross-character outline evidence is required'
+        cross=json.loads(args.cross_character_verification.read_text('utf-8'))
+        validate_cross_character_evidence(cross,hashes,evidence.get('package_sha256') if args.action=='release' else None)
     usability=None
     if args.usability_verification:
         usability=json.loads(args.usability_verification.read_text('utf-8'))
@@ -213,6 +242,7 @@ def main():
              'usability_models':usability['models'] if usability else [],
              'usability_checks':usability['checks'] if usability else {},
              'outline_surface_models':outline['models'] if outline else [],
+             'cross_character_outlines':cross,
              'new_full_game_algorithm_recovered':sdf['full_new_game_shader_recovered']}
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('HGT_RELEASE',record['version'],record['sha256'])

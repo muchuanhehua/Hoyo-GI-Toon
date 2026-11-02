@@ -45,6 +45,48 @@ def selected_names(root):
     return sorted(node.inputs['Material'].default_value['hgt_source'] for node in selectors(root))
 
 
+def reference_sheet_faces(mesh, names):
+    """Independent reference: match reversed cyclic vertex order, not normals."""
+    data = mesh.data
+    source_names = [material['hgt_source'] for material in data.materials]
+    positions = [tuple(vertex.co) for vertex in data.vertices]
+    data.calc_loop_triangles()
+    oriented = {}
+    allowed = [True] * len(data.polygons)
+    for triangle in data.loop_triangles:
+        points = tuple(positions[i] for i in triangle.vertices)
+        forward = min(points[i:] + points[:i] for i in range(3))
+        points = points[::-1]
+        reverse = min(points[i:] + points[:i] for i in range(3))
+        if forward == reverse:
+            continue
+        for other_face, other_material in oriented.get(reverse, ()):
+            if source_names[triangle.material_index] in names:
+                allowed[triangle.polygon_index] = False
+            if source_names[other_material] in names:
+                allowed[other_face] = False
+        oriented.setdefault(forward, []).append((triangle.polygon_index, triangle.material_index))
+    attribute = data.attributes.new('outline_reference_surface', 'BOOLEAN', 'FACE')
+    attribute.data.foreach_set('value', allowed)
+    for modifier in mesh.modifiers:
+        if modifier.type != 'NODES' or not modifier.node_group or not modifier.node_group.get('hgt_pmx_outline'):
+            continue
+        graph = modifier.node_group
+        field = graph.nodes.new('GeometryNodeInputNamedAttribute')
+        field.data_type = 'BOOLEAN'
+        field.inputs['Name'].default_value = attribute.name
+        for separate in tuple(graph.nodes):
+            if separate.bl_idname != 'GeometryNodeSeparateGeometry':
+                continue
+            original = separate.inputs['Selection'].links[0].from_socket
+            both = graph.nodes.new('FunctionNodeBooleanMath')
+            both.operation = 'AND'
+            graph.links.new(original, both.inputs[0])
+            graph.links.new(field.outputs['Attribute'], both.inputs[1])
+            graph.links.new(both.outputs[0], separate.inputs['Selection'])
+    return len(allowed) - sum(allowed)
+
+
 def parameters(root):
     s = root.hgt_character
     return {'global': {name: getattr(s, name) for name in
@@ -80,7 +122,7 @@ def render(path, root):
 
 # Expectations come from inspecting the original assets and independently
 # disabling just their unwanted selector in the published 2.4.0 graph.
-for name, inner in (('安柏', set()), ('纳西妲', set()), ('奥黛塔', {'裙内'})):
+for name, inner, reversed_sheets in (('安柏', set(), set()), ('纳西妲', set(), {'裙2'}), ('奥黛塔', {'裙内'}, set())):
     folder = out / name
     folder.mkdir(exist_ok=True)
     fixture = args.fixture_directory / name / 'model.blend'
@@ -106,11 +148,15 @@ for name, inner in (('安柏', set()), ('纳西妲', set()), ('奥黛塔', {'裙
     original_names = selected_names(root)
     expected_names = sorted(n for n in original_names if n not in inner)
     assert set(original_names) >= inner and expected_names
-    row = {'name': name, 'excluded_inner_surfaces': sorted(inner), 'checks': {}, 'widths': {}}
+    row = {'name': name, 'excluded_inner_surfaces': sorted(inner),
+           'manual_reversed_sheet_reference': sorted(reversed_sheets), 'checks': {}, 'widths': {}}
     report['models'].append(row)
     s.outline = .18
     previous = render(folder / 'published-240.png', root)
     references = {}
+    if reversed_sheets:
+        row['reference_reversed_faces'] = sum(reference_sheet_faces(e.object, reversed_sheets) for e in s.meshes)
+        assert row['reference_reversed_faces'] > 0
     for node, material in original_selectors:
         if material['hgt_source'] in inner:
             node.inputs['Material'].default_value = None
@@ -145,7 +191,7 @@ for name, inner in (('安柏', set()), ('纳西妲', set()), ('奥黛塔', {'裙
     row['silhouette_pixels_with_outline'] = silhouette_pixels
     row['silhouette_pixels_with_wide_outline'] = wide_pixels
     row['checks']['outer_contours_preserved'] = True
-    fallback = [b.source_name for b in s.bindings if b.source_name in expected_names
+    fallback = [b.source_name for b in s.bindings if b.source_name in expected_names and b.source_name not in reversed_sheets
                 and not json.loads(b.generated['hgt_pmx'])['edge']]
     assert fallback, (name, 'Source-disabled exterior fallback lost')
     row['source_disabled_outer_surfaces'] = fallback

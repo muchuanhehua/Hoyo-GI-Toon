@@ -1,0 +1,1946 @@
+{
+  "scope": "CROSS-CHARACTER-OUTLINE-COMPARISON",
+  "version": "2.4.2",
+  "complete": true,
+  "source_sha256": {
+    "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+    "face_assets.py": "b3c030457f921f96eacc41d6d64c62116963f8b2213bb81861649e75e22944f5",
+    "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+    "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+    "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+    "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+    "lighting.py": "f85384591f66d4b21b80ada9c39415ce6cd17f7de7462bba554ce83e014f32f6",
+    "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+    "material_controls.py": "4c0892098e2afec22f996a425b7923c02a6e8f8f311123434e9133fd898132b6",
+    "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+    "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+    "outlines.py": "41f2afa7d59ffde527c408d687e8b4ee30cbdd4044e8ba7b88e709a5f8e710a5",
+    "panels.py": "fd816450902d588ec89b5d59bc71619997e05c69314ddae65c7be3f1908d929e",
+    "pmx_materials.py": "2954f80e743f3a19c6ff632078f1e8308c77172fbf18830e29bffe21527828ee",
+    "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+    "properties.py": "02ad0b058fc4cf36a016c2f53f31a57e91a4179d83a745ac0d2738e7da38bf34",
+    "rendering.py": "ef95591f3774078395d3f65f1070bca3e378428cb1005a9ea813aed49425ccf1",
+    "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+    "scene_models.py": "c1ed9d5de2ea4f02c24edb807166b53b4b45a29d376c0246cea4c8a431ceb29f",
+    "scene_presets.py": "9d8579bb233e723f3ef7e304cb8410ebc11ab5b64bc2a2f93891f17c7afa1a74",
+    "shaders.py": "cfdf725c6b0e665c03920c6fd6b5b9378f1e6f726757a95407b9e59e71398270",
+    "workflow.py": "0e6c40723338051873fd68ccee8a9b1d53dfa011b739914ed486fec4856ff977",
+    "__init__.py": "5ca3bb46144e3c8a5364426f998f09b8c38167810b98e4589b805f6699e1a293"
+  },
+  "package_sha256": "011351277175b5a8a34e87a5ba47c60de254f91e30b481143fc521e8b8353849",
+  "inventory_pmx_files": 204,
+  "available_characters": 81,
+  "extra_variants": 6,
+  "native_material_cases": 78,
+  "canonical_native_cases": 72,
+  "geometry_only_cases": 9,
+  "regression_cases": [
+    {
+      "name": "罗莎莉亚",
+      "canonical": true,
+      "old_core_pixels": 440,
+      "new_core_pixels": 0,
+      "geometric_filtered_faces": 634
+    },
+    {
+      "name": "神里绫华",
+      "canonical": true,
+      "old_core_pixels": 5408,
+      "new_core_pixels": 0,
+      "geometric_filtered_faces": 136
+    },
+    {
+      "name": "八重神子",
+      "canonical": true,
+      "old_core_pixels": 37208,
+      "new_core_pixels": 0,
+      "geometric_filtered_faces": 266
+    },
+    {
+      "name": "绮良良",
+      "canonical": true,
+      "old_core_pixels": 13204,
+      "new_core_pixels": 0,
+      "geometric_filtered_faces": 186
+    },
+    {
+      "name": "闲云",
+      "canonical": true,
+      "old_core_pixels": 6635,
+      "new_core_pixels": 0,
+      "geometric_filtered_faces": 993
+    },
+    {
+      "name": "尼可",
+      "canonical": true,
+      "old_core_pixels": 2743,
+      "new_core_pixels": 0,
+      "geometric_filtered_faces": 5386
+    },
+    {
+      "name": "桑多涅",
+      "canonical": true,
+      "old_core_pixels": 6504,
+      "new_core_pixels": 0,
+      "geometric_filtered_faces": 2460
+    },
+    {
+      "name": "沃雅妮莎",
+      "canonical": true,
+      "old_core_pixels": 7780,
+      "new_core_pixels": 0,
+      "geometric_filtered_faces": 5128
+    },
+    {
+      "name": "优菈",
+      "canonical": true,
+      "old_core_pixels": 7823,
+      "new_core_pixels": 0,
+      "geometric_filtered_faces": 1374
+    },
+    {
+      "name": "纳西妲",
+      "canonical": true,
+      "old_core_pixels": 40517,
+      "new_core_pixels": 0,
+      "geometric_filtered_faces": 1152
+    },
+    {
+      "name": "茜特菈莉_星与烟帷的夜语",
+      "canonical": false,
+      "old_core_pixels": 1348,
+      "new_core_pixels": 0,
+      "geometric_filtered_faces": 4585
+    }
+  ],
+  "actual_package_cases": [
+    {
+      "case_key": "00_空-复地重天-variant-9bd5f62a",
+      "name": "空-复地重天",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 51
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1000
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 44
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1018
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 95
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1502
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 112
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1513
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [
+        "内衫",
+        "[元素力]内衫"
+      ],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "04_香菱_岁夜欢哗-variant-cf716eac",
+      "name": "香菱_岁夜欢哗",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 3
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 177
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 3
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 179
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 153
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 4
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 172
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [
+        "服内"
+      ],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "19_罗莎莉亚",
+      "name": "罗莎莉亚",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 10
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 809
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 10
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 758
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 13
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 922
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 23
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 930
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "21_优菈",
+      "name": "优菈",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 34
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1278
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 29
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1269
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 32
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1301
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 34
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1259
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "22_神里绫华",
+      "name": "神里绫华",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 34
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 912
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 12
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 856
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 11
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1082
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 11
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1083
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "31_八重神子",
+      "name": "八重神子",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 102
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1387
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 60
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1303
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 24
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1055
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 18
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1063
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "38_纳西妲",
+      "name": "纳西妲",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 25
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 610
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 8
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 551
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 5
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 490
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 8
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 485
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "43_绮良良",
+      "name": "绮良良",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 429
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 0
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 425
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 4
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 764
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 4
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 755
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "49_闲云",
+      "name": "闲云",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 15
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 982
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 21
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1009
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 20
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1350
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 14
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1337
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "60_茜特菈莉_星与烟帷的夜语-variant-fe77ef2f",
+      "name": "茜特菈莉_星与烟帷的夜语",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 14
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 979
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 20
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 997
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 19
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1182
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 19
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1233
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "75_尼可",
+      "name": "尼可",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 20
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1060
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 18
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 997
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 30
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1178
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 22
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1188
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "77_桑多涅",
+      "name": "桑多涅",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 17
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1252
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 15
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1221
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 14
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1033
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 12
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1028
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "80_沃雅妮莎",
+      "name": "沃雅妮莎",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 48
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1151
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 41
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1105
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 150
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1117
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 149
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1123
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    }
+  ],
+  "native_resource_failures": [
+    {
+      "name": "早柚",
+      "error": "AssetError: 同角色存在多份脸部资源，请指定对应 FBX 资源目录"
+    },
+    {
+      "name": "芭芭拉",
+      "error": "AssetError: 发 缺少已启用的 Sphere 贴图"
+    },
+    {
+      "name": "凝光",
+      "error": "AssetError: 腿 缺少已启用的 Sphere 贴图"
+    },
+    {
+      "name": "琴",
+      "error": "AssetError: 眼睛 缺少已启用的 Sphere 贴图"
+    },
+    {
+      "name": "莫娜",
+      "error": "AssetError: 同角色存在多份脸部资源，请指定对应 FBX 资源目录"
+    },
+    {
+      "name": "七七",
+      "error": "AssetError: 同角色存在多份脸部资源，请指定对应 FBX 资源目录"
+    },
+    {
+      "name": "柯莱",
+      "error": "AssetError: 星目 缺少 PMX toon 贴图：WUp"
+    },
+    {
+      "name": "瓦雷莎",
+      "error": "AssetError: 颜 缺少已启用的 Sphere 贴图"
+    },
+    {
+      "name": "派蒙",
+      "error": "AssetError: 皮肤 缺少已启用的 Sphere 贴图"
+    }
+  ],
+  "intentional_source_edges": [
+    {
+      "name": "空-复地重天",
+      "materials": [
+        "内衫",
+        "[元素力]内衫"
+      ]
+    },
+    {
+      "name": "香菱_岁夜欢哗",
+      "materials": [
+        "服内"
+      ]
+    }
+  ],
+  "visual_review": {
+    "all_sheets_reviewed": true,
+    "native_cases": 78,
+    "geometry_only_cases": 9,
+    "native_pages": 13,
+    "geometry_pages": 2,
+    "method": "Inspected all four views on off/wide contact sheets; default width also checked by per-view rendered pixel masks. Original PNGs retained."
+  },
+  "source_migration_cases": [
+    {
+      "case_key": "00_空-复地重天-variant-9bd5f62a",
+      "name": "空-复地重天",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 51
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1000
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 44
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1018
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 95
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1502
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 112
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1513
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [
+        "内衫",
+        "[元素力]内衫"
+      ],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "04_香菱_岁夜欢哗-variant-cf716eac",
+      "name": "香菱_岁夜欢哗",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 3
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 177
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 3
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 179
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 153
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 4
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 172
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [
+        "服内"
+      ],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "19_罗莎莉亚",
+      "name": "罗莎莉亚",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 10
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 809
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 10
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 758
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 13
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 922
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 23
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 930
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "21_优菈",
+      "name": "优菈",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 34
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1278
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 29
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1269
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 32
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1301
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 34
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1259
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "22_神里绫华",
+      "name": "神里绫华",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 34
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 912
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 12
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 856
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 11
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1082
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 11
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1083
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "31_八重神子",
+      "name": "八重神子",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 102
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1387
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 60
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1303
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 24
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1055
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 18
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1063
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "38_纳西妲",
+      "name": "纳西妲",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 25
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 610
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 8
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 551
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 5
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 490
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 8
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 485
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "43_绮良良",
+      "name": "绮良良",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 429
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 0
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 425
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 4
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 764
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 4
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 755
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "49_闲云",
+      "name": "闲云",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 15
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 982
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 21
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1009
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 20
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1350
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 14
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1337
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "60_茜特菈莉_星与烟帷的夜语-variant-fe77ef2f",
+      "name": "茜特菈莉_星与烟帷的夜语",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 14
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 979
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 20
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 997
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 19
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1182
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 19
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1233
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "75_尼可",
+      "name": "尼可",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 20
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1060
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 18
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 997
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 30
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1178
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 22
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1188
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "77_桑多涅",
+      "name": "桑多涅",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 17
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1252
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 15
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1221
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 14
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1033
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 12
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1028
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    },
+    {
+      "case_key": "80_沃雅妮莎",
+      "name": "沃雅妮莎",
+      "views": {
+        "front": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 48
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1151
+          }
+        },
+        "back": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 41
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1105
+          }
+        },
+        "left": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 150
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1117
+          }
+        },
+        "right": {
+          "default": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 149
+          },
+          "wide": {
+            "core_pixels": 0,
+            "core_fraction": 0.0,
+            "largest_core_region": 0,
+            "outer_silhouette_pixels": 1123
+          }
+        }
+      },
+      "source_image_max_error": 0.0,
+      "migration_parameters_and_profile_preserved": true,
+      "source_data_preserved": true,
+      "intentional_source_edges_preserved": [],
+      "save_reopen_exact": true
+    }
+  ],
+  "checks": {
+    "source_migration_and_profile_preserved": true,
+    "visual_reviewed_all_cases": true,
+    "all_local_pmx_scanned_readonly": true,
+    "four_views_and_both_widths": true,
+    "all_81_characters_geometry_covered": true,
+    "native_resource_errors_kept_explicit": true,
+    "source_files_and_verified_data_preserved": true,
+    "native_regressions_removed": true,
+    "normal_exterior_silhouettes_preserved": true,
+    "source_enabled_edges_preserved": true,
+    "actual_zip_migration_and_views": true
+  }
+}
