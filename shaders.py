@@ -11,6 +11,9 @@ LIBRARY_PATH = Path(__file__).parent / "assets/original_shader.blend"
 
 CONTROLS_PATH = Path(__file__).parent / "assets/original_controls.blend"
 
+LIGHT_UNIFORMS = {'lightDir': 'hgt_light_rotation', 'headForward': 'hgt_head_forward',
+                  'headUp': 'hgt_head_up'}
+
 def walk(tree, seen=None):
     seen = set() if seen is None else seen
     if tree.as_pointer() in seen:
@@ -20,6 +23,18 @@ def walk(tree, seen=None):
     for node in tree.nodes:
         if node.type == "GROUP" and node.node_tree:
             yield from walk(node.node_tree, seen)
+
+
+def bind_light_uniforms(trees, uid):
+    """Keep changing light/head directions out of the mesh attribute pipeline."""
+    seen = set()
+    for tree in trees:
+        for child in walk(tree, seen):
+            for node in child.nodes:
+                key = LIGHT_UNIFORMS.get(node.attribute_name) if node.type == 'ATTRIBUTE' else None
+                if key:
+                    node.attribute_type = 'VIEW_LAYER'
+                    node.attribute_name = f'hgt_{uid}_{key}'
 
 def load_image(path, data=False, owner=""):
     colorspace = "Non-Color" if data else "sRGB"
@@ -86,6 +101,7 @@ class ShaderLibrary:
             item["hgt_owner"] = self.uid
             item.use_fake_user = False
             item.name = f"HGT • {root.name} • {item['hgt_upstream']}"
+        bind_light_uniforms((*self.groups.values(), *(m.node_tree for m in self.materials.values())), self.uid)
         settings = root.hgt_character
         if reuse_controls:
             existing = {'Global Material Properties': settings.global_properties,
@@ -184,7 +200,7 @@ def configure_controls(root):
                 tree.nodes['Global Properties'].inputs['Shadow Position'], root.hgt_character.uid)
 
 
-def set_controls(root):
+def set_controls(root, vectors=None):
     settings = root.hgt_character
     tree = settings.global_properties
     if tree is None:
@@ -194,6 +210,9 @@ def set_controls(root):
         if abs(socket.default_value - settings.shadow_position) > 1e-6:
             socket.default_value = settings.shadow_position
         return
+    if vectors is None:
+        from .lighting import shader_vectors
+        vectors = shader_vectors(root)
     for scene in bpy.data.scenes:
         changed = False
         for key, value in (('hgt_shadow_position', settings.shadow_position),
@@ -211,6 +230,13 @@ def set_controls(root):
         if any(abs(a - b) > 1e-6 for a, b in zip(scene.get(key, (-1,) * 4), value)):
             scene[key] = value
             changed = True
+        for name, vector in vectors.items():
+            key = f'hgt_{settings.uid}_{name}'
+            value = (*vector, 1)
+            previous = scene.get(key)
+            if previous is None or len(previous) != 4 or any(abs(a - b) > 1e-7 for a, b in zip(previous, value)):
+                scene[key] = value
+                changed = True
         if changed:
             # ID properties do not notify the VIEW_LAYER attribute uniforms.
             scene.update_tag()

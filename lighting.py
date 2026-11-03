@@ -5,6 +5,8 @@ import bpy
 from mathutils import Vector
 from . import shaders
 
+UNIFORM_VERSION = 1
+
 
 def light_direction(settings, depsgraph=None):
     source = settings.light_source or settings.light
@@ -45,6 +47,7 @@ def build(root, collection, imported, library):
         raise RuntimeError("无法设置头部参照的初始变换")
     settings = root.hgt_character
     settings.light, settings.head = controls["Light Direction"], head
+    settings.lighting_version = UNIFORM_VERSION
     bpy.context.view_layer.update()
     return controls
 
@@ -54,8 +57,11 @@ def attach(mesh, root, controls):
     existing = next((m for m in mesh.modifiers if m.type == "NODES" and m.node_group == graph), None)
     modifier = existing or mesh.modifiers.new("HGT • Light Vectors", "NODES")
     modifier.node_group = graph
-    for name in ("Light Direction", "Head Origin", "Head Forward", "Head Up"):
+    # The source node still supplies constant colour/rim attributes. Light
+    # rotation is a shader uniform, so it cannot invalidate outline geometry.
+    for name in ("Head Origin", "Head Forward", "Head Up"):
         shaders.set_input(modifier, name, controls[name])
+    shaders.set_input(modifier, 'Light Direction', None)
     for name, key in (("Ambient", "Ambient"), ("Lit", "Lit"), ("Shadow", "Shadow"),
                       ("Rim Lit", "RimLit"), ("Fresnel", "Fresnel"), ("Soft Lit", "SoftLit"),
                       ("Soft Shadow", "SoftShadow"), ("Rim Shadow", "RimShadow")):
@@ -70,22 +76,59 @@ def attach(mesh, root, controls):
     return modifier
 
 
-def update(root, depsgraph=None, scene=None):
+def shader_vectors(root, depsgraph=None):
+    """Match the original Object Info rotation and head-position differences."""
     settings = root.hgt_character
-    if settings.light and settings.light_source:
+    if not settings.head or not settings.light:
+        return {}
+    depsgraph = depsgraph or bpy.context.evaluated_depsgraph_get()
+    if settings.light_source:
         source = settings.light_source
         if source.type != 'LIGHT' or source.data.type not in {'SUN', 'AREA', 'POINT', 'SPOT'}:
             raise ValueError('请选择太阳光、面光、点光或聚光')
-        if scene and source.name not in scene.objects:
-            raise ValueError('材质灯光不在当前场景中')
-        depsgraph = depsgraph or bpy.context.evaluated_depsgraph_get()
         if source.data.type == 'SUN':
             rotation = source.evaluated_get(depsgraph).matrix_world.to_quaternion().to_euler()
         else:
             rotation = light_direction(settings, depsgraph).to_track_quat('-Z', 'Y').to_euler()
-        if any(abs(settings.light.rotation_euler[i] - rotation[i]) > 1e-6 for i in range(3)):
-            settings.light.rotation_euler = rotation
-    shaders.set_controls(root)
+        # Object Info reads a matrix decomposed back to Euler, rather than
+        # the uncanonicalized RNA Euler values previously assigned to a helper.
+        rotation = rotation.to_matrix().to_euler()
+    else:
+        key = f'hgt_{settings.uid}_hgt_light_rotation'
+        previous = next((scene[key] for scene in bpy.data.scenes if key in scene), None)
+        # Clearing a light freezes the last direction, as the old helper did.
+        rotation = previous[:3] if previous is not None else settings.light.evaluated_get(depsgraph).matrix_world.to_euler()
+    controls = {entry.key: entry.object for entry in settings.controls if entry.object}
+    if not all(controls.get(key) for key in ('Head Forward', 'Head Up')):
+        raise ValueError('角色缺少头部光向参照，请恢复原材质后重新应用')
+    origin = settings.head.evaluated_get(depsgraph).matrix_world.translation
+    vectors = {'hgt_light_rotation': tuple(rotation)}
+    for name, key in (('Head Forward', 'hgt_head_forward'), ('Head Up', 'hgt_head_up')):
+        vectors[key] = tuple(controls[name].evaluated_get(depsgraph).matrix_world.translation - origin)
+    return vectors
+
+
+def upgrade(root):
+    settings = root.hgt_character
+    if settings.lighting_version == UNIFORM_VERSION:
+        return
+    trees = [tree for tree in bpy.data.node_groups if tree.get('hgt_owner') == settings.uid]
+    trees.extend(m.node_tree for m in bpy.data.materials if m.get('hgt_owner') == settings.uid and m.node_tree)
+    shaders.bind_light_uniforms(trees, settings.uid)
+    for entry in settings.meshes:
+        if not entry.object:
+            continue
+        for modifier in entry.object.modifiers:
+            if modifier.type == 'NODES' and modifier.node_group == settings.light_vectors:
+                shaders.set_input(modifier, 'Light Direction', None)
+    settings.lighting_version = UNIFORM_VERSION
+
+
+def update(root, depsgraph=None, scene=None):
+    source = root.hgt_character.light_source
+    if source and scene and source.name not in scene.objects:
+        raise ValueError('材质灯光不在当前场景中')
+    shaders.set_controls(root, shader_vectors(root, depsgraph))
 
 
 PRESETS = {
@@ -114,11 +157,18 @@ def update_parameters(scene, parameters):
             or not light.get('hgt_scene_light') or light.type != 'LIGHT'
             or tuple(light.users_scene) != (scene,)):
         return
-    light.data.energy, light.data.color, light.data.angle = parameters.energy, parameters.color, parameters.angle
+    if abs(light.data.energy - parameters.energy) > 1e-6:
+        light.data.energy = parameters.energy
+    if any(abs(a - b) > 1e-6 for a, b in zip(light.data.color, parameters.color)):
+        light.data.color = parameters.color
+    if abs(light.data.angle - parameters.angle) > 1e-6:
+        light.data.angle = parameters.angle
     azimuth, elevation = parameters.azimuth, parameters.elevation
     direction = Vector((math.sin(azimuth) * math.cos(elevation),
                         -math.cos(azimuth) * math.cos(elevation), math.sin(elevation)))
-    light.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
+    rotation = direction.to_track_quat('-Z', 'Y').to_euler()
+    if any(abs(a - b) > 1e-6 for a, b in zip(light.rotation_euler, rotation)):
+        light.rotation_euler = rotation
 
 
 def apply_preset(scene, key):

@@ -249,13 +249,24 @@ def draw_materials(layout, context):
         column.operator('hgt.apply_materials', icon='MATERIAL')
         return
     settings = root.hgt_character
-    column.prop(settings, 'shadow_position', slider=True)
-    column.prop(settings, 'shadow_transition', slider=True)
-    if any(b.generated and b.generated.get('hgt_template') == 'Face' for b in settings.bindings):
-        column.prop(settings, 'face_softness', slider=True)
+    column.prop(settings, 'shadow_softness', slider=True)
     if settings.has_outline:
         column.prop(settings, 'outline', slider=True)
-        column.prop(settings, 'outline_lower', slider=True)
+        from . import outline_profile
+        profile = outline_profile.node(settings)
+        if profile:
+            column.label(text='描边高度渐变')
+            row = column.row(align=True)
+            row.prop(settings, 'outline_top', slider=True)
+            row.prop(settings, 'outline_lower', slider=True)
+            column.template_color_ramp(profile, 'color_ramp', expand=True)
+            column.label(text='左头部 → 右脚部；白粗黑细')
+    column.prop(settings, 'show_material_advanced', icon='TRIA_DOWN' if settings.show_material_advanced else 'TRIA_RIGHT', emboss=False)
+    if settings.show_material_advanced:
+        advanced = column.column()
+        advanced.prop(settings, 'shadow_bias', slider=True)
+        if any(b.generated and b.generated.get('hgt_template') == 'Face' for b in settings.bindings):
+            advanced.prop(settings, 'face_softness_adjust', slider=True)
     row = column.row(align=True)
     row.operator('hgt.reset_materials', text='重置参数', icon='LOOP_BACK')
     row.operator('hgt.restore_materials', text='恢复原材质')

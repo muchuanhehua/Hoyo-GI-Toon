@@ -6,9 +6,10 @@ from mathutils import Vector
 
 from .shaders import input_value
 from .pmx_materials import is_inner_surface, visible_source_edge
+from . import outline_profile
 
 PAIRS = ("Hair", "Body", "Face", "Dress", "Dress 2", "Other")
-GRAPH_VERSION = 4
+GRAPH_VERSION = 5
 
 
 def eligible(binding):
@@ -104,7 +105,6 @@ def build(mesh, root):
     graph['hgt_outline_version'] = GRAPH_VERSION
     for name, direction, kind in [('Geometry', 'INPUT', 'NodeSocketGeometry'),
                                   ('Outline Thickness', 'INPUT', 'NodeSocketFloat'),
-                                  ('Lower Thickness', 'INPUT', 'NodeSocketFloat'),
                                   ('Geometry', 'OUTPUT', 'NodeSocketGeometry')]:
         graph.interface.new_socket(name=name, in_out=direction, socket_type=kind)
     source = graph.nodes.new('NodeGroupInput')
@@ -122,15 +122,17 @@ def build(mesh, root):
     height = graph.nodes.new('GeometryNodeInputNamedAttribute')
     height.data_type = 'FLOAT'
     height.inputs['Name'].default_value = 'hgt_outline_height'
-    taper = graph.nodes.new('ShaderNodeMapRange')
-    taper.interpolation_type = 'SMOOTHSTEP'
-    graph.links.new(height.outputs['Attribute'], taper.inputs['Value'])
-    graph.links.new(source.outputs['Lower Thickness'], taper.inputs['To Min'])
-    taper.inputs['To Max'].default_value = 1
+    taper = graph.nodes.new('GeometryNodeGroup')
+    taper.node_tree = outline_profile.ensure(root)
+    graph.links.new(height.outputs['Attribute'], taper.inputs['Height'])
     thickness = graph.nodes.new('ShaderNodeMath')
     thickness.operation = 'MULTIPLY'
-    graph.links.new(taper.outputs['Result'], thickness.inputs[0])
+    graph.links.new(taper.outputs['Scale'], thickness.inputs[0])
     graph.links.new(source.outputs['Outline Thickness'], thickness.inputs[1])
+    visible = graph.nodes.new('ShaderNodeMath')
+    visible.operation = 'GREATER_THAN'
+    visible.inputs[1].default_value = 0
+    graph.links.new(taper.outputs['Scale'], visible.inputs[0])
     for weight, pairs in by_weight.items():
         width = graph.nodes.new('ShaderNodeMath')
         width.operation = 'MULTIPLY'
@@ -157,7 +159,13 @@ def build(mesh, root):
             safe.operation = 'AND'
             graph.links.new(selection, safe.inputs[0])
             graph.links.new(surface.outputs['Attribute'], safe.inputs[1])
-            graph.links.new(safe.outputs[0], separate.inputs['Selection'])
+            # A zero-width reversed shell can still cover transparent source
+            # faces. Black regions of the gradient must emit no shell.
+            enabled = graph.nodes.new('FunctionNodeBooleanMath')
+            enabled.operation = 'AND'
+            graph.links.new(safe.outputs[0], enabled.inputs[0])
+            graph.links.new(visible.outputs[0], enabled.inputs[1])
+            graph.links.new(enabled.outputs[0], separate.inputs['Selection'])
             node = graph.nodes.new('GeometryNodeGroup')
             node.node_tree = settings.outline_graph
             graph.links.new(separate.outputs['Selection'], node.inputs['Geometry'])
@@ -187,7 +195,7 @@ def update(mesh, root):
         if abs(field.value - value) > 1e-7:
             field.value = value
             mesh.update_tag(refresh={'OBJECT'})
-        if graph.get('hgt_outline_version', 0) >= 2:
+        if 2 <= graph.get('hgt_outline_version', 0) < 5:
             lower = input_value(modifier, 'Lower Thickness')
             if abs(lower.value - settings.outline_lower) > 1e-7:
                 lower.value = settings.outline_lower

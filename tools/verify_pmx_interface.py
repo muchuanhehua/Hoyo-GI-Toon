@@ -162,6 +162,26 @@ def step():
                 assert bpy.ops.ed.redo()=={'FINISHED'} and abs(root().hgt_character.face_softness-.11)<1e-6
                 bpy.ops.ed.undo()
                 report['checks']['face_softness_undo_redo']=True
+                initial=addon.outline_profile.snapshot(root().hgt_character)
+                bpy.ops.ed.undo_push(message='Before outline gradient')
+                root().hgt_character.outline_top=.4
+                root().hgt_character.outline_lower=.8
+                addon.outline_profile.node(root().hgt_character).color_ramp.elements.new(.5).color=(.1,.1,.1,1)
+                edited=addon.outline_profile.snapshot(root().hgt_character)
+                bpy.ops.ed.undo_push(message='Outline gradient')
+                assert bpy.ops.ed.undo()=={'FINISHED'} and addon.outline_profile.snapshot(root().hgt_character)==initial
+                assert bpy.ops.ed.redo()=={'FINISHED'} and addon.outline_profile.snapshot(root().hgt_character)==edited
+                bpy.ops.ed.undo()
+                report['checks']['height_gradient_undo_redo']=True
+                initial=root().hgt_character.shadow_softness
+                bpy.ops.ed.undo_push(message='Before overall softness')
+                root().hgt_character.shadow_softness=.14
+                bpy.ops.ed.undo_push(message='Overall softness')
+                assert bpy.ops.ed.undo()=={'FINISHED'} and abs(root().hgt_character.shadow_softness-initial)<1e-6
+                assert bpy.ops.ed.redo()=={'FINISHED'} and abs(root().hgt_character.shadow_transition-.14)<1e-6
+                assert abs(root().hgt_character.face_softness-.08)<1e-6
+                bpy.ops.ed.undo()
+                report['checks']['overall_softness_undo_redo']=True
                 color=tuple(root().hgt_character.bindings[0].tint)
                 bpy.ops.ed.undo_push(message='Before tint')
                 root().hgt_character.bindings[0].tint=(.4,.7,1)
@@ -253,6 +273,40 @@ def step():
                 body=next(b for b in root().hgt_character.bindings if b.role=='body')
                 body.tint=(1,1,1)
                 root().hgt_character.shadow_position=.52
+                root().hgt_character.outline=.8
+                root().hgt_character.show_material_advanced=True
+                phase=9;return 3
+            if phase==9:
+                viewport_before=viewport_pixels('viewport-gradient-default.png')
+                screenshot('panel-advanced.png')
+                root().hgt_character.outline_top=.05
+                root().hgt_character.outline_lower=1
+                addon.outline_profile.node(root().hgt_character).color_ramp.elements.new(.5).color=(0,0,0,1)
+                phase=10;return 3
+            if phase==10:
+                after=viewport_pixels('viewport-gradient-custom.png')
+                response=float(np.abs(after-viewport_before).max())
+                assert response>.02,response
+                report['viewport_gradient_response']=response
+                report['checks']['realtime_viewport_gradient_response']=True
+                viewport_before=after
+                root().hgt_character.shadow_softness=.2
+                phase=11;return 3
+            if phase==11:
+                after=viewport_pixels('viewport-overall-soft.png')
+                response=float(np.abs(after-viewport_before).max())
+                assert response>.01,response
+                report['viewport_softness_response']=response
+                report['checks']['realtime_viewport_overall_softness_response']=True
+                viewport_before=after
+                addon.lighting.active_parameters(bpy.context.scene).azimuth+=1.2
+                phase=12;return 3
+            if phase==12:
+                after=viewport_pixels('viewport-light-rotate.png')
+                response=float(np.abs(after-viewport_before).max())
+                assert response>.02,response
+                report['viewport_light_response']=response
+                report['checks']['realtime_viewport_light_rotation_response']=True
                 area.spaces.active.shading.type='SOLID'
                 bpy.ops.wm.save_as_mainfile(filepath=str(out/'ui-preview.blend'),relative_remap=False)
                 report['checks']['save_project']=True

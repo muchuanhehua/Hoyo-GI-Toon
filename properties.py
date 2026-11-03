@@ -26,6 +26,59 @@ def update_uniforms(self, context):
         preview_materials(context)
 
 
+def update_softness(self, context):
+    if self.building:
+        return
+    self.building = True
+    try:
+        self.shadow_transition = self.shadow_softness
+        self.face_softness = min(.2, max(.001, self.shadow_softness * (.02 / .035) * self.face_softness_adjust))
+    finally:
+        self.building = False
+    update_uniforms(self, context)
+
+
+def update_body_softness(self, context):
+    if not self.building:
+        self.shadow_softness = self.shadow_transition
+
+
+def update_face_softness(self, context):
+    if not self.building:
+        self.face_softness_adjust = self.face_softness / max(1e-12, self.shadow_softness * (.02 / .035))
+
+
+def get_shadow_bias(self):
+    from .pmx_materials import DEFAULT_SHADOW_POSITION
+    value = self.shadow_position - DEFAULT_SHADOW_POSITION
+    return 0.0 if abs(value) < 1e-6 else value
+
+
+def set_shadow_bias(self, value):
+    from .pmx_materials import DEFAULT_SHADOW_POSITION
+    self.shadow_position = value + DEFAULT_SHADOW_POSITION
+
+
+def get_outline_top(self):
+    from .outline_profile import endpoint
+    return endpoint(self, True)
+
+
+def set_outline_top(self, value):
+    from .outline_profile import set_endpoint
+    set_endpoint(self, value, True)
+
+
+def get_outline_lower(self):
+    from .outline_profile import endpoint
+    return endpoint(self, False)
+
+
+def set_outline_lower(self, value):
+    from .outline_profile import set_endpoint
+    set_endpoint(self, value, False)
+
+
 def update_outline(self, context):
     if self.managed and not self.building:
         from .outlines import update
@@ -133,6 +186,7 @@ class HGTCharacterSettings(PropertyGroup):
     imported: BoolProperty()
     managed: BoolProperty()
     building: BoolProperty(options={'HIDDEN', 'SKIP_SAVE'})
+    lighting_version: IntProperty(default=0)
     schema_version: IntProperty(default=0)
     uid: StringProperty()
     source_file: StringProperty(subtype='FILE_PATH')
@@ -153,6 +207,8 @@ class HGTCharacterSettings(PropertyGroup):
     global_properties: PointerProperty(type=bpy.types.NodeTree)
     light_vectors: PointerProperty(type=bpy.types.NodeTree)
     outline_graph: PointerProperty(type=bpy.types.NodeTree)
+    outline_profile: PointerProperty(type=bpy.types.NodeTree)
+    outline_profile_state: StringProperty()
     has_outline: BoolProperty()
     height: FloatProperty(default=1.7)
     meshes: CollectionProperty(type=HGTMeshReference)
@@ -161,11 +217,21 @@ class HGTCharacterSettings(PropertyGroup):
     controls: CollectionProperty(type=HGTControlReference)
     display_meshes: CollectionProperty(type=HGTVisibility)
     active_material: IntProperty(default=0)
-    shadow_position: FloatProperty(name='阴影位置', default=0.55, min=0, max=1, update=update_uniforms)
-    shadow_transition: FloatProperty(name='明暗过渡', default=0.035, min=0.001, max=0.5, update=update_uniforms)
-    face_softness: FloatProperty(name='脸部阴影软硬', default=0.02, min=0.001, max=0.2, update=update_uniforms)
+    show_material_advanced: BoolProperty(name='高级', default=False)
+    shadow_bias: FloatProperty(name='明暗分界偏移', description='微调明暗覆盖范围，0 为默认；日常光向通过打光控制',
+                               min=-.52, max=.48, soft_min=-.3, soft_max=.3, get=get_shadow_bias, set=set_shadow_bias)
+    shadow_softness: FloatProperty(name='整体阴影软硬', description='数值越大，角色身体、头发与脸部的明暗交界越柔和',
+                                   default=.035, min=.001, max=.5, precision=3, update=update_softness)
+    face_softness_adjust: FloatProperty(name='脸部软硬补偿', description='脸部 SDF 相对整体阴影软硬的比例', default=1,
+                                        min=0, soft_max=3, update=update_softness)
+    shadow_position: FloatProperty(name='明暗分界阈值', default=0.55, min=0, max=1, update=update_uniforms)
+    shadow_transition: FloatProperty(default=0.035, min=0.001, max=0.5, update=update_body_softness)
+    face_softness: FloatProperty(default=0.02, min=0.001, max=0.2, update=update_face_softness)
     outline: FloatProperty(name='描边粗细', default=0.25, min=0, soft_max=5, update=update_outline)
-    outline_lower: FloatProperty(name='下部描边比例', description='脚部相对头部的线宽；1 为均匀，越小越上粗下细', default=0.35, min=0, max=1, update=update_outline)
+    outline_top: FloatProperty(name='顶部比例', description='头部相对总粗细的比例', min=0, max=1,
+                               get=get_outline_top, set=set_outline_top, update=update_outline)
+    outline_lower: FloatProperty(name='底部比例', description='脚部相对总粗细的比例', min=0, max=1,
+                                 get=get_outline_lower, set=set_outline_lower, update=update_outline)
     initial_shadow: FloatProperty(default=0.55)
     initial_face_softness: FloatProperty(default=0.02)
     initial_outline: FloatProperty(default=0.25)

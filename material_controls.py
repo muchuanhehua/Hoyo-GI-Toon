@@ -117,6 +117,11 @@ def upgrade(root):
             settings.light_reference_energy = (2 if settings.light_source.get('hgt_scene_light')
                                                else max(settings.light_source.data.energy, 1))
         shaders.configure_controls(root)
+        from . import lighting
+        lighting.upgrade(root)
+        if not settings.is_property_set('shadow_softness'):
+            settings.shadow_softness = settings.shadow_transition
+            settings.face_softness_adjust = settings.face_softness / max(1e-12, settings.shadow_softness * (.02 / .035))
         for binding in settings.bindings:
             extend(binding)
             if 'hgt_edge_coverage' not in binding.outline:
@@ -138,7 +143,10 @@ def reset(root):
         settings.face_softness = settings.initial_face_softness
         settings.outline = settings.initial_outline
         settings.shadow_transition = 0.035
-        settings.outline_lower = 0.35
+        settings.shadow_softness = .035
+        settings.face_softness_adjust = settings.initial_face_softness / .02
+        from . import outline_profile
+        outline_profile.reset(root)
         for binding in settings.bindings:
             binding.brightness = binding.saturation = binding.opacity = 1
     finally:

@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[1]
 PAYLOAD={"__init__.py","asset_tracking.py","importers.py","mmd_importer.py","material_assets.py",
          "material_controls.py","pmx_materials.py","node_graph.py","sampling.py","shaders.py","lighting.py",
          "face_assets.py","face_catalog.py","face_sdf.py","head_binding.py","scene_presets.py",
-         "outlines.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
+         "outlines.py","outline_profile.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
          "assets/original_shader.blend","assets/original_controls.blend","assets/upstream.json",
          "assets/scenes.json","assets/scene_city_terrace.blend","assets/scene_stage.blend",
          "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE",
@@ -135,12 +135,16 @@ def validate_outline_evidence(evidence,hashes,package_sha256=None):
 
 def validate_cross_character_evidence(evidence,hashes,package_sha256=None):
     if evidence['scope']=='CROSS-CHARACTER-OUTLINE-PACKAGE':
-        # 2.5 changes selection/UI and the numeric limit, not the generic
-        # surface algorithm. Recheck all 13 regression/control fixtures now;
+        # Light/gradient controls preserve the generic inner-surface and
+        # rest-height algorithms. Recheck all 13 regression/control fixtures;
         # do not relabel 2.4.2's 204-file/87-model audit as a new execution.
         assert evidence['complete'] and evidence['source_sha256']==hashes
         with zipfile.ZipFile(ROOT/'release/hoyo_gi_toon-2.4.2.zip') as baseline:
-            assert baseline.read('outlines.py')==(ROOT/'outlines.py').read_bytes()
+            old_outline=ast.parse(baseline.read('outlines.py'))
+            new_outline=ast.parse((ROOT/'outlines.py').read_text('utf-8'))
+            for name in ('eligible','surface_mask','record_surface_mask','profile'):
+                select=lambda tree:ast.dump(next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==name))
+                assert select(old_outline)==select(new_outline),'Generic inner protection or rest height changed: '+name
             old=ast.parse(baseline.read('pmx_materials.py'))
             new=ast.parse((ROOT/'pmx_materials.py').read_text('utf-8'))
             for name in ('is_inner_surface','visible_source_edge'):
@@ -196,6 +200,33 @@ def validate_panel_update(evidence,interface,hashes,package_sha256=None):
     if package_sha256 is not None:assert evidence['package_sha256']==package_sha256
 
 
+def validate_lighting_controls(evidence,interface,hashes,package_sha256=None):
+    assert evidence['scope']=='GI-TOON-LIGHTING-CONTROLS' and evidence['complete']
+    assert evidence['source_sha256']==hashes and evidence['cpu_only']
+    previous=json.loads((ROOT/'release/build-v2.5.0.json').read_text('utf-8'))
+    assert evidence['baseline_archive_sha256']==previous['sha256']
+    assert len(evidence['models'])>=3
+    for model in evidence['models']:
+        assert all(model['checks'].get(key) is True for key in (
+            'legacy_parameters_and_source_preserved','rest_height_and_inner_mask_preserved',
+            'geometry_light_reference_detached','sun_point_area_head_and_root_match_250',
+            'clearing_light_freezes_last_direction',
+            'full_outline_light_update_faster_and_helper_static','editable_gradient_both_ends_and_middle',
+            'zero_gradient_preserves_surface',
+            'overall_softness_and_face_compensation','advanced_bias_controls_existing_threshold',
+            'save_reopen_exact_and_restore_reapply_preserves_profile'))
+        assert set(model['frames'])=={'front','left','right','back_l','back_r','up','down',
+                                    'head_turn','model_turn','sun_roll','point','area'}
+        assert all(frame['max_error']<=1/255+1e-6 and frame['mean_error']<1e-5 for frame in model['frames'].values())
+        assert model['performance']['speedup']>2
+        assert set(model['gradient_responses'])=={'top','bottom','middle'}
+        assert all(value>.01 for value in model['gradient_responses'].values())
+    assert all(interface['checks'].get(key) is True for key in (
+        'height_gradient_undo_redo','overall_softness_undo_redo','realtime_viewport_gradient_response',
+        'realtime_viewport_overall_softness_response','realtime_viewport_light_rotation_response'))
+    if package_sha256 is not None:assert evidence['package_sha256']==package_sha256
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('action',choices=('review','candidate','release'))
@@ -208,6 +239,7 @@ def main():
     parser.add_argument('--cross-character-verification',type=Path)
     parser.add_argument('--sdf-interface-verification',type=Path)
     parser.add_argument('--panel-verification',type=Path)
+    parser.add_argument('--lighting-controls-verification',type=Path,required=True)
     parser.add_argument('--scene-verification',type=Path,required=True)
     parser.add_argument('--scene-interface-verification',type=Path,required=True)
     args=parser.parse_args()
@@ -224,6 +256,8 @@ def main():
     assert args.panel_verification,'Current panel and bundled-SDF verification is required'
     panel_update=json.loads(args.panel_verification.read_text('utf-8'))
     validate_panel_update(panel_update,interface,hashes,evidence.get('package_sha256') if args.action=='release' else None)
+    lighting_controls=json.loads(args.lighting_controls_verification.read_text('utf-8'))
+    validate_lighting_controls(lighting_controls,interface,hashes,evidence.get('package_sha256') if args.action=='release' else None)
     outline=None
     if tuple(info['version'])>=(2,4,1):
         assert args.outline_verification,'Inner-shell colour and exterior silhouette evidence is required'
@@ -295,6 +329,7 @@ def main():
              'outline_surface_models':outline['models'] if outline else [],
              'cross_character_outlines':cross,
              'panel_and_bundled_sdf':panel_update,
+             'lighting_controls':lighting_controls,
              'new_full_game_algorithm_recovered':sdf['full_new_game_shader_recovered']}
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('HGT_RELEASE',record['version'],record['sha256'])

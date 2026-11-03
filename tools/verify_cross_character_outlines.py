@@ -119,7 +119,7 @@ for fixture in fixtures:
     addon.project_io.on_load(None)
     assert source(root) == before_source and parameters(root) == before_parameters
     assert before_profile == {e.object.name: array_hash(e.object.data.attributes['hgt_outline_height'].data, 'value') for e in settings.meshes}
-    assert all(m.node_group.get('hgt_outline_version') == 4 for e in settings.meshes for m in e.object.modifiers
+    assert all(m.node_group.get('hgt_outline_version') == addon.outlines.GRAPH_VERSION for e in settings.meshes for m in e.object.modifiers
                if m.type == 'NODES' and m.node_group and m.node_group.get('hgt_pmx_outline'))
     scene.camera.matrix_world = camera_matrix
     scene.camera.data.ortho_scale = camera_scale

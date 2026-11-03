@@ -57,6 +57,9 @@ def apply_materials(root, context):
             settings.outline = DEFAULT_OUTLINE
         settings.initial_shadow = settings.shadow_position
         settings.initial_face_softness = settings.face_softness
+        if not settings.is_property_set('shadow_softness'):
+            settings.shadow_softness = settings.shadow_transition
+            settings.face_softness_adjust = settings.face_softness / max(1e-12, settings.shadow_softness * (.02 / .035))
         settings.initial_outline = settings.outline
         built = {}
         for entry in settings.meshes:
@@ -223,6 +226,13 @@ def restore(root):
         raise ValueError('请先应用材质')
     settings = root.hgt_character
     settings.building = True
+    from . import outline_profile
+    profile_state = outline_profile.snapshot(settings)
+    if profile_state:
+        import json
+        settings.outline_profile_state = json.dumps(profile_state)
+    settings.outline_profile = None
+    settings.lighting_version = 0
     for snap in settings.slots:
         if snap.mesh and snap.index < len(snap.mesh.material_slots):
             slot = snap.mesh.material_slots[snap.index]
