@@ -1,0 +1,90 @@
+{
+  "version": "2.6.1",
+  "archive": "hoyo_gi_toon-2.6.1.zip",
+  "sha256": "6f30422c060982ac53f43938626b09d6aca923bf9d88af8dbce574a8e6f66d7e",
+  "bytes": 6278080,
+  "payload_files": 55,
+  "published": true,
+  "installed": true,
+  "source_and_actual_zip_verified": true,
+  "release_url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/tag/v2.6.1",
+  "release_commit": "97196b840d0efd0d14c2aefa8ad9f081047236d1",
+  "workflow_id": 41631694811,
+  "public_downloads": {
+    "release_asset": {
+      "url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/download/v2.6.1/hoyo_gi_toon-2.6.1.zip",
+      "bytes": 6278080,
+      "sha256": "6f30422c060982ac53f43938626b09d6aca923bf9d88af8dbce574a8e6f66d7e"
+    },
+    "frozen_tag_archive": {
+      "url": "https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/v2.6.1/release/hoyo_gi_toon-2.6.1.zip",
+      "bytes": 6278080,
+      "sha256": "6f30422c060982ac53f43938626b09d6aca923bf9d88af8dbce574a8e6f66d7e"
+    }
+  },
+  "remote_index_version": "2.6.1",
+  "loaded_functions": 73,
+  "outline_controls": [
+    "outline",
+    "outline_difference"
+  ],
+  "single_control_both_ends_verified": true,
+  "zero_uniform_positive_top_thick_negative_bottom_thick": true,
+  "mean_and_overall_width_preserved": true,
+  "legacy_260_custom_profiles": {
+    "source": [
+      {
+        "name": "安柏 • HGT",
+        "max_error": 0.0,
+        "curve_and_parameters_preserved": true,
+        "source_preserved": true
+      },
+      {
+        "name": "纳西妲 • HGT",
+        "max_error": 0.0,
+        "curve_and_parameters_preserved": true,
+        "source_preserved": true
+      },
+      {
+        "name": "奥黛塔 • HGT",
+        "max_error": 0.0,
+        "curve_and_parameters_preserved": true,
+        "source_preserved": true
+      }
+    ],
+    "actual_zip": [
+      {
+        "name": "安柏 • HGT",
+        "max_error": 0.0,
+        "curve_and_parameters_preserved": true,
+        "source_preserved": true
+      },
+      {
+        "name": "纳西妲 • HGT",
+        "max_error": 0.0,
+        "curve_and_parameters_preserved": true,
+        "source_preserved": true
+      },
+      {
+        "name": "奥黛塔 • HGT",
+        "max_error": 0.0,
+        "curve_and_parameters_preserved": true,
+        "source_preserved": true
+      }
+    ]
+  },
+  "undo_redo_and_realtime_preview_verified": true,
+  "source_zip_four_view_pairs": 156,
+  "source_zip_all_view_max_error": 0,
+  "current_project": {
+    "objects": 1343,
+    "scenes": 1,
+    "preserved": true,
+    "raw_data_parameters_and_full_profile_preserved": true,
+    "node_group_identities_preserved": true,
+    "other_render_data_preserved": true,
+    "camera_output_and_window_preserved": true,
+    "saved_or_reopened": false
+  },
+  "other_addons_repositories_and_startup_preserved": true
+}
