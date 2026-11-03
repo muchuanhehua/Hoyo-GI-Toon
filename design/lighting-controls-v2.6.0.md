@@ -26,6 +26,6 @@
 
 13 个跨角色案例均通过正／背／双侧、关闭／默认／较宽描边与保存重开；与既有参考误差 0。源码与实际 ZIP 的 156 组四视角图片逐像素一致，各 5 页对照已审阅。通用内层、重合反向薄面及静止高度函数的 AST 与正式 2.4.2 保持。历史 204 份 PMX 扫描不记作本轮重跑；完整 VMD、材质／组 Morph、物理演出及完整游戏算法不记作本轮验证。
 
-冻结包为 55 文件、6,277,522 字节，SHA256 `0671413789493e3d3da56c7e1ca1c5e7ef51117f2ef2432aa461338cb59efe60`，已原样晋升为 `release/hoyo_gi_toon-2.6.0.zip`。[机器汇总](../release/verification-v2.6.0.json)。发布与本地更新状态见开发记录。
+冻结包为 55 文件、6,277,522 字节，SHA256 `0671413789493e3d3da56c7e1ca1c5e7ef51117f2ef2432aa461338cb59efe60`，已原样晋升为 `release/hoyo_gi_toon-2.6.0.zip`。[机器汇总](../release/verification-v2.6.0.json)。GitHub 发布检查、公开下载、主分支更新源及本地热更新均已完成；本地 55 文件和 69 个实际加载函数一致，原工程与已调参数保持。[交付记录](delivery-v2.6.0.json)。
 
 原始报告／PNG／工程放在忽略的 `.verification/release-v2.6.0/`，旧版参考在 `.verification/development/lighting-controls-20261103/reference-250/`；私人模型和贴图不进入仓库。

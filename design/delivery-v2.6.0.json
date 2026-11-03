@@ -1,0 +1,224 @@
+{
+  "version": "2.6.0",
+  "archive": "hoyo_gi_toon-2.6.0.zip",
+  "sha256": "0671413789493e3d3da56c7e1ca1c5e7ef51117f2ef2432aa461338cb59efe60",
+  "bytes": 6277522,
+  "payload_files": 55,
+  "published": true,
+  "installed": true,
+  "source_and_actual_zip_verified": true,
+  "release_url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/tag/v2.6.0",
+  "release_commit": "618a9b147bde1df32efc24c8d58cbb3f6a5c3806",
+  "workflow_id": 41564639800,
+  "workflow_url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/actions/runs/41564639800",
+  "public_downloads": {
+    "release_asset": {
+      "url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/download/v2.6.0/hoyo_gi_toon-2.6.0.zip",
+      "bytes": 6277522,
+      "sha256": "0671413789493e3d3da56c7e1ca1c5e7ef51117f2ef2432aa461338cb59efe60"
+    },
+    "frozen_tag_archive": {
+      "url": "https://raw.githubusercontent.com/muchuanhehua/Hoyo-GI-Toon/v2.6.0/release/hoyo_gi_toon-2.6.0.zip",
+      "bytes": 6277522,
+      "sha256": "0671413789493e3d3da56c7e1ca1c5e7ef51117f2ef2432aa461338cb59efe60"
+    }
+  },
+  "remote_index_version": "2.6.0",
+  "loaded_functions": 69,
+  "local_payload_files": 55,
+  "cross_character_four_view_cases": 13,
+  "cross_character_max_source_image_error": 0.0,
+  "source_zip_four_view_pairs": 156,
+  "source_zip_all_view_max_error": 0,
+  "lighting_controls": {
+    "conditions_per_model": 12,
+    "source": [
+      {
+        "name": "安柏",
+        "performance": {
+          "median_ms": 1.2148499954491854,
+          "max_ms": 1.4021999959368259,
+          "baseline_median_ms": 39.16130001016427,
+          "speedup": 32.23550245451049
+        },
+        "gradient_responses": {
+          "top": 0.45098042488098145,
+          "bottom": 0.3921568989753723,
+          "middle": 0.7254902124404907
+        },
+        "checks": {
+          "legacy_parameters_and_source_preserved": true,
+          "rest_height_and_inner_mask_preserved": true,
+          "geometry_light_reference_detached": true,
+          "sun_point_area_head_and_root_match_250": true,
+          "clearing_light_freezes_last_direction": true,
+          "full_outline_light_update_faster_and_helper_static": true,
+          "zero_gradient_preserves_surface": true,
+          "editable_gradient_both_ends_and_middle": true,
+          "overall_softness_and_face_compensation": true,
+          "advanced_bias_controls_existing_threshold": true,
+          "save_reopen_exact_and_restore_reapply_preserves_profile": true
+        }
+      },
+      {
+        "name": "纳西妲",
+        "performance": {
+          "median_ms": 9.588949993485585,
+          "max_ms": 10.444599989568815,
+          "baseline_median_ms": 59.25710001611151,
+          "speedup": 6.179727713291739
+        },
+        "gradient_responses": {
+          "top": 0.7490196228027344,
+          "bottom": 0.7490196824073792,
+          "middle": 0.7490196228027344
+        },
+        "checks": {
+          "legacy_parameters_and_source_preserved": true,
+          "rest_height_and_inner_mask_preserved": true,
+          "geometry_light_reference_detached": true,
+          "sun_point_area_head_and_root_match_250": true,
+          "clearing_light_freezes_last_direction": true,
+          "full_outline_light_update_faster_and_helper_static": true,
+          "zero_gradient_preserves_surface": true,
+          "editable_gradient_both_ends_and_middle": true,
+          "overall_softness_and_face_compensation": true,
+          "advanced_bias_controls_existing_threshold": true,
+          "save_reopen_exact_and_restore_reapply_preserves_profile": true
+        }
+      },
+      {
+        "name": "奥黛塔",
+        "performance": {
+          "median_ms": 16.967800009297207,
+          "max_ms": 17.686299979686737,
+          "baseline_median_ms": 192.3021999973571,
+          "speedup": 11.333360830042109
+        },
+        "gradient_responses": {
+          "top": 0.529411792755127,
+          "bottom": 0.5176470875740051,
+          "middle": 0.6117647886276245
+        },
+        "checks": {
+          "legacy_parameters_and_source_preserved": true,
+          "rest_height_and_inner_mask_preserved": true,
+          "geometry_light_reference_detached": true,
+          "sun_point_area_head_and_root_match_250": true,
+          "clearing_light_freezes_last_direction": true,
+          "full_outline_light_update_faster_and_helper_static": true,
+          "zero_gradient_preserves_surface": true,
+          "editable_gradient_both_ends_and_middle": true,
+          "overall_softness_and_face_compensation": true,
+          "advanced_bias_controls_existing_threshold": true,
+          "save_reopen_exact_and_restore_reapply_preserves_profile": true
+        }
+      }
+    ],
+    "actual_zip": [
+      {
+        "name": "安柏",
+        "performance": {
+          "median_ms": 1.231199988978915,
+          "max_ms": 1.4090000186115503,
+          "baseline_median_ms": 39.16130001016427,
+          "speedup": 31.807423944701586
+        },
+        "gradient_responses": {
+          "top": 0.45098042488098145,
+          "bottom": 0.3921568989753723,
+          "middle": 0.7254902124404907
+        },
+        "checks": {
+          "legacy_parameters_and_source_preserved": true,
+          "rest_height_and_inner_mask_preserved": true,
+          "geometry_light_reference_detached": true,
+          "sun_point_area_head_and_root_match_250": true,
+          "clearing_light_freezes_last_direction": true,
+          "full_outline_light_update_faster_and_helper_static": true,
+          "zero_gradient_preserves_surface": true,
+          "editable_gradient_both_ends_and_middle": true,
+          "overall_softness_and_face_compensation": true,
+          "advanced_bias_controls_existing_threshold": true,
+          "save_reopen_exact_and_restore_reapply_preserves_profile": true
+        }
+      },
+      {
+        "name": "纳西妲",
+        "performance": {
+          "median_ms": 9.56890000088606,
+          "max_ms": 10.423800005810335,
+          "baseline_median_ms": 59.25710001611151,
+          "speedup": 6.192676275290203
+        },
+        "gradient_responses": {
+          "top": 0.7490196228027344,
+          "bottom": 0.7490196824073792,
+          "middle": 0.7490196228027344
+        },
+        "checks": {
+          "legacy_parameters_and_source_preserved": true,
+          "rest_height_and_inner_mask_preserved": true,
+          "geometry_light_reference_detached": true,
+          "sun_point_area_head_and_root_match_250": true,
+          "clearing_light_freezes_last_direction": true,
+          "full_outline_light_update_faster_and_helper_static": true,
+          "zero_gradient_preserves_surface": true,
+          "editable_gradient_both_ends_and_middle": true,
+          "overall_softness_and_face_compensation": true,
+          "advanced_bias_controls_existing_threshold": true,
+          "save_reopen_exact_and_restore_reapply_preserves_profile": true
+        }
+      },
+      {
+        "name": "奥黛塔",
+        "performance": {
+          "median_ms": 17.281599997659214,
+          "max_ms": 18.021200026851147,
+          "baseline_median_ms": 192.3021999973571,
+          "speedup": 11.127569207909241
+        },
+        "gradient_responses": {
+          "top": 0.529411792755127,
+          "bottom": 0.5176470875740051,
+          "middle": 0.6117647886276245
+        },
+        "checks": {
+          "legacy_parameters_and_source_preserved": true,
+          "rest_height_and_inner_mask_preserved": true,
+          "geometry_light_reference_detached": true,
+          "sun_point_area_head_and_root_match_250": true,
+          "clearing_light_freezes_last_direction": true,
+          "full_outline_light_update_faster_and_helper_static": true,
+          "zero_gradient_preserves_surface": true,
+          "editable_gradient_both_ends_and_middle": true,
+          "overall_softness_and_face_compensation": true,
+          "advanced_bias_controls_existing_threshold": true,
+          "save_reopen_exact_and_restore_reapply_preserves_profile": true
+        }
+      }
+    ],
+    "cpu_only": true,
+    "max_render_error": 0.003921568393707275
+  },
+  "viewport_responses": {
+    "viewport_gradient_response": 0.3490196168422699,
+    "viewport_softness_response": 0.3607843220233917,
+    "viewport_light_response": 0.9450981020927429
+  },
+  "source_data_and_mmd_preserved": true,
+  "city_terrace_unchanged_from_250": true,
+  "sdf_assets_and_decoder_preserved": true,
+  "current_project": {
+    "objects": 1356,
+    "scenes": 1,
+    "preserved": true,
+    "source_and_other_render_data_preserved": true,
+    "parameters_preserved": true,
+    "window_preserved": true,
+    "saved_or_reopened": false,
+    "private_pre_update_library_backup": true
+  },
+  "other_addons_and_repositories_preserved": true,
+  "startup_file_unchanged": true
+}
