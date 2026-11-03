@@ -252,15 +252,7 @@ def draw_materials(layout, context):
     column.prop(settings, 'shadow_softness', slider=True)
     if settings.has_outline:
         column.prop(settings, 'outline', slider=True)
-        from . import outline_profile
-        profile = outline_profile.node(settings)
-        if profile:
-            column.label(text='描边高度渐变')
-            row = column.row(align=True)
-            row.prop(settings, 'outline_top', slider=True)
-            row.prop(settings, 'outline_lower', slider=True)
-            column.template_color_ramp(profile, 'color_ramp', expand=True)
-            column.label(text='左头部 → 右脚部；白粗黑细')
+        column.prop(settings, 'outline_difference', slider=True)
     column.prop(settings, 'show_material_advanced', icon='TRIA_DOWN' if settings.show_material_advanced else 'TRIA_RIGHT', emboss=False)
     if settings.show_material_advanced:
         advanced = column.column()

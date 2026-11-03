@@ -146,6 +146,17 @@ def step():
                 assert bpy.ops.ed.redo()=={'FINISHED'} and root().hgt_character.managed
                 assert not root().hgt_character.imported
                 report['checks']['existing_model_apply_undo']=True
+                class ControlAudit:
+                    def __init__(self):self.props=[]
+                    def column(self):return self
+                    def row(self,**kwargs):return self
+                    def prop(self,data,key,**kwargs):self.props.append(key)
+                    def operator(self,*args,**kwargs):return None
+                    def label(self,**kwargs):return None
+                audit=ControlAudit()
+                addon.panels.draw_materials(audit,bpy.context)
+                assert [key for key in audit.props if key.startswith('outline')]==['outline','outline_difference']
+                report['checks']['single_outline_difference_control']=True
                 bpy.ops.ed.undo_push(message='Before SDF choice')
                 root().hgt_character.face_sdf_preset='LEGACY_GIRL01'
                 assert root().hgt_character.applied_sdf_preset=='LEGACY_GIRL01'
@@ -164,9 +175,7 @@ def step():
                 report['checks']['face_softness_undo_redo']=True
                 initial=addon.outline_profile.snapshot(root().hgt_character)
                 bpy.ops.ed.undo_push(message='Before outline gradient')
-                root().hgt_character.outline_top=.4
-                root().hgt_character.outline_lower=.8
-                addon.outline_profile.node(root().hgt_character).color_ramp.elements.new(.5).color=(.1,.1,.1,1)
+                root().hgt_character.outline_difference=.8
                 edited=addon.outline_profile.snapshot(root().hgt_character)
                 bpy.ops.ed.undo_push(message='Outline gradient')
                 assert bpy.ops.ed.undo()=={'FINISHED'} and addon.outline_profile.snapshot(root().hgt_character)==initial
@@ -279,9 +288,7 @@ def step():
             if phase==9:
                 viewport_before=viewport_pixels('viewport-gradient-default.png')
                 screenshot('panel-advanced.png')
-                root().hgt_character.outline_top=.05
-                root().hgt_character.outline_lower=1
-                addon.outline_profile.node(root().hgt_character).color_ramp.elements.new(.5).color=(0,0,0,1)
+                root().hgt_character.outline_difference=-.8
                 phase=10;return 3
             if phase==10:
                 after=viewport_pixels('viewport-gradient-custom.png')

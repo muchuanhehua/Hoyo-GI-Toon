@@ -34,6 +34,29 @@ def set_endpoint(settings, value, top):
         ramp.color_ramp.elements[0 if top else -1].color = (value, value, value, 1)
 
 
+def difference(settings):
+    top, bottom = endpoint(settings, True), endpoint(settings, False)
+    return (top - bottom) / (top + bottom) if top + bottom > 1e-8 else 0.0
+
+
+def set_difference(settings, value):
+    # Keep the average scale, so one control changes both ends without
+    # changing the separate overall-width setting or resetting old files.
+    mean = (endpoint(settings, True) + endpoint(settings, False)) * .5
+    if mean <= 1e-8:
+        mean = 1.0
+    top, bottom = mean * (1 + value), mean * (1 - value)
+    state = {'interpolation': 'EASE', 'color_mode': 'RGB', 'hue_interpolation': 'NEAR',
+             'elements': [{'position': 0, 'color': (top, top, top, 1)},
+                          {'position': 1, 'color': (bottom, bottom, bottom, 1)}]}
+    settings['outline_top'], settings['outline_lower'] = top, bottom
+    if node(settings):
+        restore(settings, state)
+        settings.outline_profile_state = ''
+    else:
+        settings.outline_profile_state = json.dumps(state)
+
+
 def ensure(root):
     settings = root.hgt_character
     if node(settings):

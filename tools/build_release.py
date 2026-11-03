@@ -213,6 +213,7 @@ def validate_lighting_controls(evidence,interface,hashes,package_sha256=None):
             'clearing_light_freezes_last_direction',
             'full_outline_light_update_faster_and_helper_static','editable_gradient_both_ends_and_middle',
             'zero_gradient_preserves_surface',
+            'single_difference_changes_both_ends',
             'overall_softness_and_face_compensation','advanced_bias_controls_existing_threshold',
             'save_reopen_exact_and_restore_reapply_preserves_profile'))
         assert set(model['frames'])=={'front','left','right','back_l','back_r','up','down',
@@ -221,8 +222,10 @@ def validate_lighting_controls(evidence,interface,hashes,package_sha256=None):
         assert model['performance']['speedup']>2
         assert set(model['gradient_responses'])=={'top','bottom','middle'}
         assert all(value>.01 for value in model['gradient_responses'].values())
+        assert all(value>.01 for value in model['single_difference_responses'].values())
     assert all(interface['checks'].get(key) is True for key in (
         'height_gradient_undo_redo','overall_softness_undo_redo','realtime_viewport_gradient_response',
+        'single_outline_difference_control',
         'realtime_viewport_overall_softness_response','realtime_viewport_light_rotation_response'))
     if package_sha256 is not None:assert evidence['package_sha256']==package_sha256
 

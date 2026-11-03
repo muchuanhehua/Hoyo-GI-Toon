@@ -79,6 +79,16 @@ def set_outline_lower(self, value):
     set_endpoint(self, value, False)
 
 
+def get_outline_difference(self):
+    from .outline_profile import difference
+    return difference(self)
+
+
+def set_outline_difference(self, value):
+    from .outline_profile import set_difference
+    set_difference(self, value)
+
+
 def update_outline(self, context):
     if self.managed and not self.building:
         from .outlines import update
@@ -228,9 +238,12 @@ class HGTCharacterSettings(PropertyGroup):
     shadow_transition: FloatProperty(default=0.035, min=0.001, max=0.5, update=update_body_softness)
     face_softness: FloatProperty(default=0.02, min=0.001, max=0.2, update=update_face_softness)
     outline: FloatProperty(name='描边粗细', default=0.25, min=0, soft_max=5, update=update_outline)
-    outline_top: FloatProperty(name='顶部比例', description='头部相对总粗细的比例', min=0, max=1,
+    outline_difference: FloatProperty(name='上下描边差', description='0 上下等粗；正值上粗下细，负值上细下粗；上下同时变化',
+                                      min=-1, max=1, precision=2, get=get_outline_difference,
+                                      set=set_outline_difference, update=update_outline)
+    outline_top: FloatProperty(name='顶部比例', description='旧工程兼容参数', min=0, soft_max=1,
                                get=get_outline_top, set=set_outline_top, update=update_outline)
-    outline_lower: FloatProperty(name='底部比例', description='脚部相对总粗细的比例', min=0, max=1,
+    outline_lower: FloatProperty(name='底部比例', description='旧工程兼容参数', min=0, soft_max=1,
                                  get=get_outline_lower, set=set_outline_lower, update=update_outline)
     initial_shadow: FloatProperty(default=0.55)
     initial_face_softness: FloatProperty(default=0.02)

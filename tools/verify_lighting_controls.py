@@ -211,12 +211,26 @@ def main():
         addon.outline_profile.restore(s, profile)
         s.outline = .8
         row['checks']['zero_gradient_preserves_surface'] = True
-        s.outline_top, s.outline_lower = .45, .9
-        ramp = addon.outline_profile.node(s).color_ramp
-        ramp.elements.new(.48).color = (.05, .05, .05, 1)
+        total_width=s.outline
+        mean=(s.outline_top+s.outline_lower)*.5
+        s.outline_difference=0
+        assert abs(s.outline_top-s.outline_lower)<1e-6
+        uniform=render(out / f'{index}-difference-zero.png')
+        single_responses={}
+        for value in (.8,-.8):
+            s.outline_difference=value
+            assert abs(s.outline_difference-value)<1e-6
+            assert abs((s.outline_top+s.outline_lower)*.5-mean)<1e-6
+            assert (s.outline_top>mean>s.outline_lower) if value>0 else (s.outline_top<mean<s.outline_lower)
+            assert s.outline==total_width
+            image=render(out / f'{index}-difference-{value}.png')
+            single_responses[str(value)]=float(np.abs(image-uniform).max())
+            assert single_responses[str(value)]>.01
+        s.outline_difference=.65
+        row['single_difference_responses']=single_responses
+        row['checks']['single_difference_changes_both_ends']=True
         custom = render(out / f'{index}-profile-custom.png')
         assert float(np.abs(default - custom).max()) > .02
-        assert abs(s.outline_top - .45) < 1e-6 and abs(s.outline_lower - .9) < 1e-6
         assert profile_attributes(root) == attributes
         saved_profile = addon.outline_profile.snapshot(s)
         old_global = (s.shadow_softness, s.face_softness_adjust, s.shadow_bias)
