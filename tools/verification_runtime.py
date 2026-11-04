@@ -24,6 +24,24 @@ def load_addon(folder, name='hoyo_gi_toon'):
     return addon
 
 
+def load_reference(archive, output, name='hgt_reference_261'):
+    """Import immutable legacy functions without registering a second UI/RNA."""
+    output = Path(output).resolve()
+    output.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(archive) as package:
+        for member in package.namelist():
+            target = (output / member).resolve()
+            assert target.is_relative_to(output)
+        package.extractall(output)
+        assert all((output / member).read_bytes() == package.read(member) for member in package.namelist())
+    spec = importlib.util.spec_from_file_location(name, output / '__init__.py', submodule_search_locations=[str(output)])
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    assert module.bl_info['version'] == (2, 6, 1)
+    return module
+
+
 def load_mmd(source, runtime):
     """Unpack wheel data privately: OpenCC needs real files, not zip imports."""
     source, runtime = Path(source).resolve(), Path(runtime).resolve()

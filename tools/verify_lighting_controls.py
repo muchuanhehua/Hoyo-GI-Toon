@@ -13,7 +13,7 @@ from mathutils import Matrix
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from verification_runtime import load_addon, load_mmd, install_candidate, file_hash
+from verification_runtime import load_addon, load_mmd, install_candidate, file_hash, load_reference
 from verification_data import array_hash, mesh_data, properties, digest
 
 LIGHT_CASES = (('front', 0, .25), ('left', .8, .25), ('right', -.8, .25),
@@ -111,6 +111,7 @@ def main():
     if bpy.app.timers.is_registered(addon.project_io._migrate_open_project):
         bpy.app.timers.unregister(addon.project_io._migrate_open_project)
     payload = Path(addon.__file__).resolve().parent
+    legacy = load_reference(project / 'release/hoyo_gi_toon-2.6.1.zip', out / '_reference')
     reference = json.loads((args.baseline_directory / 'report.json').read_text('utf-8'))
     assert reference['complete'] and reference['version'] == '2.5.0'
     report = {'scope': 'GI-TOON-LIGHTING-CONTROLS', 'complete': False, 'models': [],
@@ -131,6 +132,17 @@ def main():
         finally:
             bpy.app.handlers.load_post.append(addon.project_io.on_load)
         scene, root = bpy.context.scene, bpy.context.scene.hgt_target
+        legacy.project_io.on_load(None)
+        root.hgt_character.shadow_softness = .001
+        root.hgt_character.outline = 0
+        scene.render.resolution_x, scene.render.resolution_y = 384, 576
+        scene.render.resolution_percentage = 100
+        zero_reference = {}
+
+        def capture_zero(label):
+            legacy.workflow.refresh_character(root, scene=scene)
+            zero_reference[label] = render(out / f'{index}-legacy-zero-{label}.png')
+        light_cases(legacy, root, capture_zero)
         before_source, before_parameters = source_state(root), legacy_parameters(root)
         attributes = profile_attributes(root)
         addon.project_io.on_load(None)
@@ -139,7 +151,7 @@ def main():
         assert profile_attributes(root) == attributes
         assert s.lighting_version == addon.lighting.UNIFORM_VERSION
         assert s.outline_profile and s.outline_top == 1
-        assert abs(s.shadow_softness - s.shadow_transition) < 1e-7
+        assert abs(max(.001, s.shadow_softness) - s.shadow_transition) < 1e-7
         assert all(addon.shaders.input_value(m, 'Light Direction').value is None for e in s.meshes for m in e.object.modifiers
                    if m.type == 'NODES' and m.node_group == s.light_vectors)
         row = {'name': baseline['name'], 'frames': {}, 'checks': {'legacy_parameters_and_source_preserved': True,
@@ -153,15 +165,14 @@ def main():
         def capture(label):
             path = out / f'{index}-{label}.png'
             image = render(path)
-            expected_path = args.baseline_directory / path.name
-            assert file_hash(expected_path) == baseline['frames'][label]['sha256']
-            expected = pixels(expected_path)
+            expected = zero_reference[label]
             error = np.abs(image - expected)
             assert float(error.max()) <= 1 / 255 + 1e-6, (baseline['name'], label, float(error.max()))
             assert float(error.mean()) < 1e-5
             row['frames'][label] = {'max_error': float(error.max()), 'mean_error': float(error.mean())}
         light_cases(addon, root, capture)
-        row['checks']['sun_point_area_head_and_root_match_250'] = True
+        row['colour_reference'] = 'immutable-2.6.1-zero-shadow-softness'
+        row['checks']['sun_point_area_head_and_root_match_261_zero'] = True
         selected = scene.hgt_light
         before_clear = render(out / f'{index}-before-clear.png')
         scene.hgt_light = None

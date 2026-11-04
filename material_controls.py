@@ -60,6 +60,8 @@ def extend(binding):
         socket = shader.inputs.get(name)
         if socket is not None:
             uniform(tree, 'HGT • ' + name, key, socket, binding.id_data.hgt_character.uid)
+    from . import shadow_boundary
+    shadow_boundary.ensure(binding)
 
 
 def apply_binding(binding):
@@ -122,6 +124,9 @@ def upgrade(root):
         if not settings.is_property_set('shadow_softness'):
             settings.shadow_softness = settings.shadow_transition
             settings.face_softness_adjust = settings.face_softness / max(1e-12, settings.shadow_softness * (.02 / .035))
+        if any(b.generated.get('hgt_boundary_version', 0) == 0 for b in settings.bindings):
+            if settings.shadow_softness <= .0010001:
+                settings.shadow_softness = 0
         for binding in settings.bindings:
             extend(binding)
             if 'hgt_edge_coverage' not in binding.outline:

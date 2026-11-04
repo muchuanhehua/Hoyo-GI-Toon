@@ -5,6 +5,7 @@ from pathlib import Path
 import bpy
 
 from .asset_tracking import data_pointers, new_data
+from .shadow_boundary import FACE_RADIUS, zero_face_range
 
 
 LIBRARY_PATH = Path(__file__).parent / "assets/original_shader.blend"
@@ -217,7 +218,10 @@ def set_controls(root, vectors=None):
         changed = False
         for key, value in (('hgt_shadow_position', settings.shadow_position),
                            ('hgt_shadow_transition', settings.shadow_transition),
-                           ('hgt_face_softness', settings.face_softness)):
+                           ('hgt_face_softness', settings.face_softness),
+                           ('hgt_shadow_softness', settings.shadow_softness),
+                           ('hgt_face_hard_range', zero_face_range(settings)),
+                           ('hgt_face_boundary_radius', settings.shadow_softness * FACE_RADIUS * settings.face_softness_adjust)):
             key = f'hgt_{settings.uid}_{key}'
             if abs(scene.get(key, -1) - value) > 1e-6:
                 scene[key] = value

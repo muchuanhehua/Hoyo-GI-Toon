@@ -10,7 +10,7 @@ from mathutils import Vector
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from verification_runtime import load_mmd, install_candidate, file_hash, load_addon
+from verification_runtime import load_mmd, install_candidate, file_hash, load_addon, load_reference
 from verification_data import mesh_data, properties, digest, array_hash
 
 parser = argparse.ArgumentParser()
@@ -27,6 +27,7 @@ addon = install_candidate(args.candidate, out) if args.candidate else load_addon
 if bpy.app.timers.is_registered(addon.project_io._migrate_open_project):
     bpy.app.timers.unregister(addon.project_io._migrate_open_project)
 payload = Path(addon.__file__).resolve().parent
+legacy = load_reference(project / 'release/hoyo_gi_toon-2.6.1.zip', out / '_reference')
 report = {'scope': 'CROSS-CHARACTER-OUTLINE-PACKAGE', 'complete': False, 'models': [],
           'package_sha256': file_hash(args.candidate) if args.candidate else None,
           'source_sha256': {p.name: file_hash(p) for p in payload.glob('*.py')}}
@@ -114,6 +115,13 @@ for fixture in fixtures:
     scene = bpy.context.scene
     root = scene.hgt_target
     settings = root.hgt_character
+    legacy.project_io.on_load(None)
+    settings.shadow_softness = .001
+    scene.camera.matrix_world = camera_matrix
+    scene.camera.data.ortho_scale = camera_scale
+    settings.outline = .6642105579376221
+    legacy.workflow.refresh_character(root, scene=scene)
+    expected = render(folder / 'legacy-zero-reference.png', root)
     before_source, before_parameters = source(root), parameters(root)
     before_profile = {e.object.name: array_hash(e.object.data.attributes['hgt_outline_height'].data, 'value') for e in settings.meshes}
     addon.project_io.on_load(None)
@@ -125,7 +133,6 @@ for fixture in fixtures:
     scene.camera.data.ortho_scale = camera_scale
     settings.outline = .6642105579376221
     right = render(folder / 'source-comparison.png', root)
-    expected = pixels(Path(fixture['source_right_wide']))
     error = float(np.abs(right - expected).max())
     assert error <= 1 / 255 + 1e-6, (fixture['name'], 'Fresh source versus migrated ZIP', error)
     selected = {n.inputs['Material'].default_value for e in settings.meshes for m in e.object.modifiers
@@ -137,7 +144,9 @@ for fixture in fixtures:
     assert all(b.generated in selected for b in intended)
     row = {'case_key': fixture['case_key'], 'name': fixture['name'], 'views': {},
            'source_image_max_error': error, 'migration_parameters_and_profile_preserved': True,
-           'source_data_preserved': True, 'intentional_source_edges_preserved': [b.source_name for b in intended]}
+           'source_data_preserved': True, 'intentional_source_edges_preserved': [b.source_name for b in intended],
+           'zero_reference_version': '2.6.1', 'positive_softness': .15}
+    settings.shadow_softness = .15
     report['models'].append(row)
     positions = [e.object.matrix_world @ v.co for e in settings.meshes for v in e.original_data.vertices]
     low = Vector(tuple(min(p[i] for p in positions) for i in range(3)))

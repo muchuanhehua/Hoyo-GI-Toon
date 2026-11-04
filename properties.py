@@ -31,8 +31,9 @@ def update_softness(self, context):
         return
     self.building = True
     try:
-        self.shadow_transition = self.shadow_softness
-        self.face_softness = min(.2, max(.001, self.shadow_softness * (.02 / .035) * self.face_softness_adjust))
+        legacy_range = max(.001, self.shadow_softness)
+        self.shadow_transition = legacy_range
+        self.face_softness = min(.2, max(.001, legacy_range * (.02 / .035) * self.face_softness_adjust))
     finally:
         self.building = False
     update_uniforms(self, context)
@@ -45,7 +46,7 @@ def update_body_softness(self, context):
 
 def update_face_softness(self, context):
     if not self.building:
-        self.face_softness_adjust = self.face_softness / max(1e-12, self.shadow_softness * (.02 / .035))
+        self.face_softness_adjust = self.face_softness / (max(.001, self.shadow_softness) * (.02 / .035))
 
 
 def get_shadow_bias(self):
@@ -230,8 +231,8 @@ class HGTCharacterSettings(PropertyGroup):
     show_material_advanced: BoolProperty(name='高级', default=False)
     shadow_bias: FloatProperty(name='明暗分界偏移', description='微调明暗覆盖范围，0 为默认；日常光向通过打光控制',
                                min=-.52, max=.48, soft_min=-.3, soft_max=.3, get=get_shadow_bias, set=set_shadow_bias)
-    shadow_softness: FloatProperty(name='整体阴影软硬', description='数值越大，角色身体、头发与脸部的明暗交界越柔和',
-                                   default=.035, min=.001, max=.5, precision=3, update=update_softness)
+    shadow_softness: FloatProperty(name='整体阴影软硬', description='0 保留二分阴影；数值越大，只柔化身体、头发与脸部的原明暗边界',
+                                   default=.035, min=0, max=.5, precision=3, update=update_softness)
     face_softness_adjust: FloatProperty(name='脸部软硬补偿', description='脸部 SDF 相对整体阴影软硬的比例', default=1,
                                         min=0, soft_max=3, update=update_softness)
     shadow_position: FloatProperty(name='明暗分界阈值', default=0.55, min=0, max=1, update=update_uniforms)

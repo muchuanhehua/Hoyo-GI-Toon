@@ -23,6 +23,8 @@ assert out.is_relative_to(project / '.verification')
 out.mkdir(parents=True, exist_ok=True)
 load_mmd(args.mmd_tools, out / '_runtime')
 addon = install_candidate(args.candidate, out) if args.candidate else load_addon(project)
+if bpy.app.timers.is_registered(addon.project_io._migrate_open_project):
+    bpy.app.timers.unregister(addon.project_io._migrate_open_project)
 payload = Path(addon.__file__).resolve().parent
 hashes = {p.name: file_hash(p) for p in payload.glob('*.py')}
 report = {'scope': 'GI-TOON-OUTLINE-SURFACES', 'complete': False, 'models': [],
@@ -90,7 +92,8 @@ def reference_sheet_faces(mesh, names):
 def parameters(root):
     s = root.hgt_character
     return {'global': {name: getattr(s, name) for name in
-                       ('outline', 'outline_lower', 'shadow_position', 'shadow_transition', 'face_softness')},
+                       ('outline', 'outline_lower', 'shadow_position', 'shadow_transition', 'face_softness',
+                        'face_softness_adjust', 'shadow_softness')},
             'materials': {b.source_name: {name: list(getattr(b, name)) if name.endswith('color') or name == 'tint'
                                          else getattr(b, name) for name in
                                          ('tint', 'shadow_color', 'outline_color', 'brightness', 'saturation', 'opacity')}
@@ -140,6 +143,9 @@ for name, inner, reversed_sheets in (('安柏', set(), set()), ('纳西妲', set
     scene.render.resolution_x, scene.render.resolution_y = 384, 576
     scene.render.resolution_percentage = 100
     scene.render.film_transparent = True
+    # This comparison isolates outline geometry. Use the unchanged hard-shadow
+    # reference instead of the intentionally revised positive softness style.
+    s.shadow_softness = .001
     for obj in scene.objects:
         if obj.name.startswith('Verification scene prop'):
             obj.hide_render = True
@@ -166,10 +172,13 @@ for name, inner, reversed_sheets in (('安柏', set(), set()), ('纳西妲', set
     for node, material in original_selectors:
         node.inputs['Material'].default_value = material
     prior = parameters(root)
+    if prior['global']['shadow_softness'] <= .0010001:
+        prior['global']['shadow_softness'] = 0
     addon.project_io.on_load(None)
     assert parameters(root) == prior and source_state(root) == before_source
     assert selected_names(root) == expected_names, (name, expected_names, selected_names(root))
     row['checks']['legacy_upgrade_preserves_parameters_and_source'] = True
+    row['checks']['minimum_softness_normalized_to_zero'] = root.hgt_character.shadow_softness == 0
     migrated = {}
     for label, width in (('default', .18), ('wide', .6642105579376221)):
         s.outline = width

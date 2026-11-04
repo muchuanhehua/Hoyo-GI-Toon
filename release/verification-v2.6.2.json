@@ -1,0 +1,2917 @@
+{
+  "scope": "PMX-M09-M12",
+  "version": "2.6.2",
+  "archive_sha256": "632178846978ab41e56d490e4333b62e125ff22d54c056daa252b6e3c70183d6",
+  "models": [
+    {
+      "name": "安柏",
+      "source_files_unchanged": 9,
+      "source_data_unchanged": true,
+      "mmd_metadata_preserved": true,
+      "existing_model_without_reimport": true,
+      "no_bone_repair": true,
+      "manual_camera_light_preserved": true,
+      "native_render_scene_unchanged": true,
+      "whole_scene_render": true,
+      "packed_images": 0,
+      "material_tint_response": 0.3294118046760559,
+      "shadow_response": 0.7254902720451355,
+      "shadow_position_response": 0.3294118046760559,
+      "outline_response": 0.48235300183296204,
+      "outline_color_response": 1.0,
+      "toon_edges_enabled": true,
+      "light_response": 0.3294118046760559,
+      "gaze_live": true,
+      "reset_and_restore": true,
+      "save_reload_exact": true,
+      "bone_and_vertex_morph_animation": true,
+      "material_failure_rollback": true,
+      "resource_counts_stable": true,
+      "seconds": 29.9393710999866
+    },
+    {
+      "name": "纳西妲",
+      "source_files_unchanged": 12,
+      "source_data_unchanged": true,
+      "mmd_metadata_preserved": true,
+      "existing_model_without_reimport": true,
+      "no_bone_repair": true,
+      "manual_camera_light_preserved": true,
+      "native_render_scene_unchanged": true,
+      "whole_scene_render": true,
+      "packed_images": 0,
+      "material_tint_response": 0.3176470994949341,
+      "shadow_response": 0.6392157673835754,
+      "shadow_position_response": 0.24313730001449585,
+      "outline_response": 0.7490196228027344,
+      "outline_color_response": 0.6705882549285889,
+      "toon_edges_enabled": true,
+      "light_response": 0.24705886840820312,
+      "gaze_live": true,
+      "reset_and_restore": true,
+      "save_reload_exact": true,
+      "bone_and_vertex_morph_animation": true,
+      "material_failure_rollback": true,
+      "resource_counts_stable": true,
+      "seconds": 49.779120099992724
+    },
+    {
+      "name": "奥黛塔",
+      "source_files_unchanged": 52,
+      "source_data_unchanged": true,
+      "mmd_metadata_preserved": true,
+      "existing_model_without_reimport": true,
+      "no_bone_repair": true,
+      "manual_camera_light_preserved": true,
+      "native_render_scene_unchanged": true,
+      "whole_scene_render": true,
+      "packed_images": 14,
+      "material_tint_response": 0.3176470994949341,
+      "shadow_response": 0.5098039507865906,
+      "shadow_position_response": 0.23921573162078857,
+      "outline_response": 0.6000000238418579,
+      "outline_color_response": 0.8313725590705872,
+      "toon_edges_enabled": true,
+      "light_response": 0.2549020051956177,
+      "gaze_live": true,
+      "reset_and_restore": true,
+      "save_reload_exact": true,
+      "bone_and_vertex_morph_animation": true,
+      "material_failure_rollback": true,
+      "resource_counts_stable": true,
+      "seconds": 87.28757129999576
+    }
+  ],
+  "checks": {
+    "native_render_without_model": true,
+    "light_without_model": true,
+    "plugin_import_independent": true,
+    "legacy_200_project": true,
+    "register_unregister": true,
+    "all_models": true,
+    "packed_scene": true
+  },
+  "interface_checks": {
+    "six_independent_panels": true,
+    "scene_light_default_closed": true,
+    "empty_scene_controls": true,
+    "no_output_panel": true,
+    "light_without_model_undo": true,
+    "camera_without_model_undo": true,
+    "complete_models_only": true,
+    "automatic_material_preview": true,
+    "existing_model_apply_undo": true,
+    "single_outline_difference_control": true,
+    "bundled_sdf_undo_redo": true,
+    "face_softness_undo_redo": true,
+    "height_gradient_undo_redo": true,
+    "overall_softness_undo_redo": true,
+    "material_params_undo": true,
+    "display_controls_undo": true,
+    "light_presets_undo": true,
+    "gaze_undo": true,
+    "realtime_viewport_shadow_response": true,
+    "realtime_viewport_local_response": true,
+    "realtime_viewport_gradient_response": true,
+    "realtime_viewport_overall_softness_response": true,
+    "realtime_viewport_light_rotation_response": true,
+    "save_project": true,
+    "native_async_render": true
+  },
+  "render_mode": "native_current_scene",
+  "source_sha256": {
+    "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+    "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+    "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+    "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+    "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+    "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+    "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+    "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+    "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+    "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+    "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+    "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+    "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+    "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+    "panels.py": "d7dc9853421fd888f5c5020bef4df62aefe57031e8cc10537906c37f60d57bba",
+    "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+    "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+    "properties.py": "9966333ce77c13a08d088738dc737e114d0a883238e6f0adc13c28524bffcdea",
+    "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+    "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+    "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+    "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+    "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+    "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+    "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+    "__init__.py": "6367f39ec59ce634541cb4b95e73d7593effdc06856694587f7f085904bbed51"
+  },
+  "sdf_models": {
+    "安柏": {
+      "sampling": "alpha",
+      "checks": {
+        "fresh_assembly_preserves_originals": true,
+        "face_factor_interior_matches_approved": true,
+        "owned_textures_pack_save_reopen_equal": true,
+        "restore_and_reapply_preserves_data_and_pixels": true
+      },
+      "key_light_conditions": 7
+    },
+    "纳西妲": {
+      "sampling": "alpha",
+      "checks": {
+        "fresh_assembly_preserves_originals": true,
+        "face_factor_interior_matches_approved": true,
+        "owned_textures_pack_save_reopen_equal": true,
+        "restore_and_reapply_preserves_data_and_pixels": true
+      },
+      "key_light_conditions": 7
+    },
+    "奥黛塔": {
+      "sampling": "ra_half",
+      "checks": {
+        "fresh_assembly_preserves_originals": true,
+        "face_factor_interior_matches_approved": true,
+        "ra_softness_response_and_reset_equal": true,
+        "owned_textures_pack_save_reopen_equal": true,
+        "restore_and_reapply_preserves_data_and_pixels": true
+      },
+      "key_light_conditions": 7
+    }
+  },
+  "sdf_interface_checks": {
+    "six_independent_panels": true,
+    "scene_light_default_closed": true,
+    "empty_scene_controls": true,
+    "no_output_panel": true,
+    "light_without_model_undo": true,
+    "camera_without_model_undo": true,
+    "complete_models_only": true,
+    "automatic_material_preview": true,
+    "existing_model_apply_undo": true,
+    "single_outline_difference_control": true,
+    "bundled_sdf_undo_redo": true,
+    "face_softness_undo_redo": true,
+    "height_gradient_undo_redo": true,
+    "overall_softness_undo_redo": true,
+    "material_params_undo": true,
+    "display_controls_undo": true,
+    "light_presets_undo": true,
+    "gaze_undo": true,
+    "realtime_viewport_shadow_response": true,
+    "realtime_viewport_local_response": true,
+    "realtime_viewport_gradient_response": true,
+    "realtime_viewport_overall_softness_response": true,
+    "realtime_viewport_light_rotation_response": true,
+    "save_project": true,
+    "native_async_render": true
+  },
+  "scene_presets": {
+    "CITY_TERRACE": {
+      "objects": 321,
+      "packed_images": 3,
+      "rendered": true
+    },
+    "STAGE": {
+      "objects": 12,
+      "packed_images": 0,
+      "rendered": true
+    }
+  },
+  "scene_checks": {
+    "clean_assets_and_packed_images": true,
+    "empty_scene_both_presets": true,
+    "repeat_load_and_remove_no_resource_growth": true,
+    "output_units_compositor_unchanged": true,
+    "switch_replaces_only_previous_preset": true,
+    "previous_camera_light_world_restored": true,
+    "default_light_still_works": true,
+    "manual_pointer_changes_preserved": true,
+    "two_scenes_isolated_and_shared_light_preserved": true,
+    "manual_collection_deletion_can_restore": true,
+    "invalid_asset_failure_rollback": true,
+    "user_added_and_reused_data_preserved": true,
+    "existing_pmx_source_and_mmd_metadata_unchanged": true,
+    "packed_scene_save_reopen_and_restore": true,
+    "original_files_unchanged": true,
+    "existing_half_ring_replaced_on_explicit_load": true,
+    "register_unregister": true
+  },
+  "scene_interface_checks": {
+    "always_visible_without_model": true,
+    "load_undo_redo": true,
+    "switch_undo_redo": true,
+    "remove_undo_redo": true
+  },
+  "sdf_comparison_scope": "GI-TOON-2.4-SDF-REGRESSION",
+  "usability_models": [
+    {
+      "name": "安柏",
+      "responses": {
+        "light_energy": 0.4549019932746887,
+        "light_color": 0.4078431725502014,
+        "brightness": 0.1411764770746231,
+        "saturation": 0.1725490242242813,
+        "opacity": 0.7529411315917969,
+        "shadow_transition": 0.13333338499069214,
+        "outline_taper": 0.3803921937942505,
+        "outline": 0.4392157196998596,
+        "outline_color": 0.10588235408067703
+      },
+      "source_and_mmd_unchanged": true,
+      "front_camera": true,
+      "visibility": true,
+      "light_presets_persist": true,
+      "shadow_update_ms": {
+        "median": 0.9642500008339994,
+        "max": 1.19769999946584
+      }
+    },
+    {
+      "name": "纳西妲",
+      "responses": {
+        "light_energy": 0.4745098352432251,
+        "light_color": 0.43529415130615234,
+        "brightness": 0.2196078896522522,
+        "saturation": 0.30588239431381226,
+        "opacity": 0.7529411315917969,
+        "shadow_transition": 0.16862744092941284,
+        "outline_taper": 0.7490196228027344,
+        "outline": 0.7490196228027344,
+        "outline_color": 0.054901957511901855
+      },
+      "source_and_mmd_unchanged": true,
+      "front_camera": true,
+      "visibility": true,
+      "light_presets_persist": true,
+      "shadow_update_ms": {
+        "median": 7.262700000865152,
+        "max": 8.558199999242788
+      }
+    },
+    {
+      "name": "奥黛塔",
+      "responses": {
+        "light_energy": 0.46666669845581055,
+        "light_color": 0.41960787773132324,
+        "brightness": 0.22745102643966675,
+        "saturation": 0.3490195870399475,
+        "opacity": 0.7529411315917969,
+        "shadow_transition": 0.14901959896087646,
+        "outline_taper": 0.4862745404243469,
+        "outline": 0.5254902243614197,
+        "outline_color": 0.09411764144897461
+      },
+      "source_and_mmd_unchanged": true,
+      "front_camera": true,
+      "visibility": true,
+      "light_presets_persist": true,
+      "shadow_update_ms": {
+        "median": 13.96549999844865,
+        "max": 15.498600001592422
+      }
+    }
+  ],
+  "usability_checks": {
+    "parameters_save_reopen_exact": true,
+    "city_terrace_v230_restored": true,
+    "original_scene_files_unchanged": true,
+    "sidebar_and_display_controls": true,
+    "reused_material_survives_restore": true,
+    "multi_character_uniform_isolation": true
+  },
+  "outline_surface_models": [
+    {
+      "name": "安柏",
+      "excluded_inner_surfaces": [],
+      "manual_reversed_sheet_reference": [],
+      "checks": {
+        "legacy_upgrade_preserves_parameters_and_source": true,
+        "minimum_softness_normalized_to_zero": true,
+        "material_colors_restored": true,
+        "outer_contours_preserved": true,
+        "source_disabled_outer_edges_preserved": true,
+        "no_resource_growth": true,
+        "save_reopen_exact": true,
+        "restore_reapply_exact": true
+      },
+      "widths": {
+        "default": {
+          "outline": 0.18000000715255737,
+          "reference_max_error": 0.0
+        },
+        "wide": {
+          "outline": 0.6642105579376221,
+          "reference_max_error": 0.0
+        }
+      },
+      "silhouette_pixels_with_outline": 57,
+      "silhouette_pixels_with_wide_outline": 2072,
+      "source_disabled_outer_surfaces": [
+        "眼白",
+        "脸",
+        "皮肤",
+        "衣服",
+        "头发",
+        "头饰",
+        "表情"
+      ]
+    },
+    {
+      "name": "纳西妲",
+      "excluded_inner_surfaces": [],
+      "manual_reversed_sheet_reference": [
+        "裙2"
+      ],
+      "checks": {
+        "legacy_upgrade_preserves_parameters_and_source": true,
+        "minimum_softness_normalized_to_zero": true,
+        "material_colors_restored": true,
+        "outer_contours_preserved": true,
+        "source_disabled_outer_edges_preserved": true,
+        "no_resource_growth": true,
+        "save_reopen_exact": true,
+        "restore_reapply_exact": true
+      },
+      "widths": {
+        "default": {
+          "outline": 0.18000000715255737,
+          "reference_max_error": 0.0
+        },
+        "wide": {
+          "outline": 0.6642105579376221,
+          "reference_max_error": 0.0
+        }
+      },
+      "reference_reversed_faces": 1152,
+      "silhouette_pixels_with_outline": 18,
+      "silhouette_pixels_with_wide_outline": 437,
+      "source_disabled_outer_surfaces": [
+        "颜2",
+        "齿",
+        "口舌",
+        "二重",
+        "白目"
+      ]
+    },
+    {
+      "name": "奥黛塔",
+      "excluded_inner_surfaces": [
+        "裙内"
+      ],
+      "manual_reversed_sheet_reference": [],
+      "checks": {
+        "legacy_upgrade_preserves_parameters_and_source": true,
+        "minimum_softness_normalized_to_zero": true,
+        "material_colors_restored": true,
+        "outer_contours_preserved": true,
+        "source_disabled_outer_edges_preserved": true,
+        "no_resource_growth": true,
+        "save_reopen_exact": true,
+        "restore_reapply_exact": true
+      },
+      "widths": {
+        "default": {
+          "outline": 0.18000000715255737,
+          "reference_max_error": 0.0
+        },
+        "wide": {
+          "outline": 0.6642105579376221,
+          "reference_max_error": 0.0
+        }
+      },
+      "restored_color_pixels": 9670,
+      "silhouette_pixels_with_outline": 16,
+      "silhouette_pixels_with_wide_outline": 1070,
+      "source_disabled_outer_surfaces": [
+        "颜饰",
+        "白目",
+        "口舌",
+        "齿",
+        "金属2",
+        "肌1_w",
+        "肌1_s",
+        "裙_d",
+        "裙_dp",
+        "裙p",
+        "裙t",
+        "裙2_w"
+      ]
+    }
+  ],
+  "cross_character_outlines": {
+    "scope": "CROSS-CHARACTER-OUTLINE-PACKAGE",
+    "complete": true,
+    "models": [
+      {
+        "case_key": "00_空-复地重天-variant-9bd5f62a",
+        "name": "空-复地重天",
+        "views": {
+          "front": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 51
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1000
+            }
+          },
+          "back": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 44
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1018
+            }
+          },
+          "left": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 95
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1502
+            }
+          },
+          "right": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 112
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1513
+            }
+          }
+        },
+        "source_image_max_error": 0.0,
+        "migration_parameters_and_profile_preserved": true,
+        "source_data_preserved": true,
+        "intentional_source_edges_preserved": [
+          "内衫",
+          "[元素力]内衫"
+        ],
+        "zero_reference_version": "2.6.1",
+        "positive_softness": 0.15,
+        "save_reopen_exact": true
+      },
+      {
+        "case_key": "04_香菱_岁夜欢哗-variant-cf716eac",
+        "name": "香菱_岁夜欢哗",
+        "views": {
+          "front": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 3
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 177
+            }
+          },
+          "back": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 3
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 179
+            }
+          },
+          "left": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 153
+            }
+          },
+          "right": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 4
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 172
+            }
+          }
+        },
+        "source_image_max_error": 0.0,
+        "migration_parameters_and_profile_preserved": true,
+        "source_data_preserved": true,
+        "intentional_source_edges_preserved": [
+          "服内"
+        ],
+        "zero_reference_version": "2.6.1",
+        "positive_softness": 0.15,
+        "save_reopen_exact": true
+      },
+      {
+        "case_key": "19_罗莎莉亚",
+        "name": "罗莎莉亚",
+        "views": {
+          "front": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 10
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 809
+            }
+          },
+          "back": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 10
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 758
+            }
+          },
+          "left": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 13
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 922
+            }
+          },
+          "right": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 23
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 930
+            }
+          }
+        },
+        "source_image_max_error": 0.0,
+        "migration_parameters_and_profile_preserved": true,
+        "source_data_preserved": true,
+        "intentional_source_edges_preserved": [],
+        "zero_reference_version": "2.6.1",
+        "positive_softness": 0.15,
+        "save_reopen_exact": true
+      },
+      {
+        "case_key": "21_优菈",
+        "name": "优菈",
+        "views": {
+          "front": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 34
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1278
+            }
+          },
+          "back": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 29
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1269
+            }
+          },
+          "left": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 32
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1301
+            }
+          },
+          "right": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 34
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1259
+            }
+          }
+        },
+        "source_image_max_error": 0.0,
+        "migration_parameters_and_profile_preserved": true,
+        "source_data_preserved": true,
+        "intentional_source_edges_preserved": [],
+        "zero_reference_version": "2.6.1",
+        "positive_softness": 0.15,
+        "save_reopen_exact": true
+      },
+      {
+        "case_key": "22_神里绫华",
+        "name": "神里绫华",
+        "views": {
+          "front": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 34
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 912
+            }
+          },
+          "back": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 12
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 856
+            }
+          },
+          "left": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 11
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1082
+            }
+          },
+          "right": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 11
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1083
+            }
+          }
+        },
+        "source_image_max_error": 0.0,
+        "migration_parameters_and_profile_preserved": true,
+        "source_data_preserved": true,
+        "intentional_source_edges_preserved": [],
+        "zero_reference_version": "2.6.1",
+        "positive_softness": 0.15,
+        "save_reopen_exact": true
+      },
+      {
+        "case_key": "31_八重神子",
+        "name": "八重神子",
+        "views": {
+          "front": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 102
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1387
+            }
+          },
+          "back": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 60
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1303
+            }
+          },
+          "left": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 24
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1055
+            }
+          },
+          "right": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 18
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1063
+            }
+          }
+        },
+        "source_image_max_error": 0.0,
+        "migration_parameters_and_profile_preserved": true,
+        "source_data_preserved": true,
+        "intentional_source_edges_preserved": [],
+        "zero_reference_version": "2.6.1",
+        "positive_softness": 0.15,
+        "save_reopen_exact": true
+      },
+      {
+        "case_key": "38_纳西妲",
+        "name": "纳西妲",
+        "views": {
+          "front": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 25
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 610
+            }
+          },
+          "back": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 8
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 551
+            }
+          },
+          "left": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 5
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 490
+            }
+          },
+          "right": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 8
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 485
+            }
+          }
+        },
+        "source_image_max_error": 0.0,
+        "migration_parameters_and_profile_preserved": true,
+        "source_data_preserved": true,
+        "intentional_source_edges_preserved": [],
+        "zero_reference_version": "2.6.1",
+        "positive_softness": 0.15,
+        "save_reopen_exact": true
+      },
+      {
+        "case_key": "43_绮良良",
+        "name": "绮良良",
+        "views": {
+          "front": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 429
+            }
+          },
+          "back": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 0
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 425
+            }
+          },
+          "left": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 4
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 764
+            }
+          },
+          "right": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 4
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 755
+            }
+          }
+        },
+        "source_image_max_error": 0.0,
+        "migration_parameters_and_profile_preserved": true,
+        "source_data_preserved": true,
+        "intentional_source_edges_preserved": [],
+        "zero_reference_version": "2.6.1",
+        "positive_softness": 0.15,
+        "save_reopen_exact": true
+      },
+      {
+        "case_key": "49_闲云",
+        "name": "闲云",
+        "views": {
+          "front": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 15
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 982
+            }
+          },
+          "back": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 21
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1009
+            }
+          },
+          "left": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 20
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1350
+            }
+          },
+          "right": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 14
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1337
+            }
+          }
+        },
+        "source_image_max_error": 0.0,
+        "migration_parameters_and_profile_preserved": true,
+        "source_data_preserved": true,
+        "intentional_source_edges_preserved": [],
+        "zero_reference_version": "2.6.1",
+        "positive_softness": 0.15,
+        "save_reopen_exact": true
+      },
+      {
+        "case_key": "60_茜特菈莉_星与烟帷的夜语-variant-fe77ef2f",
+        "name": "茜特菈莉_星与烟帷的夜语",
+        "views": {
+          "front": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 14
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 979
+            }
+          },
+          "back": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 20
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 997
+            }
+          },
+          "left": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 19
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1182
+            }
+          },
+          "right": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 19
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1233
+            }
+          }
+        },
+        "source_image_max_error": 0.0,
+        "migration_parameters_and_profile_preserved": true,
+        "source_data_preserved": true,
+        "intentional_source_edges_preserved": [],
+        "zero_reference_version": "2.6.1",
+        "positive_softness": 0.15,
+        "save_reopen_exact": true
+      },
+      {
+        "case_key": "75_尼可",
+        "name": "尼可",
+        "views": {
+          "front": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 20
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1060
+            }
+          },
+          "back": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 18
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 997
+            }
+          },
+          "left": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 30
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1178
+            }
+          },
+          "right": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 22
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1188
+            }
+          }
+        },
+        "source_image_max_error": 0.0,
+        "migration_parameters_and_profile_preserved": true,
+        "source_data_preserved": true,
+        "intentional_source_edges_preserved": [],
+        "zero_reference_version": "2.6.1",
+        "positive_softness": 0.15,
+        "save_reopen_exact": true
+      },
+      {
+        "case_key": "77_桑多涅",
+        "name": "桑多涅",
+        "views": {
+          "front": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 17
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1252
+            }
+          },
+          "back": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 15
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1221
+            }
+          },
+          "left": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 14
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1033
+            }
+          },
+          "right": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 12
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1028
+            }
+          }
+        },
+        "source_image_max_error": 0.0,
+        "migration_parameters_and_profile_preserved": true,
+        "source_data_preserved": true,
+        "intentional_source_edges_preserved": [],
+        "zero_reference_version": "2.6.1",
+        "positive_softness": 0.15,
+        "save_reopen_exact": true
+      },
+      {
+        "case_key": "80_沃雅妮莎",
+        "name": "沃雅妮莎",
+        "views": {
+          "front": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 48
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1151
+            }
+          },
+          "back": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 41
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1105
+            }
+          },
+          "left": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 150
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1117
+            }
+          },
+          "right": {
+            "default": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 149
+            },
+            "wide": {
+              "core_pixels": 0,
+              "core_fraction": 0.0,
+              "largest_core_region": 0,
+              "outer_silhouette_pixels": 1123
+            }
+          }
+        },
+        "source_image_max_error": 0.0,
+        "migration_parameters_and_profile_preserved": true,
+        "source_data_preserved": true,
+        "intentional_source_edges_preserved": [],
+        "zero_reference_version": "2.6.1",
+        "positive_softness": 0.15,
+        "save_reopen_exact": true
+      }
+    ],
+    "package_sha256": "632178846978ab41e56d490e4333b62e125ff22d54c056daa252b6e3c70183d6",
+    "source_sha256": {
+      "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+      "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+      "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+      "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+      "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+      "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+      "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+      "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+      "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+      "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+      "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+      "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+      "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+      "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+      "panels.py": "d7dc9853421fd888f5c5020bef4df62aefe57031e8cc10537906c37f60d57bba",
+      "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+      "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+      "properties.py": "9966333ce77c13a08d088738dc737e114d0a883238e6f0adc13c28524bffcdea",
+      "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+      "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+      "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+      "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+      "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+      "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+      "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+      "__init__.py": "6367f39ec59ce634541cb4b95e73d7593effdc06856694587f7f085904bbed51"
+    },
+    "execution_segments": [
+      {
+        "cases": 6,
+        "date": "2026-11-03",
+        "status": "completed-before-process-interruption"
+      },
+      {
+        "cases": 7,
+        "date": "2026-11-04",
+        "status": "completed-in-fresh-process"
+      }
+    ]
+  },
+  "panel_and_bundled_sdf": {
+    "scope": "GI-TOON-PANELS-SDF",
+    "complete": true,
+    "source_sha256": {
+      "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+      "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+      "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+      "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+      "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+      "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+      "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+      "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+      "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+      "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+      "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+      "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+      "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+      "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+      "panels.py": "d7dc9853421fd888f5c5020bef4df62aefe57031e8cc10537906c37f60d57bba",
+      "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+      "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+      "properties.py": "9966333ce77c13a08d088738dc737e114d0a883238e6f0adc13c28524bffcdea",
+      "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+      "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+      "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+      "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+      "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+      "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+      "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+      "__init__.py": "6367f39ec59ce634541cb4b95e73d7593effdc06856694587f7f085904bbed51"
+    },
+    "asset_sha256": {
+      "assets/faces/Avatar_Boy01_Tex_FaceLightmap-44fd079baba2.png": "44fd079baba247211576ad7bb54ca4190f6972c840500d3c5df125f18f521c1f",
+      "assets/faces/Avatar_Boy_Tex_FaceLightmap-9ccfc2afa92e.png": "9ccfc2afa92e7a3ad1810b8e93280d5b14d3ae1d3ea2b0ea4661ccb5b7a7de6a",
+      "assets/faces/Avatar_Girl01_Tex_FaceLightmap-bbf751d27d04.png": "bbf751d27d04ff58166fdbaaa92b8b44889cdb8d90f0ca680bee12dc313e9ac4",
+      "assets/faces/Avatar_Girl_Tex_FaceLightmap-236dab958cf6.png": "236dab958cf60e35601697b3217314da389822f651ac570585be4de4709a8478",
+      "assets/faces/Avatar_Girl_Tex_FaceSDF-7f0b40b93f56.png": "7f0b40b93f56dc3e5ecfe353befef2cffe1ee778c211c1e3c6a039cc61936e94",
+      "assets/faces/Avatar_Girl_Tex_FaceSDF-c622a8ae45e6.png": "c622a8ae45e671b8dbb4e4085b424599777b69ee552d560f23f55889029b2604",
+      "assets/faces/Avatar_Lady01_Tex_FaceLightmap-11411ed3cf36.png": "11411ed3cf362dba4c897c83e6dea752f9b22315604cfffcbf412413d24e25be",
+      "assets/faces/Avatar_Lady_Tex_FaceLightmap-b894021d8e75.png": "b894021d8e75e9a46e868134bcc7258b856f8ec26643b1b18e1ab0d332f87eba",
+      "assets/faces/Avatar_Loli01_Tex_FaceLightmap-1c922484f206.png": "1c922484f206ce2e8e78a59c43ba7f88e8a48945ce1a431dfdd88095a2a495f9",
+      "assets/faces/Avatar_Loli_Tex_FaceLightmap-29cd27de16f3.png": "29cd27de16f3e4fcdce601abe57e817292907ea707d50633f69123e34ecfc4c4",
+      "assets/faces/Avatar_Tex_Face01_Shadow-599506e91234.png": "599506e91234e2968f7ef7f4ff81bb0bbc15b47f631fed0bdf9ec12c9a1f6449",
+      "assets/faces/Avatar_Tex_Face02_Shadow-d625173c8a08.png": "d625173c8a086e0d624fcdab08d8054b79d95e979529025c62ef58f859ebe7ac",
+      "assets/faces/Avatar_Tex_Face_Shadow-5c1756318175.png": "5c1756318175dafd8fcd6b459be3f0d27dc2dd5959f5c09108e82ec49e5d882e"
+    },
+    "catalog_sha256": "f912982f226a9005e239c0973c12f5f24b66b63cf8b0f1f358a7aa8cee7c34a6",
+    "package_sha256": "632178846978ab41e56d490e4333b62e125ff22d54c056daa252b6e3c70183d6",
+    "models": [
+      {
+        "name": "安柏",
+        "matching_preset": "LEGACY_GIRL",
+        "auto_manual_max_error": 0.0,
+        "outline_above_one_response": 0.5764706134796143,
+        "source_and_mmd_preserved": true,
+        "only_face_rebuilt": true,
+        "controls_and_profiles_preserved": true,
+        "all_choices_without_external_fbx": true,
+        "repeat_no_resource_growth": true,
+        "save_reopen_exact": true,
+        "choices": [
+          {
+            "cycle": 0,
+            "preset": "NONE",
+            "counts": [
+              123,
+              64,
+              29,
+              84,
+              17
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_BOY",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_BOY01",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_GIRL",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_GIRL01",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_LADY",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_LADY01",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_LOLI",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_LOLI01",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "SDF_GIRL_7F0B40B9_599506E9",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "SDF_GIRL_7F0B40B9_D625173C",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "SDF_GIRL_C622A8AE_599506E9",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "NONE",
+            "counts": [
+              123,
+              64,
+              29,
+              84,
+              17
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_BOY",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_BOY01",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_GIRL",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_GIRL01",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_LADY",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_LADY01",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_LOLI",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_LOLI01",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "SDF_GIRL_7F0B40B9_599506E9",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "SDF_GIRL_7F0B40B9_D625173C",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "SDF_GIRL_C622A8AE_599506E9",
+            "counts": [
+              123,
+              64,
+              29,
+              77,
+              19
+            ]
+          }
+        ]
+      },
+      {
+        "name": "纳西妲",
+        "matching_preset": "LEGACY_LOLI",
+        "auto_manual_max_error": 0.0,
+        "outline_above_one_response": 0.7529412508010864,
+        "source_and_mmd_preserved": true,
+        "only_face_rebuilt": true,
+        "controls_and_profiles_preserved": true,
+        "all_choices_without_external_fbx": true,
+        "repeat_no_resource_growth": true,
+        "save_reopen_exact": true,
+        "choices": [
+          {
+            "cycle": 0,
+            "preset": "NONE",
+            "counts": [
+              877,
+              361,
+              80,
+              159,
+              20
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_BOY",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_BOY01",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_GIRL",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_GIRL01",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_LADY",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_LADY01",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_LOLI",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_LOLI01",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "SDF_GIRL_7F0B40B9_599506E9",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "SDF_GIRL_7F0B40B9_D625173C",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "SDF_GIRL_C622A8AE_599506E9",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "NONE",
+            "counts": [
+              877,
+              361,
+              80,
+              159,
+              20
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_BOY",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_BOY01",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_GIRL",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_GIRL01",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_LADY",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_LADY01",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_LOLI",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_LOLI01",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "SDF_GIRL_7F0B40B9_599506E9",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "SDF_GIRL_7F0B40B9_D625173C",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "SDF_GIRL_C622A8AE_599506E9",
+            "counts": [
+              877,
+              361,
+              80,
+              150,
+              22
+            ]
+          }
+        ]
+      },
+      {
+        "name": "奥黛塔",
+        "matching_preset": "SDF_GIRL_7F0B40B9_D625173C",
+        "auto_manual_max_error": 0.0,
+        "outline_above_one_response": 0.5333333611488342,
+        "source_and_mmd_preserved": true,
+        "only_face_rebuilt": true,
+        "controls_and_profiles_preserved": true,
+        "all_choices_without_external_fbx": true,
+        "repeat_no_resource_growth": true,
+        "save_reopen_exact": true,
+        "choices": [
+          {
+            "cycle": 0,
+            "preset": "NONE",
+            "counts": [
+              1344,
+              513,
+              128,
+              239,
+              68
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_BOY",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_BOY01",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_GIRL",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_GIRL01",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_LADY",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_LADY01",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_LOLI",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "LEGACY_LOLI01",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "SDF_GIRL_7F0B40B9_599506E9",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "SDF_GIRL_7F0B40B9_D625173C",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 0,
+            "preset": "SDF_GIRL_C622A8AE_599506E9",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "NONE",
+            "counts": [
+              1344,
+              513,
+              128,
+              239,
+              68
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_BOY",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_BOY01",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_GIRL",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_GIRL01",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_LADY",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_LADY01",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_LOLI",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "LEGACY_LOLI01",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "SDF_GIRL_7F0B40B9_599506E9",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "SDF_GIRL_7F0B40B9_D625173C",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          },
+          {
+            "cycle": 1,
+            "preset": "SDF_GIRL_C622A8AE_599506E9",
+            "counts": [
+              1344,
+              513,
+              128,
+              232,
+              70
+            ]
+          }
+        ]
+      }
+    ],
+    "checks": {
+      "all_bundled_assets_match_hashes": true,
+      "sdf_failure_atomic_and_visible": true,
+      "user_reused_face_material_preserved": true
+    }
+  },
+  "lighting_controls": {
+    "scope": "GI-TOON-LIGHTING-CONTROLS",
+    "complete": true,
+    "models": [
+      {
+        "name": "安柏",
+        "frames": {
+          "front": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "left": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "right": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "back_l": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "back_r": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "up": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "down": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "head_turn": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "model_turn": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "sun_roll": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "point": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "area": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          }
+        },
+        "checks": {
+          "legacy_parameters_and_source_preserved": true,
+          "rest_height_and_inner_mask_preserved": true,
+          "geometry_light_reference_detached": true,
+          "sun_point_area_head_and_root_match_261_zero": true,
+          "clearing_light_freezes_last_direction": true,
+          "full_outline_light_update_faster_and_helper_static": true,
+          "zero_gradient_preserves_surface": true,
+          "single_difference_changes_both_ends": true,
+          "editable_gradient_both_ends_and_middle": true,
+          "overall_softness_and_face_compensation": true,
+          "advanced_bias_controls_existing_threshold": true,
+          "save_reopen_exact_and_restore_reapply_preserves_profile": true
+        },
+        "colour_reference": "immutable-2.6.1-zero-shadow-softness",
+        "performance": {
+          "median_ms": 1.3359999993554084,
+          "max_ms": 1.5321999999287073,
+          "baseline_median_ms": 39.16130001016427,
+          "speedup": 29.31235032115177
+        },
+        "gradient_responses": {
+          "top": 0.45098042488098145,
+          "bottom": 0.3921568989753723,
+          "middle": 0.7254902124404907
+        },
+        "single_difference_responses": {
+          "0.8": 0.3764706254005432,
+          "-0.8": 0.4745098352432251
+        }
+      },
+      {
+        "name": "纳西妲",
+        "frames": {
+          "front": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "left": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "right": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "back_l": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "back_r": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "up": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "down": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "head_turn": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "model_turn": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "sun_roll": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "point": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "area": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          }
+        },
+        "checks": {
+          "legacy_parameters_and_source_preserved": true,
+          "rest_height_and_inner_mask_preserved": true,
+          "geometry_light_reference_detached": true,
+          "sun_point_area_head_and_root_match_261_zero": true,
+          "clearing_light_freezes_last_direction": true,
+          "full_outline_light_update_faster_and_helper_static": true,
+          "zero_gradient_preserves_surface": true,
+          "single_difference_changes_both_ends": true,
+          "editable_gradient_both_ends_and_middle": true,
+          "overall_softness_and_face_compensation": true,
+          "advanced_bias_controls_existing_threshold": true,
+          "save_reopen_exact_and_restore_reapply_preserves_profile": true
+        },
+        "colour_reference": "immutable-2.6.1-zero-shadow-softness",
+        "performance": {
+          "median_ms": 12.352150000879192,
+          "max_ms": 22.4527999998827,
+          "baseline_median_ms": 59.25710001611151,
+          "speedup": 4.797310590617322
+        },
+        "gradient_responses": {
+          "top": 0.7490196228027344,
+          "bottom": 0.7490196824073792,
+          "middle": 0.7490196228027344
+        },
+        "single_difference_responses": {
+          "0.8": 0.7490196228027344,
+          "-0.8": 0.7529412508010864
+        }
+      },
+      {
+        "name": "奥黛塔",
+        "frames": {
+          "front": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "left": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "right": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "back_l": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "back_r": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "up": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "down": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "head_turn": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "model_turn": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "sun_roll": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "point": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          },
+          "area": {
+            "max_error": 0.0,
+            "mean_error": 0.0
+          }
+        },
+        "checks": {
+          "legacy_parameters_and_source_preserved": true,
+          "rest_height_and_inner_mask_preserved": true,
+          "geometry_light_reference_detached": true,
+          "sun_point_area_head_and_root_match_261_zero": true,
+          "clearing_light_freezes_last_direction": true,
+          "full_outline_light_update_faster_and_helper_static": true,
+          "zero_gradient_preserves_surface": true,
+          "single_difference_changes_both_ends": true,
+          "editable_gradient_both_ends_and_middle": true,
+          "overall_softness_and_face_compensation": true,
+          "advanced_bias_controls_existing_threshold": true,
+          "save_reopen_exact_and_restore_reapply_preserves_profile": true
+        },
+        "colour_reference": "immutable-2.6.1-zero-shadow-softness",
+        "performance": {
+          "median_ms": 21.077900000818772,
+          "max_ms": 23.28500000294298,
+          "baseline_median_ms": 192.3021999973571,
+          "speedup": 9.123404133708155
+        },
+        "gradient_responses": {
+          "top": 0.529411792755127,
+          "bottom": 0.5176470875740051,
+          "middle": 0.6117647886276245
+        },
+        "single_difference_responses": {
+          "0.8": 0.5254902243614197,
+          "-0.8": 0.529411792755127
+        }
+      }
+    ],
+    "source_sha256": {
+      "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+      "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+      "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+      "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+      "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+      "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+      "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+      "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+      "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+      "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+      "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+      "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+      "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+      "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+      "panels.py": "d7dc9853421fd888f5c5020bef4df62aefe57031e8cc10537906c37f60d57bba",
+      "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+      "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+      "properties.py": "9966333ce77c13a08d088738dc737e114d0a883238e6f0adc13c28524bffcdea",
+      "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+      "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+      "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+      "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+      "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+      "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+      "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+      "__init__.py": "6367f39ec59ce634541cb4b95e73d7593effdc06856694587f7f085904bbed51"
+    },
+    "package_sha256": "632178846978ab41e56d490e4333b62e125ff22d54c056daa252b6e3c70183d6",
+    "baseline_archive_sha256": "69f5c77870aacb21687c8d62469e1e7bb86135b821c7a18c4273f2132b0bcece",
+    "cpu_only": true
+  },
+  "shadow_boundaries": {
+    "scope": "GI-TOON-SHADOW-BOUNDARIES",
+    "complete": true,
+    "version": "2.6.2",
+    "package_sha256": "632178846978ab41e56d490e4333b62e125ff22d54c056daa252b6e3c70183d6",
+    "source_sha256": {
+      "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+      "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+      "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+      "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+      "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+      "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+      "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+      "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+      "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+      "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+      "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+      "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+      "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+      "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+      "panels.py": "d7dc9853421fd888f5c5020bef4df62aefe57031e8cc10537906c37f60d57bba",
+      "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+      "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+      "properties.py": "9966333ce77c13a08d088738dc737e114d0a883238e6f0adc13c28524bffcdea",
+      "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+      "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+      "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+      "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+      "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+      "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+      "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+      "__init__.py": "6367f39ec59ce634541cb4b95e73d7593effdc06856694587f7f085904bbed51"
+    },
+    "zero_reference": "immutable-release-v2.6.1",
+    "models": [
+      {
+        "name": "安柏",
+        "zero_lights": {
+          "front": 0.0,
+          "left": 0.0,
+          "right": 0.0,
+          "back_l": 0.0,
+          "back_r": 0.0,
+          "up": 0.0,
+          "down": 0.0
+        },
+        "positive_frames": {
+          "0": {
+            "sha256": "1a2ad4b51ba72ea635a6179be34398caaaabadf96d1b93d9e79c8f2d32e0aeaa",
+            "max_response": 0.0
+          },
+          "0.035": {
+            "sha256": "99f2c43b8667e89d8bb3e4678e803ac6b98cc4647e09a7c59c5a232b1d6f3e76",
+            "max_response": 0.12156862020492554
+          },
+          "0.15": {
+            "sha256": "a7497783f4852a05f90e247938320fcf2f9700e22fd1259d68f09a0617d80237",
+            "max_response": 0.19607847929000854
+          },
+          "0.3": {
+            "sha256": "ac8598057a4b8810179909ef22a7f6b5da7d2752d4a8ea3b7f9fcc47422a143d",
+            "max_response": 0.21176475286483765
+          },
+          "0.5": {
+            "sha256": "7bda65f805c0c945f3bea18d35e7f7817357de051801dcd2d00ede616ac04631",
+            "max_response": 0.2196078896522522
+          }
+        },
+        "checks": {
+          "zero_matches_261_all_lights": true,
+          "zero_face_compensation_preserved": true,
+          "legacy_face_parameter_at_zero": true,
+          "zero_radius_filter_preserves_native_face": true,
+          "face_spatial_boundary_filter_responds": true,
+          "overall_control_changes_boundary": true,
+          "uniform_only_drag_without_geometry_or_graph_rebuild": true,
+          "migration_idempotent": true,
+          "save_reopen_exact": true,
+          "source_and_fixture_preserved": true
+        },
+        "zero_compensation_errors": {
+          "0": 0.0,
+          "3": 0.0
+        },
+        "zero_radius_face_max_error": 0.0,
+        "boundary_probe_azimuth": 1.8,
+        "face_mask_response": 0.6823529601097107,
+        "cpu_light_and_softness_median_ms": 1.8677499974728562
+      },
+      {
+        "name": "纳西妲",
+        "zero_lights": {
+          "front": 0.0,
+          "left": 0.0,
+          "right": 0.0,
+          "back_l": 0.0,
+          "back_r": 0.0,
+          "up": 0.0,
+          "down": 0.0
+        },
+        "positive_frames": {
+          "0": {
+            "sha256": "d35a7b73213eba7675cb0691f753d71eab73ab1f527b1fa0925055b3ddc25d63",
+            "max_response": 0.0
+          },
+          "0.035": {
+            "sha256": "7a92a3f66ccb25d7a6a88b3d7b892eb94099cac2152f29f3677ae39ea796ed91",
+            "max_response": 0.13725489377975464
+          },
+          "0.15": {
+            "sha256": "81222f3382a6356d8a24f209fb8e4b39f8bbd8193c95f939614c159123a2b6a6",
+            "max_response": 0.1607843041419983
+          },
+          "0.3": {
+            "sha256": "06dc27c7a9b6c81407bc5e06f4ebe1ee9389ac2d4f88467c7a76c9c8c4209251",
+            "max_response": 0.18823528289794922
+          },
+          "0.5": {
+            "sha256": "c9a3f54efe64d8c33f977a42fe3bceb88ec4add6191168c511edd13b555040fe",
+            "max_response": 0.19999998807907104
+          }
+        },
+        "checks": {
+          "zero_matches_261_all_lights": true,
+          "zero_face_compensation_preserved": true,
+          "legacy_face_parameter_at_zero": true,
+          "zero_radius_filter_preserves_native_face": true,
+          "face_spatial_boundary_filter_responds": true,
+          "overall_control_changes_boundary": true,
+          "uniform_only_drag_without_geometry_or_graph_rebuild": true,
+          "migration_idempotent": true,
+          "save_reopen_exact": true,
+          "source_and_fixture_preserved": true
+        },
+        "zero_compensation_errors": {
+          "0": 0.0,
+          "3": 0.0
+        },
+        "zero_radius_face_max_error": 0.0,
+        "boundary_probe_azimuth": 1.8,
+        "face_mask_response": 0.7215686440467834,
+        "cpu_light_and_softness_median_ms": 12.512950001109857
+      },
+      {
+        "name": "奥黛塔",
+        "zero_lights": {
+          "front": 0.0,
+          "left": 0.0,
+          "right": 0.0,
+          "back_l": 0.0,
+          "back_r": 0.0,
+          "up": 0.0,
+          "down": 0.0
+        },
+        "positive_frames": {
+          "0": {
+            "sha256": "bf2f4226f54d6fda9ab8d8ef96c662db09fab06a56b5936eee50d2eb87351d1b",
+            "max_response": 0.0
+          },
+          "0.035": {
+            "sha256": "1a040337c64ceface6e7dbdad03b7379f262d88bb2aefef231b6f750fa2e290e",
+            "max_response": 0.1607843041419983
+          },
+          "0.15": {
+            "sha256": "e63ac4fad46a29d7270bbd15dc1985748cd9fcc7fb6a0db006e764aaf289776b",
+            "max_response": 0.188235342502594
+          },
+          "0.3": {
+            "sha256": "45357e79c3a547321cad7a150ceea3ba28294e6e08ab004949076f271bf4132d",
+            "max_response": 0.19607841968536377
+          },
+          "0.5": {
+            "sha256": "8d76d47196f137ae5c20f6f6229fb11bee9c0974613f19f6bc0837eb29be09dd",
+            "max_response": 0.20392155647277832
+          }
+        },
+        "checks": {
+          "zero_matches_261_all_lights": true,
+          "zero_face_compensation_preserved": true,
+          "legacy_face_parameter_at_zero": true,
+          "zero_radius_filter_preserves_native_face": true,
+          "face_spatial_boundary_filter_responds": true,
+          "overall_control_changes_boundary": true,
+          "uniform_only_drag_without_geometry_or_graph_rebuild": true,
+          "migration_idempotent": true,
+          "save_reopen_exact": true,
+          "source_and_fixture_preserved": true
+        },
+        "zero_compensation_errors": {
+          "0": 0.0,
+          "3": 0.0
+        },
+        "zero_radius_face_max_error": 0.0,
+        "boundary_probe_azimuth": 1.8,
+        "face_mask_response": 0.5176470875740051,
+        "cpu_light_and_softness_median_ms": 21.83185000103549
+      }
+    ]
+  },
+  "shadow_colours": {
+    "scope": "GI-TOON-SHADOW-COLOURS",
+    "complete": true,
+    "models": [
+      {
+        "name": "安柏",
+        "body_core_pixels": 4320,
+        "body_color_max_error": 0.0,
+        "face_pixels": 4916,
+        "face_color_max_error": 0.0,
+        "body_color_mean_error": 0.0,
+        "body_color_outlier_fraction": 0.0,
+        "body_endcolors_preserved": true,
+        "face_zero_radius_colors_preserved": true,
+        "source_preserved": true
+      },
+      {
+        "name": "纳西妲",
+        "body_core_pixels": 5348,
+        "body_color_max_error": 0.0,
+        "face_pixels": 7349,
+        "face_color_max_error": 0.0,
+        "body_color_mean_error": 0.0,
+        "body_color_outlier_fraction": 0.0,
+        "body_endcolors_preserved": true,
+        "face_zero_radius_colors_preserved": true,
+        "source_preserved": true
+      },
+      {
+        "name": "奥黛塔",
+        "body_core_pixels": 1879,
+        "body_color_max_error": 0.00784313678741455,
+        "face_pixels": 2860,
+        "face_color_max_error": 0.0,
+        "body_color_mean_error": 5.565468654822325e-06,
+        "body_color_outlier_fraction": 0.0005321979776476849,
+        "body_endcolors_preserved": true,
+        "face_zero_radius_colors_preserved": true,
+        "source_preserved": true
+      }
+    ],
+    "source_sha256": {
+      "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+      "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+      "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+      "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+      "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+      "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+      "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+      "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+      "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+      "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+      "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+      "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+      "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+      "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+      "panels.py": "d7dc9853421fd888f5c5020bef4df62aefe57031e8cc10537906c37f60d57bba",
+      "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+      "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+      "properties.py": "9966333ce77c13a08d088738dc737e114d0a883238e6f0adc13c28524bffcdea",
+      "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+      "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+      "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+      "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+      "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+      "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+      "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+      "__init__.py": "6367f39ec59ce634541cb4b95e73d7593effdc06856694587f7f085904bbed51"
+    },
+    "package_sha256": "632178846978ab41e56d490e4333b62e125ff22d54c056daa252b6e3c70183d6"
+  },
+  "shadow_viewport": {
+    "scope": "GI-TOON-SHADOW-VIEWPORT",
+    "complete": true,
+    "models": [
+      {
+        "name": "安柏",
+        "legacy": {
+          "median_ms": 33.56229999917559,
+          "max_ms": 34.880700000940124,
+          "light_response": 0.4853515625
+        },
+        "current": {
+          "median_ms": 36.24589999890304,
+          "max_ms": 37.686899999243906,
+          "light_response": 0.24560546875
+        },
+        "ratio": 1.0799587632490433
+      },
+      {
+        "name": "纳西妲",
+        "legacy": {
+          "median_ms": 42.59230000025127,
+          "max_ms": 46.113900003547315,
+          "light_response": 0.447265625
+        },
+        "current": {
+          "median_ms": 45.455800001946045,
+          "max_ms": 47.444499999983236,
+          "light_response": 0.2646484375
+        },
+        "ratio": 1.0672304618834363
+      },
+      {
+        "name": "奥黛塔",
+        "legacy": {
+          "median_ms": 60.195199999725446,
+          "max_ms": 61.6267000004882,
+          "light_response": 0.46044921875
+        },
+        "current": {
+          "median_ms": 62.91879999844241,
+          "max_ms": 63.8719000016863,
+          "light_response": 0.25732421875
+        },
+        "ratio": 1.0452461325608917
+      }
+    ],
+    "source_sha256": {
+      "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+      "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+      "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+      "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+      "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+      "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+      "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+      "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+      "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+      "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+      "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+      "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+      "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+      "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+      "panels.py": "d7dc9853421fd888f5c5020bef4df62aefe57031e8cc10537906c37f60d57bba",
+      "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+      "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+      "properties.py": "9966333ce77c13a08d088738dc737e114d0a883238e6f0adc13c28524bffcdea",
+      "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+      "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+      "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+      "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+      "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+      "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+      "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+      "__init__.py": "6367f39ec59ce634541cb4b95e73d7593effdc06856694587f7f085904bbed51"
+    },
+    "package_sha256": "632178846978ab41e56d490e4333b62e125ff22d54c056daa252b6e3c70183d6",
+    "measurement": "512x512 Eevee material preview plus GPU readback; warm shaders; CPU and GPU combined"
+  },
+  "new_full_game_algorithm_recovered": false
+}

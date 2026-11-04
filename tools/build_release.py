@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[1]
 PAYLOAD={"__init__.py","asset_tracking.py","importers.py","mmd_importer.py","material_assets.py",
          "material_controls.py","pmx_materials.py","node_graph.py","sampling.py","shaders.py","lighting.py",
          "face_assets.py","face_catalog.py","face_sdf.py","head_binding.py","scene_presets.py",
-         "outlines.py","outline_profile.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
+         "outlines.py","outline_profile.py","shadow_boundary.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
          "assets/original_shader.blend","assets/original_controls.blend","assets/upstream.json",
          "assets/scenes.json","assets/scene_city_terrace.blend","assets/scene_stage.blend",
          "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE",
@@ -209,7 +209,7 @@ def validate_lighting_controls(evidence,interface,hashes,package_sha256=None):
     for model in evidence['models']:
         assert all(model['checks'].get(key) is True for key in (
             'legacy_parameters_and_source_preserved','rest_height_and_inner_mask_preserved',
-            'geometry_light_reference_detached','sun_point_area_head_and_root_match_250',
+            'geometry_light_reference_detached','sun_point_area_head_and_root_match_261_zero',
             'clearing_light_freezes_last_direction',
             'full_outline_light_update_faster_and_helper_static','editable_gradient_both_ends_and_middle',
             'zero_gradient_preserves_surface',
@@ -230,6 +230,28 @@ def validate_lighting_controls(evidence,interface,hashes,package_sha256=None):
     if package_sha256 is not None:assert evidence['package_sha256']==package_sha256
 
 
+def validate_shadow_boundaries(evidence, hashes, package_sha256=None):
+    assert evidence['scope'] == 'GI-TOON-SHADOW-BOUNDARIES' and evidence['complete']
+    assert evidence['source_sha256'] == hashes
+    assert evidence['zero_reference'] == 'immutable-release-v2.6.1'
+    assert len(evidence['models']) == 3
+    required = ('zero_matches_261_all_lights', 'face_spatial_boundary_filter_responds',
+                'zero_face_compensation_preserved',
+                'zero_radius_filter_preserves_native_face',
+                'legacy_face_parameter_at_zero',
+                'overall_control_changes_boundary', 'uniform_only_drag_without_geometry_or_graph_rebuild',
+                'migration_idempotent', 'save_reopen_exact', 'source_and_fixture_preserved')
+    for model in evidence['models']:
+        assert all(model['checks'].get(key) is True for key in required)
+        assert set(model['zero_lights']) == {'front', 'left', 'right', 'back_l', 'back_r', 'up', 'down'}
+        assert all(value == 0 for value in model['zero_lights'].values())
+        assert model['zero_compensation_errors'] == {'0': 0, '3': 0}
+        assert model['zero_radius_face_max_error'] <= 1 / 255 + 1e-6
+        assert model['face_mask_response'] > .02
+        assert model['positive_frames']['0.5']['max_response'] > .01
+    if package_sha256 is not None:assert evidence['package_sha256'] == package_sha256
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('action',choices=('review','candidate','release'))
@@ -243,6 +265,9 @@ def main():
     parser.add_argument('--sdf-interface-verification',type=Path)
     parser.add_argument('--panel-verification',type=Path)
     parser.add_argument('--lighting-controls-verification',type=Path,required=True)
+    parser.add_argument('--shadow-boundary-verification',type=Path,required=True)
+    parser.add_argument('--shadow-color-verification',type=Path,required=True)
+    parser.add_argument('--shadow-viewport-verification',type=Path,required=True)
     parser.add_argument('--scene-verification',type=Path,required=True)
     parser.add_argument('--scene-interface-verification',type=Path,required=True)
     args=parser.parse_args()
@@ -261,6 +286,24 @@ def main():
     validate_panel_update(panel_update,interface,hashes,evidence.get('package_sha256') if args.action=='release' else None)
     lighting_controls=json.loads(args.lighting_controls_verification.read_text('utf-8'))
     validate_lighting_controls(lighting_controls,interface,hashes,evidence.get('package_sha256') if args.action=='release' else None)
+    shadow_boundaries=json.loads(args.shadow_boundary_verification.read_text('utf-8'))
+    validate_shadow_boundaries(shadow_boundaries,hashes,evidence.get('package_sha256') if args.action=='release' else None)
+    shadow_colors=json.loads(args.shadow_color_verification.read_text('utf-8'))
+    assert shadow_colors['scope']=='GI-TOON-SHADOW-COLOURS' and shadow_colors['complete']
+    assert shadow_colors['source_sha256']==hashes and len(shadow_colors['models'])==3
+    for model in shadow_colors['models']:
+        assert model['body_endcolors_preserved'] and model['face_zero_radius_colors_preserved'] and model['source_preserved']
+        assert model['body_core_pixels']>1000 and model['face_pixels']>20
+        assert model['body_color_max_error']<=2/255+1e-6 and model['body_color_mean_error']<1e-4
+        assert model['body_color_outlier_fraction']<.002 and model['face_color_max_error']<=1/255+1e-6
+    if args.action=='release':assert shadow_colors['package_sha256']==evidence['package_sha256']
+    shadow_viewport=json.loads(args.shadow_viewport_verification.read_text('utf-8'))
+    assert shadow_viewport['scope']=='GI-TOON-SHADOW-VIEWPORT' and shadow_viewport['complete'] and not shadow_viewport.get('error')
+    assert shadow_viewport['source_sha256']==hashes and len(shadow_viewport['models'])==3
+    for model in shadow_viewport['models']:
+        assert model['current']['median_ms']<=model['legacy']['median_ms']*1.6+8
+        assert min(model['current']['light_response'],model['legacy']['light_response'])>.001
+    if args.action=='release':assert shadow_viewport['package_sha256']==evidence['package_sha256']
     outline=None
     if tuple(info['version'])>=(2,4,1):
         assert args.outline_verification,'Inner-shell colour and exterior silhouette evidence is required'
@@ -333,6 +376,9 @@ def main():
              'cross_character_outlines':cross,
              'panel_and_bundled_sdf':panel_update,
              'lighting_controls':lighting_controls,
+             'shadow_boundaries':shadow_boundaries,
+             'shadow_colours':shadow_colors,
+             'shadow_viewport':shadow_viewport,
              'new_full_game_algorithm_recovered':sdf['full_new_game_shader_recovered']}
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('HGT_RELEASE',record['version'],record['sha256'])
