@@ -1,0 +1,475 @@
+{
+  "version": "2.6.2",
+  "status": "published-and-installed-awaiting-user-feedback",
+  "release_url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/tag/v2.6.2",
+  "release_commit": "e9d44ccf82ef0713e340fb2ed542610e958c816d",
+  "workflow": {
+    "id": 41797193547,
+    "conclusion": "success",
+    "url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/actions/runs/41797193547"
+  },
+  "archive": {
+    "name": "hoyo_gi_toon-2.6.2.zip",
+    "sha256": "632178846978ab41e56d490e4333b62e125ff22d54c056daa252b6e3c70183d6",
+    "bytes": 6282790,
+    "payload_files": 56,
+    "public_asset_and_tag_download_verified": true,
+    "source_matches_frozen_payload": true
+  },
+  "scope": [
+    "zero_preserves_original_two_tone",
+    "body_and_hair_local_boundary_softening",
+    "face_spatial_shadow_and_toon_filter",
+    "fixed_endcolors_and_original_diffuse_uv",
+    "legacy_zero_and_face_parameter_compatibility",
+    "public_release_and_native_extension_update"
+  ],
+  "zero_reference": "immutable-v2.6.1",
+  "shadow_boundaries": {
+    "scope": "GI-TOON-SHADOW-BOUNDARIES",
+    "complete": true,
+    "version": "2.6.2",
+    "package_sha256": "632178846978ab41e56d490e4333b62e125ff22d54c056daa252b6e3c70183d6",
+    "source_sha256": {
+      "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+      "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+      "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+      "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+      "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+      "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+      "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+      "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+      "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+      "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+      "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+      "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+      "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+      "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+      "panels.py": "d7dc9853421fd888f5c5020bef4df62aefe57031e8cc10537906c37f60d57bba",
+      "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+      "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+      "properties.py": "9966333ce77c13a08d088738dc737e114d0a883238e6f0adc13c28524bffcdea",
+      "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+      "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+      "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+      "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+      "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+      "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+      "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+      "__init__.py": "6367f39ec59ce634541cb4b95e73d7593effdc06856694587f7f085904bbed51"
+    },
+    "zero_reference": "immutable-release-v2.6.1",
+    "models": [
+      {
+        "name": "安柏",
+        "zero_lights": {
+          "front": 0.0,
+          "left": 0.0,
+          "right": 0.0,
+          "back_l": 0.0,
+          "back_r": 0.0,
+          "up": 0.0,
+          "down": 0.0
+        },
+        "positive_frames": {
+          "0": {
+            "sha256": "1a2ad4b51ba72ea635a6179be34398caaaabadf96d1b93d9e79c8f2d32e0aeaa",
+            "max_response": 0.0
+          },
+          "0.035": {
+            "sha256": "99f2c43b8667e89d8bb3e4678e803ac6b98cc4647e09a7c59c5a232b1d6f3e76",
+            "max_response": 0.12156862020492554
+          },
+          "0.15": {
+            "sha256": "a7497783f4852a05f90e247938320fcf2f9700e22fd1259d68f09a0617d80237",
+            "max_response": 0.19607847929000854
+          },
+          "0.3": {
+            "sha256": "ac8598057a4b8810179909ef22a7f6b5da7d2752d4a8ea3b7f9fcc47422a143d",
+            "max_response": 0.21176475286483765
+          },
+          "0.5": {
+            "sha256": "7bda65f805c0c945f3bea18d35e7f7817357de051801dcd2d00ede616ac04631",
+            "max_response": 0.2196078896522522
+          }
+        },
+        "checks": {
+          "zero_matches_261_all_lights": true,
+          "zero_face_compensation_preserved": true,
+          "legacy_face_parameter_at_zero": true,
+          "zero_radius_filter_preserves_native_face": true,
+          "face_spatial_boundary_filter_responds": true,
+          "overall_control_changes_boundary": true,
+          "uniform_only_drag_without_geometry_or_graph_rebuild": true,
+          "migration_idempotent": true,
+          "save_reopen_exact": true,
+          "source_and_fixture_preserved": true
+        },
+        "zero_compensation_errors": {
+          "0": 0.0,
+          "3": 0.0
+        },
+        "zero_radius_face_max_error": 0.0,
+        "boundary_probe_azimuth": 1.8,
+        "face_mask_response": 0.6823529601097107,
+        "cpu_light_and_softness_median_ms": 1.8677499974728562
+      },
+      {
+        "name": "纳西妲",
+        "zero_lights": {
+          "front": 0.0,
+          "left": 0.0,
+          "right": 0.0,
+          "back_l": 0.0,
+          "back_r": 0.0,
+          "up": 0.0,
+          "down": 0.0
+        },
+        "positive_frames": {
+          "0": {
+            "sha256": "d35a7b73213eba7675cb0691f753d71eab73ab1f527b1fa0925055b3ddc25d63",
+            "max_response": 0.0
+          },
+          "0.035": {
+            "sha256": "7a92a3f66ccb25d7a6a88b3d7b892eb94099cac2152f29f3677ae39ea796ed91",
+            "max_response": 0.13725489377975464
+          },
+          "0.15": {
+            "sha256": "81222f3382a6356d8a24f209fb8e4b39f8bbd8193c95f939614c159123a2b6a6",
+            "max_response": 0.1607843041419983
+          },
+          "0.3": {
+            "sha256": "06dc27c7a9b6c81407bc5e06f4ebe1ee9389ac2d4f88467c7a76c9c8c4209251",
+            "max_response": 0.18823528289794922
+          },
+          "0.5": {
+            "sha256": "c9a3f54efe64d8c33f977a42fe3bceb88ec4add6191168c511edd13b555040fe",
+            "max_response": 0.19999998807907104
+          }
+        },
+        "checks": {
+          "zero_matches_261_all_lights": true,
+          "zero_face_compensation_preserved": true,
+          "legacy_face_parameter_at_zero": true,
+          "zero_radius_filter_preserves_native_face": true,
+          "face_spatial_boundary_filter_responds": true,
+          "overall_control_changes_boundary": true,
+          "uniform_only_drag_without_geometry_or_graph_rebuild": true,
+          "migration_idempotent": true,
+          "save_reopen_exact": true,
+          "source_and_fixture_preserved": true
+        },
+        "zero_compensation_errors": {
+          "0": 0.0,
+          "3": 0.0
+        },
+        "zero_radius_face_max_error": 0.0,
+        "boundary_probe_azimuth": 1.8,
+        "face_mask_response": 0.7215686440467834,
+        "cpu_light_and_softness_median_ms": 12.512950001109857
+      },
+      {
+        "name": "奥黛塔",
+        "zero_lights": {
+          "front": 0.0,
+          "left": 0.0,
+          "right": 0.0,
+          "back_l": 0.0,
+          "back_r": 0.0,
+          "up": 0.0,
+          "down": 0.0
+        },
+        "positive_frames": {
+          "0": {
+            "sha256": "bf2f4226f54d6fda9ab8d8ef96c662db09fab06a56b5936eee50d2eb87351d1b",
+            "max_response": 0.0
+          },
+          "0.035": {
+            "sha256": "1a040337c64ceface6e7dbdad03b7379f262d88bb2aefef231b6f750fa2e290e",
+            "max_response": 0.1607843041419983
+          },
+          "0.15": {
+            "sha256": "e63ac4fad46a29d7270bbd15dc1985748cd9fcc7fb6a0db006e764aaf289776b",
+            "max_response": 0.188235342502594
+          },
+          "0.3": {
+            "sha256": "45357e79c3a547321cad7a150ceea3ba28294e6e08ab004949076f271bf4132d",
+            "max_response": 0.19607841968536377
+          },
+          "0.5": {
+            "sha256": "8d76d47196f137ae5c20f6f6229fb11bee9c0974613f19f6bc0837eb29be09dd",
+            "max_response": 0.20392155647277832
+          }
+        },
+        "checks": {
+          "zero_matches_261_all_lights": true,
+          "zero_face_compensation_preserved": true,
+          "legacy_face_parameter_at_zero": true,
+          "zero_radius_filter_preserves_native_face": true,
+          "face_spatial_boundary_filter_responds": true,
+          "overall_control_changes_boundary": true,
+          "uniform_only_drag_without_geometry_or_graph_rebuild": true,
+          "migration_idempotent": true,
+          "save_reopen_exact": true,
+          "source_and_fixture_preserved": true
+        },
+        "zero_compensation_errors": {
+          "0": 0.0,
+          "3": 0.0
+        },
+        "zero_radius_face_max_error": 0.0,
+        "boundary_probe_azimuth": 1.8,
+        "face_mask_response": 0.5176470875740051,
+        "cpu_light_and_softness_median_ms": 21.83185000103549
+      }
+    ]
+  },
+  "shadow_colours": {
+    "scope": "GI-TOON-SHADOW-COLOURS",
+    "complete": true,
+    "models": [
+      {
+        "name": "安柏",
+        "body_core_pixels": 4320,
+        "body_color_max_error": 0.0,
+        "face_pixels": 4916,
+        "face_color_max_error": 0.0,
+        "body_color_mean_error": 0.0,
+        "body_color_outlier_fraction": 0.0,
+        "body_endcolors_preserved": true,
+        "face_zero_radius_colors_preserved": true,
+        "source_preserved": true
+      },
+      {
+        "name": "纳西妲",
+        "body_core_pixels": 5348,
+        "body_color_max_error": 0.0,
+        "face_pixels": 7349,
+        "face_color_max_error": 0.0,
+        "body_color_mean_error": 0.0,
+        "body_color_outlier_fraction": 0.0,
+        "body_endcolors_preserved": true,
+        "face_zero_radius_colors_preserved": true,
+        "source_preserved": true
+      },
+      {
+        "name": "奥黛塔",
+        "body_core_pixels": 1879,
+        "body_color_max_error": 0.00784313678741455,
+        "face_pixels": 2860,
+        "face_color_max_error": 0.0,
+        "body_color_mean_error": 5.565468654822325e-06,
+        "body_color_outlier_fraction": 0.0005321979776476849,
+        "body_endcolors_preserved": true,
+        "face_zero_radius_colors_preserved": true,
+        "source_preserved": true
+      }
+    ],
+    "source_sha256": {
+      "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+      "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+      "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+      "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+      "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+      "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+      "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+      "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+      "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+      "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+      "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+      "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+      "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+      "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+      "panels.py": "d7dc9853421fd888f5c5020bef4df62aefe57031e8cc10537906c37f60d57bba",
+      "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+      "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+      "properties.py": "9966333ce77c13a08d088738dc737e114d0a883238e6f0adc13c28524bffcdea",
+      "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+      "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+      "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+      "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+      "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+      "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+      "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+      "__init__.py": "6367f39ec59ce634541cb4b95e73d7593effdc06856694587f7f085904bbed51"
+    },
+    "package_sha256": "632178846978ab41e56d490e4333b62e125ff22d54c056daa252b6e3c70183d6"
+  },
+  "viewport_profile": {
+    "scope": "GI-TOON-SHADOW-VIEWPORT",
+    "complete": true,
+    "models": [
+      {
+        "name": "安柏",
+        "legacy": {
+          "median_ms": 33.56229999917559,
+          "max_ms": 34.880700000940124,
+          "light_response": 0.4853515625
+        },
+        "current": {
+          "median_ms": 36.24589999890304,
+          "max_ms": 37.686899999243906,
+          "light_response": 0.24560546875
+        },
+        "ratio": 1.0799587632490433
+      },
+      {
+        "name": "纳西妲",
+        "legacy": {
+          "median_ms": 42.59230000025127,
+          "max_ms": 46.113900003547315,
+          "light_response": 0.447265625
+        },
+        "current": {
+          "median_ms": 45.455800001946045,
+          "max_ms": 47.444499999983236,
+          "light_response": 0.2646484375
+        },
+        "ratio": 1.0672304618834363
+      },
+      {
+        "name": "奥黛塔",
+        "legacy": {
+          "median_ms": 60.195199999725446,
+          "max_ms": 61.6267000004882,
+          "light_response": 0.46044921875
+        },
+        "current": {
+          "median_ms": 62.91879999844241,
+          "max_ms": 63.8719000016863,
+          "light_response": 0.25732421875
+        },
+        "ratio": 1.0452461325608917
+      }
+    ],
+    "source_sha256": {
+      "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+      "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+      "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+      "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+      "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+      "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+      "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+      "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+      "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+      "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+      "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+      "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+      "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+      "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+      "panels.py": "d7dc9853421fd888f5c5020bef4df62aefe57031e8cc10537906c37f60d57bba",
+      "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+      "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+      "properties.py": "9966333ce77c13a08d088738dc737e114d0a883238e6f0adc13c28524bffcdea",
+      "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+      "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+      "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+      "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+      "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+      "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+      "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+      "__init__.py": "6367f39ec59ce634541cb4b95e73d7593effdc06856694587f7f085904bbed51"
+    },
+    "package_sha256": "632178846978ab41e56d490e4333b62e125ff22d54c056daa252b6e3c70183d6",
+    "measurement": "512x512 Eevee material preview plus GPU readback; warm shaders; CPU and GPU combined"
+  },
+  "source_package_image_pairs": {
+    "complete": true,
+    "frames": 496,
+    "max_error_8bit": 0,
+    "max_mean_error_8bit": 0.0,
+    "cross_frames": 156,
+    "by_suite": {
+      "boundaries": 99,
+      "colors": 18,
+      "controls": 117,
+      "cross": 208,
+      "sdf": 54
+    }
+  },
+  "cross_character_cases": 13,
+  "cross_execution_segments": [
+    {
+      "cases": 6,
+      "date": "2026-11-03",
+      "status": "completed-before-process-interruption"
+    },
+    {
+      "cases": 7,
+      "date": "2026-11-04",
+      "status": "completed-in-fresh-process"
+    }
+  ],
+  "cross_character_views": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "cross_character_widths": [
+    "off",
+    "default",
+    "wide"
+  ],
+  "native_ui_checks": {
+    "six_independent_panels": true,
+    "scene_light_default_closed": true,
+    "empty_scene_controls": true,
+    "no_output_panel": true,
+    "light_without_model_undo": true,
+    "camera_without_model_undo": true,
+    "complete_models_only": true,
+    "automatic_material_preview": true,
+    "existing_model_apply_undo": true,
+    "single_outline_difference_control": true,
+    "bundled_sdf_undo_redo": true,
+    "face_softness_undo_redo": true,
+    "height_gradient_undo_redo": true,
+    "overall_softness_undo_redo": true,
+    "material_params_undo": true,
+    "display_controls_undo": true,
+    "light_presets_undo": true,
+    "gaze_undo": true,
+    "realtime_viewport_shadow_response": true,
+    "realtime_viewport_local_response": true,
+    "realtime_viewport_gradient_response": true,
+    "realtime_viewport_overall_softness_response": true,
+    "realtime_viewport_light_rotation_response": true,
+    "save_project": true,
+    "native_async_render": true
+  },
+  "bundled_sdf_presets": 11,
+  "bundled_sdf_repetitions_per_model": 2,
+  "native_install": {
+    "module": "bl_ext.Hoyo_GI_Toon.hoyo_gi_toon",
+    "payload_files_verified": 56,
+    "enabled": true,
+    "installed_from": "verified-public-release-download",
+    "remote_index_synced": true,
+    "remote_index_version": "2.6.2",
+    "native_preferences_unchanged": true,
+    "startup_and_recent_files_unchanged": true,
+    "existing_addons_preserved": true,
+    "repositories_preserved": true,
+    "no_user_project_opened_or_saved": true,
+    "preferences_used": "private-copy",
+    "handlers_verified": true,
+    "zero_minimum_verified": true,
+    "face_boundary_samples": 32,
+    "background": true,
+    "final_state_checked": true,
+    "post_process_disk_and_native_preferences_verified": true,
+    "other_addon_shutdown_errors": [
+      "MBTs-NG",
+      "MBTs-face"
+    ]
+  },
+  "loaded_functions_verified": 241,
+  "before_update_backup": ".verification/release-v2.6.2/before-update/",
+  "private_evidence": ".verification/release-v2.6.2/",
+  "limitations": [
+    "full-new-game-sdf-algorithm-not-claimed",
+    "full-vmd-material-group-morph-and-physics-not-newly-validated"
+  ],
+  "user_visual_acceptance": "pending"
+}
