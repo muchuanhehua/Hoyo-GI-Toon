@@ -4,7 +4,7 @@ import bpy
 from bpy.types import Operator, Panel, UIList
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ImportHelper
-from . import workflow, rendering, lighting, gaze, material_controls, scene_models, scene_presets, outlines
+from . import workflow, rendering, lighting, gaze, material_controls, scene_models, scene_presets, outlines, glow
 
 
 def target(context):
@@ -120,6 +120,28 @@ class HGT_OT_default_light(Operator):
         try:
             lighting.default_light(context.scene)
         except (ValueError, RuntimeError) as exc:
+            return report_error(self, exc)
+        return {'FINISHED'}
+
+
+class HGT_OT_toggle_glow(Operator):
+    bl_idname = 'hgt.toggle_glow'
+    bl_label = '辉光'
+    bl_description = '切换画面高亮区域的柔和辉光，实时预览并用于渲染'
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return idle(context)
+
+    def execute(self, context):
+        try:
+            enabled = not glow.is_active(context.scene)
+            (glow.enable if enabled else glow.disable)(context.scene)
+            glow.viewport(context, enabled)
+            context.scene.hgt_glow.error = ''
+        except (ValueError, RuntimeError) as exc:
+            context.scene.hgt_glow.error = str(exc)
             return report_error(self, exc)
         return {'FINISHED'}
 
@@ -335,10 +357,31 @@ class HGT_PT_local_colors(HGTPanel, Panel):
         draw_local_colors(self.layout, context)
 
 
+class HGT_PT_effects(HGTPanel, Panel):
+    bl_label = '附加效果'
+    bl_idname = 'HGT_PT_effects'
+    bl_order = 3
+
+    def draw(self, context):
+        layout = self.layout
+        layout.enabled = idle(context)
+        active = glow.is_active(context.scene)
+        settings = context.scene.hgt_glow
+        layout.operator('hgt.toggle_glow', text='辉光', icon='LIGHT_SUN', depress=active)
+        if active:
+            layout.prop(settings, 'threshold', slider=True)
+            layout.prop(settings, 'strength', slider=True)
+            layout.prop(settings, 'size', slider=True)
+        if settings.error:
+            column = layout.column()
+            column.alert = True
+            column.label(text=settings.error, icon='ERROR')
+
+
 class HGT_PT_scene(HGTPanel, Panel):
     bl_label = '场景'
     bl_idname = 'HGT_PT_scene'
-    bl_order = 3
+    bl_order = 4
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
@@ -353,7 +396,7 @@ class HGT_PT_scene(HGTPanel, Panel):
 class HGT_PT_lighting(HGTPanel, Panel):
     bl_label = '打光'
     bl_idname = 'HGT_PT_lighting'
-    bl_order = 4
+    bl_order = 5
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
@@ -378,7 +421,7 @@ class HGT_PT_lighting(HGTPanel, Panel):
 class HGT_PT_camera(HGTPanel, Panel):
     bl_label = '相机'
     bl_idname = 'HGT_PT_camera'
-    bl_order = 5
+    bl_order = 6
 
     def draw(self, context):
         layout = self.layout
@@ -392,8 +435,8 @@ class HGT_PT_camera(HGTPanel, Panel):
 
 
 CLASSES = (HGT_OT_import_character, HGT_OT_apply_materials, HGT_OT_toggle_display, HGT_OT_restore, HGT_OT_reset_materials,
-           HGT_OT_default_light, HGT_OT_apply_light_preset, HGT_OT_load_scene, HGT_OT_remove_scene, HGT_OT_look_camera, HGT_OT_align_camera, HGT_OT_render,
-           HGT_UL_materials, HGT_PT_main, HGT_PT_materials, HGT_PT_local_colors, HGT_PT_scene, HGT_PT_lighting, HGT_PT_camera)
+           HGT_OT_default_light, HGT_OT_toggle_glow, HGT_OT_apply_light_preset, HGT_OT_load_scene, HGT_OT_remove_scene, HGT_OT_look_camera, HGT_OT_align_camera, HGT_OT_render,
+           HGT_UL_materials, HGT_PT_main, HGT_PT_materials, HGT_PT_local_colors, HGT_PT_effects, HGT_PT_scene, HGT_PT_lighting, HGT_PT_camera)
 
 
 def register():

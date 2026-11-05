@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[1]
 PAYLOAD={"__init__.py","asset_tracking.py","importers.py","mmd_importer.py","material_assets.py",
          "material_controls.py","pmx_materials.py","node_graph.py","sampling.py","shaders.py","lighting.py",
          "face_assets.py","face_catalog.py","face_sdf.py","head_binding.py","scene_presets.py",
-         "outlines.py","outline_profile.py","shadow_boundary.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
+         "outlines.py","outline_profile.py","shadow_boundary.py","glow.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
          "assets/original_shader.blend","assets/original_controls.blend","assets/upstream.json",
          "assets/scenes.json","assets/scene_city_terrace.blend","assets/scene_stage.blend",
          "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE",
@@ -194,7 +194,7 @@ def validate_panel_update(evidence,interface,hashes,package_sha256=None):
                                                 'all_choices_without_external_fbx','repeat_no_resource_growth','save_reopen_exact'))
         assert len(model['choices'])==2*(len(FACE_PRESETS)+1)
     assert evidence['checks']['sdf_failure_atomic_and_visible'] and evidence['checks']['user_reused_face_material_preserved']
-    assert all(interface['checks'].get(key) is True for key in ('six_independent_panels','scene_light_default_closed',
+    assert all(interface['checks'].get(key) is True for key in ('seven_independent_panels','scene_light_default_closed',
         'complete_models_only','automatic_material_preview','bundled_sdf_undo_redo','face_softness_undo_redo',
         'realtime_viewport_shadow_response','realtime_viewport_local_response'))
     if package_sha256 is not None:assert evidence['package_sha256']==package_sha256
@@ -268,6 +268,8 @@ def main():
     parser.add_argument('--shadow-boundary-verification',type=Path,required=True)
     parser.add_argument('--shadow-color-verification',type=Path,required=True)
     parser.add_argument('--shadow-viewport-verification',type=Path,required=True)
+    parser.add_argument('--glow-verification',type=Path)
+    parser.add_argument('--glow-interface-verification',type=Path)
     parser.add_argument('--scene-verification',type=Path,required=True)
     parser.add_argument('--scene-interface-verification',type=Path,required=True)
     args=parser.parse_args()
@@ -304,6 +306,22 @@ def main():
         assert model['current']['median_ms']<=model['legacy']['median_ms']*1.6+8
         assert min(model['current']['light_response'],model['legacy']['light_response'])>.001
     if args.action=='release':assert shadow_viewport['package_sha256']==evidence['package_sha256']
+    glow=None
+    glow_ui=None
+    if tuple(info['version'])>=(2,7,0):
+        assert args.glow_verification and args.glow_interface_verification,'Bloom render and real viewport evidence is required'
+        glow=json.loads(args.glow_verification.read_text('utf-8'))
+        glow_ui=json.loads(args.glow_interface_verification.read_text('utf-8'))
+        assert glow['scope']=='GI-TOON-GLOW' and glow['complete'] and not glow.get('error')
+        assert glow_ui['scope']=='GI-TOON-GLOW-UI' and glow_ui['complete'] and not glow_ui.get('error')
+        assert glow['source_sha256']==glow_ui['source_sha256']==hashes
+        assert len(glow['models'])==3 and all(m['off_matches_262_exact'] and m['disable_exact']
+            and m['shader_topology_unchanged'] and m['parameters_and_source_preserved'] for m in glow['models'])
+        assert all(glow['checks'].values()) and glow['transparent_halo_pixels']>50 and glow['transparent_halo_alpha_max']>.01
+        assert all(glow_ui['checks'].get(key) is True for key in ('auto_preview',
+            'natural_compositor_parameter_preview','undo_graph_and_viewport','redo_graph_and_viewport','off_restores_viewport'))
+        assert glow_ui['natural_parameter_response']>.01
+        if args.action=='release':assert glow['package_sha256']==glow_ui['package_sha256']==evidence['package_sha256']
     outline=None
     if tuple(info['version'])>=(2,4,1):
         assert args.outline_verification,'Inner-shell colour and exterior silhouette evidence is required'
@@ -379,6 +397,7 @@ def main():
              'shadow_boundaries':shadow_boundaries,
              'shadow_colours':shadow_colors,
              'shadow_viewport':shadow_viewport,
+             'glow':glow,'glow_interface':glow_ui,
              'new_full_game_algorithm_recovered':sdf['full_new_game_shader_recovered']}
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('HGT_RELEASE',record['version'],record['sha256'])

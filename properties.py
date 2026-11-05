@@ -121,6 +121,26 @@ def update_lighting(self, context):
     from .lighting import update_parameters
     update_parameters(self.id_data, self)
 
+
+def update_glow(self, context):
+    from . import glow
+    try:
+        glow.update(self.id_data)
+        self.error = ''
+    except (ValueError, RuntimeError) as exc:
+        self.error = str(exc)
+        import traceback
+        traceback.print_exc()
+
+
+class HGTGlowSettings(PropertyGroup):
+    threshold: FloatProperty(name='辉光阈值', description='仅亮于此值的区域产生辉光；越低覆盖越广',
+                             default=.85, min=0, max=2, update=update_glow)
+    strength: FloatProperty(name='辉光强度', default=1, min=0, max=2, update=update_glow)
+    size: FloatProperty(name='扩散范围', description='高亮周围光晕的扩散范围',
+                        default=.5, min=0, max=1, update=update_glow)
+    error: StringProperty(options={'SKIP_SAVE'})
+
 class HGTGazeBone(PropertyGroup):
     bone: StringProperty()
     helper: PointerProperty(type=bpy.types.Object)
@@ -280,7 +300,7 @@ def update_light(self, context):
 
 
 CLASSES = (HGTGazeBone, HGTMaterialBinding, HGTSlotSnapshot, HGTMeshReference, HGTControlReference, HGTVisibility,
-           HGTScenePresetSettings, HGTLightParameters, HGTLightingSettings, HGTCharacterSettings)
+           HGTScenePresetSettings, HGTLightParameters, HGTLightingSettings, HGTCharacterSettings, HGTGlowSettings)
 
 def register():
     from .scene_presets import PRESET_ITEMS
@@ -293,8 +313,10 @@ def register():
     bpy.types.Scene.hgt_scene = PointerProperty(type=HGTScenePresetSettings)
     bpy.types.Scene.hgt_scene_preset = EnumProperty(name='场景预设', items=PRESET_ITEMS)
     bpy.types.Scene.hgt_lighting = PointerProperty(type=HGTLightingSettings)
+    bpy.types.Scene.hgt_glow = PointerProperty(type=HGTGlowSettings)
 
 def unregister():
+    del bpy.types.Scene.hgt_glow
     del bpy.types.Scene.hgt_lighting
     del bpy.types.Scene.hgt_scene_preset
     del bpy.types.Scene.hgt_scene

@@ -12,9 +12,10 @@
 | 脸部资源 | face_catalog、face_assets、face_sdf；内置共用场／遮罩选择及明确引用自动匹配，分离数据通道与眼部遮罩 | 原生 Festivity；资源与语义参考 Gacha Setup／晨星；数据图归属 HoYoverse，见 assets/faces.json |
 | 头部与光向 | head_binding、lighting；主脸权重校验、原生头部参照、单主光源代表方向 | 结合 MAVR 的头部置信检查与光向组织方式 |
 | 参数 | material_controls；逐材质颜色与全局阴影描边 | Hoyo-GI-Toon |
+| 辉光 | glow；原生 Bloom、透明光晕 Alpha、合成连接与视口恢复 | 默认值与交互参考作者的 MAVR presets/glow.py；GI-Toon 独立实现 |
 | 默认光 | lighting.default_light；主动调用，复用自有灯 | Hoyo-GI-Toon |
 | 视线 | gaze；可移除眼骨约束及实时跟随 | Hoyo-GI-Toon；MMD 骨名语义参考晨星 |
 | 工程与渲染 | project_io、rendering；资源记录、当前场景相机和 Blender 原生渲染，图片保存使用原生功能 | Hoyo-GI-Toon / Blender |
-| 编排与面板 | workflow、panels；六个独立可折叠面板，材质实时预览，无自定义输出区 | Hoyo-GI-Toon |
+| 编排与面板 | workflow、panels；七个独立可折叠面板，材质与辉光实时预览，无自定义输出区 | Hoyo-GI-Toon |
 
 来源资源版本与摘要见 `assets/upstream.json`，版权与许可见 `NOTICE`。旧版完整功能及参考范围保留于 v1.0.1，当前不接入 FBX、附件分类、表情编辑、背景或地面模块。

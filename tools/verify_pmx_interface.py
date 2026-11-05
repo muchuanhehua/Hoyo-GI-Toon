@@ -96,11 +96,11 @@ def step():
             if phase==2:
                 assert not hasattr(bpy.types.Scene,'hgt_output')
                 panels=[c for c in addon.panels.CLASSES if issubclass(c,bpy.types.Panel)]
-                assert [p.bl_label for p in panels]==['角色管理','材质','局部调色','场景','打光','相机']
+                assert [p.bl_label for p in panels]==['角色管理','材质','局部调色','附加效果','场景','打光','相机']
                 assert [p.bl_label for p in panels if 'DEFAULT_CLOSED' in getattr(p,'bl_options',set())]==['场景','打光']
                 assert addon.panels.HGT_OT_import_character.bl_label=='导入模型'
                 assert not hasattr(addon.panels,'HGT_MT_tools') and not hasattr(addon.panels,'HGT_OT_face_resources')
-                report['checks']['six_independent_panels']=report['checks']['scene_light_default_closed']=True
+                report['checks']['seven_independent_panels']=report['checks']['scene_light_default_closed']=True
                 assert not addon.panels.HGT_OT_apply_materials.poll(bpy.context)
                 assert addon.panels.HGT_OT_default_light.poll(bpy.context)
                 assert addon.panels.HGT_OT_align_camera.poll(bpy.context)
