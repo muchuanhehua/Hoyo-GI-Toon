@@ -15,7 +15,7 @@
 
 源码／实际 ZIP 的 98 张 RGBA 图严格一致，三角色七模式已按真实 Alpha 叠加深色背景审阅。实际 ZIP 另核对卷积核切回 Bloom 精确恢复，默认核清理通过。最终五个独立测试进程均正常退出，无崩溃或未释放内存日志；本轮没有新的崩溃报告。
 
-本地验证包 `.build/review/hoyo_gi_toon-2.8.0.zip`，60 文件、6,300,064 字节，SHA256 `39b96fa67528cdefad833c0ab97c4e34610cd8e169ecdc967f11e7241508edff`。[机器记录](glow-modes-v2.8.0.json)。尚未公开发布或更新用户插件目录，正式索引仍为 2.6.2。原始证据在 `.verification/development/glow-modes-20261106/`，只执行本批影响范围；未新增完整 MMD 演出回归。类型语义参照 [Blender 5.2 Glare 手册](https://docs.blender.org/manual/en/5.2/compositing/types/filter/glare.html)。
+本地验证包 `.build/review/hoyo_gi_toon-2.8.0.zip`，60 文件、6,300,064 字节，SHA256 `39b96fa67528cdefad833c0ab97c4e34610cd8e169ecdc967f11e7241508edff`。[机器记录](glow-modes-v2.8.0.json)。本页保留本地验证阶段记录。用户随后已授权发布并更新；当前正式门禁已通过，实时交付状态见 [开发记录](DEVELOPMENT.md)。原始证据在 `.verification/development/glow-modes-20261106/`，只执行本批影响范围；未新增完整 MMD 演出回归。类型语义参照 [Blender 5.2 Glare 手册](https://docs.blender.org/manual/en/5.2/compositing/types/filter/glare.html)。
 
 ## 保留边界
 
