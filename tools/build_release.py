@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[1]
 PAYLOAD={"__init__.py","asset_tracking.py","importers.py","mmd_importer.py","material_assets.py",
          "material_controls.py","pmx_materials.py","node_graph.py","sampling.py","shaders.py","lighting.py",
          "face_assets.py","face_catalog.py","face_sdf.py","head_binding.py","scene_presets.py",
-         "outlines.py","outline_profile.py","shadow_boundary.py","glow.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
+         "outlines.py","outline_profile.py","shadow_boundary.py","glow.py","glow_source.py","glow_preview.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
          "assets/original_shader.blend","assets/original_controls.blend","assets/upstream.json",
          "assets/scenes.json","assets/scene_city_terrace.blend","assets/scene_stage.blend",
          "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE",
@@ -314,12 +314,19 @@ def main():
         glow_ui=json.loads(args.glow_interface_verification.read_text('utf-8'))
         assert glow['scope']=='GI-TOON-GLOW' and glow['complete'] and not glow.get('error')
         assert glow_ui['scope']=='GI-TOON-GLOW-UI' and glow_ui['complete'] and not glow_ui.get('error')
+        assert glow.get('character_only') is True and glow_ui.get('character_only') is True
         assert glow['source_sha256']==glow_ui['source_sha256']==hashes
         assert len(glow['models'])==3 and all(m['off_matches_262_exact'] and m['disable_exact']
             and m['shader_topology_unchanged'] and m['parameters_and_source_preserved'] for m in glow['models'])
         assert all(glow['checks'].values()) and glow['transparent_halo_pixels']>50 and glow['transparent_halo_alpha_max']>.01
         assert all(glow_ui['checks'].get(key) is True for key in ('auto_preview',
-            'natural_compositor_parameter_preview','undo_graph_and_viewport','redo_graph_and_viewport','off_restores_viewport'))
+            'natural_compositor_parameter_preview','undo_graph_source_and_viewport','redo_graph_and_viewport','off_restores_viewport',
+            'selected_character_only_and_switching','stationary_preview_uses_cache',
+            'parameters_do_not_redraw_character_source','four_preview_cycles_release_resources',
+            'material_colour_refreshes_source_after_compilation'))
+        assert all(glow['checks'].get(key) is True for key in ('selected_character_only_and_switching',
+            'bright_background_does_not_emit_glow','shared_materials_stay_isolated','blended_character_transparency',
+            'foreground_occlusion','transparent_foreground_occlusion','original_collections_and_layers_restored'))
         assert glow_ui['natural_parameter_response']>.01
         if args.action=='release':assert glow['package_sha256']==glow_ui['package_sha256']==evidence['package_sha256']
     outline=None

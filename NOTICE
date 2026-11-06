@@ -30,6 +30,8 @@ from the author's MAVR project, presets/face_normal.py and presets/light_source.
 Bloom defaults and reversible compositor/viewport behaviour are informed by
 the author's MAVR project, presets/glow.py. The GI-Toon implementation adds
 transparent-halo alpha and synchronises viewport state through undo/redo.
+Character-only isolation uses an owned view layer and GPU preview cache; it does
+not copy MAVR character assets or modify the original MMD materials.
 
 FBX, layered-eye extensions, fabric/reflection modules and the previous display
 workflow are retained in the v1.0.1 Git tag, outside the current runtime.

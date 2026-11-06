@@ -140,6 +140,13 @@ class HGTGlowSettings(PropertyGroup):
     size: FloatProperty(name='扩散范围', description='高亮周围光晕的扩散范围',
                         default=.5, min=0, max=1, update=update_glow)
     error: StringProperty(options={'SKIP_SAVE'})
+    target: PointerProperty(type=bpy.types.Object)
+    scope_id: StringProperty()
+    source_collection: PointerProperty(type=bpy.types.Collection)
+    master_collection: PointerProperty(type=bpy.types.Collection)
+    render_layer: StringProperty()
+    base_layer: StringProperty()
+    previous_single_layer: BoolProperty()
 
 class HGTGazeBone(PropertyGroup):
     bone: StringProperty()
@@ -286,6 +293,9 @@ def update_model(self, context):
         return
     scene_models.remember_active(context)
     self.hgt_target = scene_models.tracked(self.hgt_model, self) if self.hgt_model else None
+    from . import glow
+    if glow.is_active(self):
+        glow.update_target(self)
 
 
 def update_light(self, context):

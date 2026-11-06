@@ -127,7 +127,7 @@ class HGT_OT_default_light(Operator):
 class HGT_OT_toggle_glow(Operator):
     bl_idname = 'hgt.toggle_glow'
     bl_label = '辉光'
-    bl_description = '切换画面高亮区域的柔和辉光，实时预览并用于渲染'
+    bl_description = '仅让角色管理中选定的人物产生辉光，保留背景和其他角色'
     bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
@@ -369,6 +369,7 @@ class HGT_PT_effects(HGTPanel, Panel):
         settings = context.scene.hgt_glow
         layout.operator('hgt.toggle_glow', text='辉光', icon='LIGHT_SUN', depress=active)
         if active:
+            layout.label(text='人物：' + settings.target.name if settings.target else '未选定人物', icon='OUTLINER_OB_ARMATURE')
             layout.prop(settings, 'threshold', slider=True)
             layout.prop(settings, 'strength', slider=True)
             layout.prop(settings, 'size', slider=True)

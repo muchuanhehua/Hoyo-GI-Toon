@@ -16,12 +16,13 @@ parser=argparse.ArgumentParser()
 parser.add_argument('--output-dir',type=Path,required=True)
 parser.add_argument('--fixture',type=Path,required=True)
 parser.add_argument('--candidate',type=Path)
+parser.add_argument('--mmd-tools',type=Path,required=True)
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:])
 OUT=args.output_dir.resolve()
 assert OUT.is_relative_to(ROOT/'.verification')
 OUT.mkdir(parents=True,exist_ok=True)
 sys.path.insert(0,str(ROOT/'tools'))
-from verification_runtime import load_addon,install_candidate,file_hash
+from verification_runtime import load_addon,install_candidate,file_hash,load_mmd
 callback=ctypes.WINFUNCTYPE(ctypes.c_bool,ctypes.c_void_p,ctypes.c_void_p)
 @callback
 def hide(hwnd,_):
@@ -29,6 +30,7 @@ def hide(hwnd,_):
     if pid.value==os.getpid():ctypes.windll.user32.ShowWindow(hwnd,0)
     return True
 ctypes.windll.user32.EnumWindows(hide,0)
+load_mmd(args.mmd_tools,OUT/'_runtime')
 addon=install_candidate(args.candidate,OUT) if args.candidate else load_addon(ROOT)
 payload=Path(addon.__file__).resolve().parent
 bpy.ops.wm.open_mainfile(filepath=str(args.fixture),load_ui=False)
@@ -39,7 +41,7 @@ space=area.spaces.active
 initial=None
 phase=-2
 images={}
-report={'complete':False,'scope':'GI-TOON-GLOW-UI','checks':{},
+report={'complete':False,'scope':'GI-TOON-GLOW-UI','character_only':True,'checks':{},
         'source_sha256':{p.name:file_hash(p) for p in payload.glob('*.py')},
         'package_sha256':file_hash(args.candidate) if args.candidate else None}
 
@@ -60,12 +62,25 @@ def finish(error=None):
     print('HGT_GLOW_UI',report,flush=True)
     bpy.ops.wm.quit_blender()
 
+def stats():
+    record=addon.glow_preview._records.get(bpy.context.scene.as_pointer(),{})
+    return {k:record.get(k) for k in ('draws','revision','milliseconds','prepared')}
+
+
+def raw():
+    record=addon.glow_preview._records[bpy.context.scene.as_pointer()]
+    image=bpy.data.images[record['image']]
+    width,height=image.size
+    return np.array(image.pixels[:],dtype=np.float32).reshape((height,width,4))
+
+
 def step():
     global phase,initial
     try:
+        scene=bpy.context.scene
         if phase==-2:
             with bpy.context.temp_override(window=window,area=area):
-                area.spaces.active.show_region_ui=True
+                space.show_region_ui=True
                 space.shading.type='SOLID'
                 space.shading.use_scene_world=True
                 space.shading.use_scene_lights=True
@@ -75,6 +90,7 @@ def step():
             with bpy.context.temp_override(window=window,area=area):
                 next(r for r in area.regions if r.type=='UI').active_panel_category='GI-Toon'
         elif phase==0:
+            scene.hgt_model=scene.objects['Subject A']
             with bpy.context.temp_override(window=window,area=area):
                 bpy.ops.ed.undo_push(message='Before glow')
                 assert bpy.ops.hgt.toggle_glow()=={'FINISHED'}
@@ -83,30 +99,74 @@ def step():
             report['checks']['auto_preview']=True
         elif phase==1:
             images['on']=capture('on')
-            bpy.context.scene.hgt_glow.strength=0
+            images['raw-a']=raw()
+            report['stationary_start']=stats()
         elif phase==2:
+            assert stats()['draws']==report['stationary_start']['draws'], (stats(), report['stationary_start'])
+            report['checks']['stationary_preview_uses_cache']=True
+            scene.hgt_glow.strength=0
+        elif phase==3:
             zero=capture('zero')
             report['natural_parameter_response']=float(np.abs(zero-images['on']).max())
             assert report['natural_parameter_response']>.01
+            assert stats()['draws']==report['stationary_start']['draws'], (stats(), report['stationary_start'])
+            report['checks']['parameters_do_not_redraw_character_source']=True
             report['checks']['natural_compositor_parameter_preview']=True
-            with bpy.context.temp_override(window=window,area=area):bpy.ops.ed.undo()
-        elif phase==3:
-            assert not addon.panels.glow.is_active(bpy.context.scene)
-            report['undo_viewport']=[space.shading.type,space.shading.use_compositor]
-            assert (space.shading.type,space.shading.use_compositor)==initial
-            report['checks']['undo_graph_and_viewport']=True
-            with bpy.context.temp_override(window=window,area=area):bpy.ops.ed.redo()
+            scene.hgt_glow.strength=1
+            scene.hgt_model=scene.objects['Subject B']
         elif phase==4:
-            assert addon.panels.glow.is_active(bpy.context.scene)
+            other=capture('other-character')
+            report['natural_selection_response']=float(np.abs(other-images['on']).max())
+            assert report['natural_selection_response']>.01
+            a,b=images['raw-a'],raw()
+            middle=a.shape[1]//2
+            assert a[:,:middle,:3].max()>.5 and a[:,middle:,:3].max()==0
+            assert b[:,:middle,:3].max()==0 and b[:,middle:,:3].max()>.5
+            report['checks']['selected_character_only_and_switching']=True
+            report['selection_draws']=stats()
+        elif phase==5:
+            assert stats()['draws']==report['selection_draws']['draws']
+            emission=next(n for n in scene.objects['Dim'].data.materials[0].node_tree.nodes if n.type=='EMISSION')
+            images['source-color']=tuple(emission.inputs['Color'].default_value)
+            images['raw-b']=raw()
+            emission.inputs['Color'].default_value=(.1,.2,.3,1)
+        elif phase==6:
+            changed=raw()
+            assert changed[:,:,:3].max()<.5
+            report['material_source_response']=float(np.abs(changed-images['raw-b']).max())
+            assert report['material_source_response']>.1
+            report['checks']['material_colour_refreshes_source_after_compilation']=True
+            emission=next(n for n in scene.objects['Dim'].data.materials[0].node_tree.nodes if n.type=='EMISSION')
+            emission.inputs['Color'].default_value=images['source-color']
+        elif phase==7:
+            with bpy.context.temp_override(window=window,area=area):bpy.ops.ed.undo()
+        elif phase==8:
+            assert not addon.panels.glow.is_active(scene)
+            assert (space.shading.type,space.shading.use_compositor)==initial
+            assert not scene.hgt_glow.source_collection and len(scene.view_layers)==1
+            report['checks']['undo_graph_source_and_viewport']=True
+            with bpy.context.temp_override(window=window,area=area):bpy.ops.ed.redo()
+        elif phase==9:
+            assert addon.panels.glow.is_active(scene)
             assert (space.shading.type,space.shading.use_compositor)==('MATERIAL','ALWAYS')
             report['checks']['redo_graph_and_viewport']=True
             with bpy.context.temp_override(window=window,area=area):bpy.ops.hgt.toggle_glow()
             assert (space.shading.type,space.shading.use_compositor)==initial
             report['checks']['off_restores_viewport']=True
+        elif 10<=phase<18:
+            with bpy.context.temp_override(window=window,area=area):
+                assert bpy.ops.hgt.toggle_glow()=={'FINISHED'}
+            if phase%2:
+                assert not addon.glow_preview._records and len(scene.view_layers)==1
+                assert not any(im.get(addon.glow_preview.TAG) for im in bpy.data.images)
+            else:
+                assert addon.panels.glow.is_active(scene)
+        elif phase==18:
+            report['checks']['four_preview_cycles_release_resources']=True
             report['complete']=True
             finish();return None
         phase+=1
-        return 3 if phase==1 else 1
+        return 2 if phase in {1,4,6,9} else 1
     except Exception:
         finish(traceback.format_exc());return None
 bpy.app.timers.register(step,first_interval=1)

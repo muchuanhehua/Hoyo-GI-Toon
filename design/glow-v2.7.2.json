@@ -1,0 +1,147 @@
+{
+  "version": "2.7.2",
+  "status": "local-review-ready",
+  "published": false,
+  "installed_to_user_profile": false,
+  "production_version": "2.6.2",
+  "review_archive": ".build/review/hoyo_gi_toon-2.7.2.zip",
+  "bytes": 6296663,
+  "sha256": "e26b3115d049f3f197c3e5514addbf954688a9b7c83ba6bf5c7e1b77986eb055",
+  "payload_files": 59,
+  "scope": "Bloom emitted only by the selected MMD character; original scene render and transparency retained",
+  "defaults": {
+    "enabled": false,
+    "threshold": 0.85,
+    "strength": 1,
+    "size": 0.5
+  },
+  "panels": [
+    "角色管理",
+    "材质",
+    "局部调色",
+    "附加效果",
+    "场景",
+    "打光",
+    "相机"
+  ],
+  "render_checks": {
+    "seven_panels_and_off_defaults": true,
+    "no_target_does_not_enable": true,
+    "selected_character_only_and_switching": true,
+    "shared_materials_stay_isolated": true,
+    "bright_background_does_not_emit_glow": true,
+    "blended_character_transparency": true,
+    "transparent_foreground_occlusion": true,
+    "foreground_occlusion": true,
+    "render_and_all_three_controls_respond": true,
+    "zero_strength_exact": true,
+    "disable_exact_and_no_resource_growth": true,
+    "original_collections_and_layers_restored": true,
+    "existing_chain_viewer_and_renaming_restored": true,
+    "shared_original_tree_isolated": true,
+    "shared_active_tree_isolated": true,
+    "damaged_input_error_preserves_graph": true,
+    "user_auxiliary_data_blocks_removal_before_graph_changes": true,
+    "adopted_character_layer_requires_disconnect": true,
+    "saved_project_exact_and_source_meshes_unchanged": true,
+    "transparent_halo_has_visible_alpha": true,
+    "transparent_background_disable_exact": true,
+    "three_characters_off_on_and_source_protection": true,
+    "register_unregister": true
+  },
+  "models": [
+    {
+      "name": "安柏",
+      "off_matches_262_exact": true,
+      "glow_response": 1.0,
+      "parameters_and_source_preserved": true,
+      "shader_topology_unchanged": true,
+      "disable_exact": true
+    },
+    {
+      "name": "纳西妲",
+      "off_matches_262_exact": true,
+      "glow_response": 1.0,
+      "parameters_and_source_preserved": true,
+      "shader_topology_unchanged": true,
+      "disable_exact": true
+    },
+    {
+      "name": "奥黛塔",
+      "off_matches_262_exact": true,
+      "glow_response": 1.0,
+      "parameters_and_source_preserved": true,
+      "shader_topology_unchanged": true,
+      "disable_exact": true
+    }
+  ],
+  "ui_checks": {
+    "auto_preview": true,
+    "stationary_preview_uses_cache": true,
+    "parameters_do_not_redraw_character_source": true,
+    "natural_compositor_parameter_preview": true,
+    "selected_character_only_and_switching": true,
+    "material_colour_refreshes_source_after_compilation": true,
+    "undo_graph_source_and_viewport": true,
+    "redo_graph_and_viewport": true,
+    "off_restores_viewport": true,
+    "four_preview_cycles_release_resources": true
+  },
+  "real_character_ui_checks": {
+    "real_material_change_refreshes_source": true,
+    "scene_array_uniform_updates_auxiliary_depsgraph": true,
+    "three_rebuild_cycles": true,
+    "source_and_collections_restored": true
+  },
+  "source_zip_rgba_pairs": 32,
+  "final_processes_normal_exit": [
+    "source",
+    "ui",
+    "package",
+    "package-ui",
+    "package-character-ui"
+  ],
+  "historical_crashes_retained": [
+    "gpu",
+    "gpu-2",
+    "scope-trace-2",
+    "scope-trace-3"
+  ],
+  "limitations": [
+    "One material/rendered 3D viewport per scene for live preview",
+    "Existing compositor spatial transforms are not applied to the isolated glow source; complex transformed compositing not verified",
+    "Full MMD performance and physics/animation playback regression not newly executed"
+  ],
+  "evidence": ".verification/development/character-glow-20261106/",
+  "source_sha256": {
+    "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+    "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+    "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+    "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+    "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+    "glow.py": "a23064041d6ba45be1aa2da55d380a7ed6cf5ab10518dbf065a3ed5695d9c6a7",
+    "glow_preview.py": "fd4cdd0ff50b946aa03402f2fa68b29ab047934f449b4930e0ad6efb27cccea2",
+    "glow_source.py": "5cfa0cdc70e62245d5453f1cf4d3bf282f9546dc0f095a0ffcb2d1121dab3e8d",
+    "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+    "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+    "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+    "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+    "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+    "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+    "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+    "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+    "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+    "panels.py": "5ca18a5e0ffd8ce97f8e2417d67dc8bc342b7acd461fea73b1996f3ff69b4a5c",
+    "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+    "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+    "properties.py": "ea44fe85abdd3ea571536cf0f72bfc861e394dd347b5d99e1bb0a08fa0586ae9",
+    "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+    "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+    "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+    "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+    "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+    "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+    "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+    "__init__.py": "035efc6526c4f6384def1abe18036802ccd30ac447ac1fad5ac8dfcee51228ca"
+  }
+}
