@@ -1,4 +1,4 @@
-"""Owned Bloom compositing, with reversible graph and viewport changes.
+"""Owned character glare, with reversible graph and viewport changes.
 
 Defaults and viewport behaviour follow the author's MAVR glow module.
 """
@@ -68,9 +68,13 @@ def _private_tree(scene):
 def update(scene):
     effect = node(scene)
     if effect:
+        from . import glow_modes
         values = _parameters(effect, scene.hgt_glow)
+        glow_modes.validate(effect, scene.hgt_glow)
         tree = _private_tree(scene)
-        _configure(next(n for n in tree.nodes if n.get(TAG)), values)
+        effect = next(n for n in tree.nodes if n.get(TAG))
+        glow_modes.configure(effect, scene.hgt_glow)
+        _configure(effect, values)
     from .rendering import redraw_materials
     redraw_materials(scene)
 
@@ -192,6 +196,8 @@ def enable(scene):
         if interface:
             effect[INTERFACE] = interface.identifier
         _configure(effect, _parameters(effect, scene.hgt_glow))
+        from . import glow_modes
+        glow_modes.configure(effect, scene.hgt_glow)
         source_created = True
         layer = glow_source.create(scene, root)
         render = _helper(tree, 'CompositorNodeRLayers')
@@ -228,6 +234,8 @@ def enable(scene):
             tree.nodes.remove(added)
         if kernel and kernel.users == 0:
             bpy.data.node_groups.remove(kernel)
+        from . import glow_modes
+        glow_modes.clear_unused()
         if interface:
             tree.interface.remove(interface)
         if created or shared:
@@ -272,6 +280,8 @@ def disable(scene):
     tree.nodes.remove(effect)
     if kernel and kernel.get(KERNEL) and kernel.users == 0:
         bpy.data.node_groups.remove(kernel)
+    from . import glow_modes
+    glow_modes.clear_unused()
     helpers = {n for n in tree.nodes if n.get(HELPER)}
     # A user may have attached nodes to a generated source. Keep its dependency
     # chain, and outputs they subsequently connected to their own nodes.

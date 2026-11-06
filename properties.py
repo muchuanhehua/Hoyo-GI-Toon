@@ -3,6 +3,7 @@ import bpy
 from bpy.props import BoolProperty, CollectionProperty, EnumProperty, FloatProperty, FloatVectorProperty, IntProperty, PointerProperty, StringProperty
 from bpy.types import PropertyGroup
 from .face_catalog import ITEMS as SDF_ITEMS
+from .glow_modes import MODE_ITEMS as GLOW_MODE_ITEMS
 
 def update_appearance(self, context):
     root = self.id_data
@@ -134,11 +135,22 @@ def update_glow(self, context):
 
 
 class HGTGlowSettings(PropertyGroup):
+    mode: EnumProperty(name='辉光模式', items=GLOW_MODE_ITEMS, default='Bloom', update=update_glow)
     threshold: FloatProperty(name='辉光阈值', description='仅亮于此值的区域产生辉光；越低覆盖越广',
                              default=.85, min=0, max=2, update=update_glow)
     strength: FloatProperty(name='辉光强度', default=1, min=0, max=2, update=update_glow)
     size: FloatProperty(name='扩散范围', description='高亮周围光晕的扩散范围',
                         default=.5, min=0, max=1, update=update_glow)
+    streaks: IntProperty(name='光条数量', default=4, min=1, max=16, update=update_glow)
+    angle: FloatProperty(name='光条角度', subtype='ANGLE', default=0, update=update_glow)
+    iterations: IntProperty(name='迭代次数', default=3, min=2, max=5, update=update_glow)
+    fade: FloatProperty(name='衰减', default=.9, min=0, max=1, update=update_glow)
+    color_modulation: FloatProperty(name='色彩变化', default=.25, min=0, max=1, update=update_glow)
+    diagonal: BoolProperty(name='对角星芒', default=True, update=update_glow)
+    sun_position: FloatVectorProperty(name='光束中心', size=2, default=(.5, .5), min=0, max=1,
+                                     description='画面内的光束中心位置', update=update_glow)
+    kernel_image: PointerProperty(name='卷积图像', type=bpy.types.Image, update=update_glow,
+                                  description='留空使用默认柔光核；也可选择自定义光斑图像')
     error: StringProperty(options={'SKIP_SAVE'})
     target: PointerProperty(type=bpy.types.Object)
     scope_id: StringProperty()

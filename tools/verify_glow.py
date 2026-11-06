@@ -77,6 +77,7 @@ def main():
     parser.add_argument('--candidate', type=Path)
     parser.add_argument('--fixture-directory', type=Path)
     parser.add_argument('--mmd-tools', type=Path)
+    parser.add_argument('--previous-glow-directory', type=Path)
     args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:])
     project = Path(__file__).resolve().parents[1]
     out = args.output_dir.resolve()
@@ -330,6 +331,12 @@ def main():
         glow.disable(scene)
         checks['transparent_background_disable_exact'] = np.array_equal(transparent_off, render(out / 'transparent-disabled.png'))
         assert checks['transparent_background_disable_exact']
+        if hasattr(addon, 'glow_modes'):
+            from verify_glow_modes import verify
+            modes = verify(addon, scene, out / 'modes', render)
+            report['mode_checks'], report['modes'] = modes['checks'], modes['modes']
+            scene = bpy.context.scene
+            save()
         if args.fixture_directory:
             from verify_lighting_controls import source_state
             report['models'] = []
@@ -356,6 +363,17 @@ def main():
                 assert baseline_error == 0, (name, baseline_error)
                 glow.enable(scene)
                 on = render(folder / 'on.png')
+                if args.previous_glow_directory:
+                    old = bpy.data.images.load(str(args.previous_glow_directory / name / 'on.png'), check_existing=False)
+                    old_pixels = np.array(old.pixels[:], dtype=np.float32).reshape(on.shape)
+                    bpy.data.images.remove(old)
+                    assert np.array_equal(on, old_pixels), (name, 'Default Bloom changed')
+                    if hasattr(addon, 'glow_modes'):
+                        for mode, _, _ in addon.glow_modes.MODE_ITEMS:
+                            scene.hgt_glow.mode = mode
+                            pixels = render(folder / ('mode-' + mode.replace(' ', '-') + '.png'))
+                            assert np.isfinite(pixels).all() and float(np.abs(pixels - base).max()) > .005, (name, mode)
+                        scene.hgt_glow.mode = 'Bloom'
                 scene.hgt_glow.threshold = .45
                 low = render(folder / 'threshold-low.png')
                 response = float(np.abs(on - base).max())
@@ -371,9 +389,13 @@ def main():
                                     for t in addon.shaders.walk(b.generated.node_tree)}
                 report['models'].append({'name': name, 'off_matches_262_exact': True,
                                          'glow_response': response, 'parameters_and_source_preserved': True,
-                                         'shader_topology_unchanged': True, 'disable_exact': True})
+                                         'shader_topology_unchanged': True, 'disable_exact': True,
+                                         'default_bloom_272_exact': bool(args.previous_glow_directory)})
                 save()
             checks['three_characters_off_on_and_source_protection'] = True
+        if args.previous_glow_directory and hasattr(addon, 'glow_modes'):
+            from verify_glow_modes import verify_legacy
+            report['legacy_272_active_glow_exact'] = verify_legacy(addon, args.previous_glow_directory, out, render)
         addon.unregister()
         addon.register()
         assert hasattr(bpy.types.Scene, 'hgt_glow')

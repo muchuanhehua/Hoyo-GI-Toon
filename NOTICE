@@ -27,7 +27,7 @@ import and bone-repair operators and does not bundle it or its shared Toon data.
 Head-binding confidence checks and representative-light directions are adapted
 from the author's MAVR project, presets/face_normal.py and presets/light_source.py.
 
-Bloom defaults and reversible compositor/viewport behaviour are informed by
+Glare mode selection, Bloom defaults and reversible compositor/viewport behaviour are informed by
 the author's MAVR project, presets/glow.py. The GI-Toon implementation adds
 transparent-halo alpha and synchronises viewport state through undo/redo.
 Character-only isolation uses an owned view layer and GPU preview cache; it does

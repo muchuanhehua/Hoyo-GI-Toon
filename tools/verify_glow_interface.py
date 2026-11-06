@@ -163,10 +163,55 @@ def step():
                 assert addon.panels.glow.is_active(scene)
         elif phase==18:
             report['checks']['four_preview_cycles_release_resources']=True
+            if not hasattr(addon, 'glow_modes'):
+                report['complete']=True
+                finish();return None
+            bpy.context.view_layer.objects.active=scene.objects['Bright']
+            scene.hgt_model=scene.objects['Subject A']
+            with bpy.context.temp_override(window=window,area=area):bpy.ops.hgt.toggle_glow()
+            scene.hgt_glow.strength=0
+        elif phase==19:
+            images['mode-zero']=capture('mode-zero')
+            report['mode_source_draws']=stats()['draws']
+            scene.hgt_glow.strength=1
+        elif 20<=phase<34:
+            index=(phase-20)//2
+            mode=addon.glow_modes.MODE_ITEMS[index][0]
+            if phase%2==0:
+                scene.hgt_glow.mode=mode
+                assert not scene.hgt_glow.error,scene.hgt_glow.error
+            else:
+                pixels=capture('mode-'+mode.replace(' ','-'))
+                response=float(np.abs(pixels-images['mode-zero']).max())
+                assert response>.01,(mode,response)
+                assert stats()['draws']==report['mode_source_draws'],(mode,stats())
+                report.setdefault('mode_responses',{})[mode]=response
+        elif phase==34:
+            report['checks']['all_seven_modes_natural_preview']=len(report['mode_responses'])==7
+            report['checks']['mode_switching_reuses_character_source']=True
+            scene.hgt_glow.mode='Streaks'
+            with bpy.context.temp_override(window=window,area=area):bpy.ops.ed.undo_push(message='Streaks mode')
+            scene.hgt_glow.mode='Ghosts'
+            with bpy.context.temp_override(window=window,area=area):bpy.ops.ed.undo_push(message='Ghosts mode')
+            with bpy.context.temp_override(window=window,area=area):bpy.ops.ed.undo()
+        elif phase==35:
+            assert scene.hgt_glow.mode=='Streaks'
+            assert addon.glow_modes.glare(addon.glow.node(scene)).inputs['Type'].default_value=='Streaks'
+            with bpy.context.temp_override(window=window,area=area):bpy.ops.ed.redo()
+        elif phase==36:
+            assert scene.hgt_glow.mode=='Ghosts'
+            assert addon.glow_modes.glare(addon.glow.node(scene)).inputs['Type'].default_value=='Ghosts'
+            report['checks']['mode_undo_redo_keeps_selection_and_native_type']=True
+            for _ in range(3):
+                for mode,_,_ in addon.glow_modes.MODE_ITEMS:scene.hgt_glow.mode=mode
+            with bpy.context.temp_override(window=window,area=area):bpy.ops.hgt.toggle_glow()
+            assert not addon.glow_preview._records and len(scene.view_layers)==1
+            assert not any(im.get(addon.glow_modes.IMAGE_TAG) for im in bpy.data.images)
+            report['checks']['mode_cycles_release_kernel_and_preview']=True
             report['complete']=True
             finish();return None
         phase+=1
-        return 2 if phase in {1,4,6,9} else 1
+        return 2 if phase in {1,4,6,9,19,35,36} or 21<=phase<=33 and phase%2 else 1
     except Exception:
         finish(traceback.format_exc());return None
 bpy.app.timers.register(step,first_interval=1)

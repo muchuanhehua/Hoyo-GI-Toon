@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[1]
 PAYLOAD={"__init__.py","asset_tracking.py","importers.py","mmd_importer.py","material_assets.py",
          "material_controls.py","pmx_materials.py","node_graph.py","sampling.py","shaders.py","lighting.py",
          "face_assets.py","face_catalog.py","face_sdf.py","head_binding.py","scene_presets.py",
-         "outlines.py","outline_profile.py","shadow_boundary.py","glow.py","glow_source.py","glow_preview.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
+         "outlines.py","outline_profile.py","shadow_boundary.py","glow.py","glow_source.py","glow_preview.py","glow_modes.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
          "assets/original_shader.blend","assets/original_controls.blend","assets/upstream.json",
          "assets/scenes.json","assets/scene_city_terrace.blend","assets/scene_stage.blend",
          "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE",
@@ -328,6 +328,17 @@ def main():
             'bright_background_does_not_emit_glow','shared_materials_stay_isolated','blended_character_transparency',
             'foreground_occlusion','transparent_foreground_occlusion','original_collections_and_layers_restored'))
         assert glow_ui['natural_parameter_response']>.01
+        if tuple(info['version'])>=(2,8,0):
+            assert len(glow.get('modes',[]))==7 and all(m['zero_exact'] and m['saved_project_exact'] for m in glow['modes'])
+            assert all(glow.get('mode_checks',{}).get(key) is True for key in (
+                'seven_modes_render_and_zero_and_save_reopen','all_modes_ignore_unselected_actor_and_bright_world',
+                'mode_specific_controls_respond','custom_kernel_responds_and_user_image_unchanged',
+                'nested_kernel_copy_preserves_other_users','switching_cycles_restore_data_and_release_default_kernel'))
+            assert glow.get('legacy_272_active_glow_exact') is True
+            assert all(m.get('default_bloom_272_exact') is True for m in glow['models'])
+            assert all(glow_ui['checks'].get(key) is True for key in (
+                'all_seven_modes_natural_preview','mode_switching_reuses_character_source',
+                'mode_undo_redo_keeps_selection_and_native_type','mode_cycles_release_kernel_and_preview'))
         if args.action=='release':assert glow['package_sha256']==glow_ui['package_sha256']==evidence['package_sha256']
     outline=None
     if tuple(info['version'])>=(2,4,1):

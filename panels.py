@@ -370,9 +370,16 @@ class HGT_PT_effects(HGTPanel, Panel):
         layout.operator('hgt.toggle_glow', text='辉光', icon='LIGHT_SUN', depress=active)
         if active:
             layout.label(text='人物：' + settings.target.name if settings.target else '未选定人物', icon='OUTLINER_OB_ARMATURE')
+            layout.prop(settings, 'mode', text='模式')
             layout.prop(settings, 'threshold', slider=True)
             layout.prop(settings, 'strength', slider=True)
-            layout.prop(settings, 'size', slider=True)
+            from . import glow_modes
+            if settings.mode in glow_modes.SIZE_MODES:layout.prop(settings, 'size', slider=True)
+            for _, field in glow_modes.CONTROLS.get(settings.mode, ()):
+                layout.prop(settings, field)
+            if settings.mode == 'Kernel':
+                layout.template_ID(settings, 'kernel_image', open='image.open')
+                if not settings.kernel_image:layout.label(text='默认柔光核', icon='IMAGE_DATA')
         if settings.error:
             column = layout.column()
             column.alert = True
