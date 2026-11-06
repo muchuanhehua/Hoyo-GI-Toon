@@ -209,5 +209,7 @@
     "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
     "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
     "__init__.py": "23420cc4e18129eaa4f947f90f40abc3b90b4045392f852e4b05fb4a9285e20d"
-  }
+  },
+  "record_scope": "historical-local-review-checkpoint",
+  "current_delivery_record": "delivery-v2.8.0.json"
 }

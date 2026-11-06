@@ -1,0 +1,154 @@
+{
+  "version": "2.8.0",
+  "status": "published-and-installed-awaiting-user-feedback",
+  "release_url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/tag/v2.8.0",
+  "release_commit": "cf38004dd0cb624218e2aea95e8307f1ce55a2c5",
+  "workflow": {
+    "id": 42161229202,
+    "url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/actions/runs/42161229202",
+    "conclusion": "success"
+  },
+  "archive": {
+    "name": "hoyo_gi_toon-2.8.0.zip",
+    "sha256": "39b96fa67528cdefad833c0ab97c4e34610cd8e169ecdc967f11e7241508edff",
+    "bytes": 6300064,
+    "payload_files": 60,
+    "public_asset_and_tag_download_verified": true,
+    "source_matches_frozen_payload": true
+  },
+  "scope": [
+    "optional_effects_panel",
+    "selected_character_only_glare",
+    "seven_native_glare_modes",
+    "mode_specific_controls_and_default_or_custom_kernel",
+    "cached_preview_and_undo_redo",
+    "public_release_and_native_extension_update"
+  ],
+  "verification": {
+    "formal_record": "../release/verification-v2.8.0.json",
+    "glow_development_record": "glow-modes-v2.8.0.json",
+    "actual_package_suites": [
+      "modules",
+      "ui",
+      "panels",
+      "usability",
+      "controls",
+      "boundaries",
+      "colors",
+      "scene",
+      "scene-ui",
+      "sdf",
+      "outlines",
+      "cross",
+      "viewport"
+    ],
+    "cross_character_cases": 13,
+    "cross_views": [
+      "front",
+      "back",
+      "left",
+      "right"
+    ],
+    "cross_widths": [
+      "off",
+      "default",
+      "wide"
+    ],
+    "cross_frames": 156,
+    "cross_reference_max_error": 0.0,
+    "glow_render_checks": 23,
+    "glow_mode_checks": 6,
+    "glow_real_ui_checks": 14,
+    "source_zip_exact_rgba_pairs": 98,
+    "viewport_models": [
+      {
+        "name": "安柏",
+        "legacy": {
+          "median_ms": 35.5347000004258,
+          "max_ms": 37.64869998849463,
+          "light_response": 0.4853515625
+        },
+        "current": {
+          "median_ms": 37.14380000019446,
+          "max_ms": 38.96510000049602,
+          "light_response": 0.24560546875
+        },
+        "ratio": 1.0452824985084825
+      },
+      {
+        "name": "纳西妲",
+        "legacy": {
+          "median_ms": 45.33209999499377,
+          "max_ms": 47.41719999583438,
+          "light_response": 0.447265625
+        },
+        "current": {
+          "median_ms": 46.18579999078065,
+          "max_ms": 47.60399999213405,
+          "light_response": 0.2646484375
+        },
+        "ratio": 1.0188321299009127
+      },
+      {
+        "name": "奥黛塔",
+        "legacy": {
+          "median_ms": 58.4614999970654,
+          "max_ms": 59.68610000854824,
+          "light_response": 0.46044921875
+        },
+        "current": {
+          "median_ms": 59.41119999624789,
+          "max_ms": 61.054699996020645,
+          "light_response": 0.25732421875
+        },
+        "ratio": 1.0162448790953047
+      }
+    ],
+    "new_full_mmd_performance_verified": false
+  },
+  "native_update": {
+    "version": "2.8.0",
+    "module": "bl_ext.Hoyo_GI_Toon.hoyo_gi_toon",
+    "enabled": true,
+    "payload_files_verified": 60,
+    "glow_modes": [
+      "Bloom",
+      "Ghosts",
+      "Streaks",
+      "Fog Glow",
+      "Simple Star",
+      "Sun Beams",
+      "Kernel"
+    ],
+    "glow_handlers_unique": true,
+    "seven_panels_verified": true,
+    "native_preferences_unchanged": true,
+    "startup_and_recent_files_unchanged": true,
+    "existing_addons_preserved": true,
+    "repositories_preserved": true,
+    "no_user_project_opened_or_saved": true,
+    "preferences_used": "private-copy",
+    "other_addon_files_verified": 394,
+    "post_process_disk_and_native_preferences_verified": true,
+    "loaded_code_verified_count": 295
+  },
+  "backups": ".verification/release-v2.8.0/before-update/",
+  "notes": {
+    "generic_ui_exit_memory_warning": "5 blocks / 504 bytes; same as immutable 2.6.2 logs",
+    "other_addon_shutdown_errors": [
+      "MBTs-NG",
+      "MBTs-face"
+    ],
+    "other_addon_errors_reproduced_before_update": true,
+    "compatibility_cache": {
+      "path": "extensions/.cache/compat.dat",
+      "before": "dc62700374168b0bf4f8b659ec649088b170a1c6170bf41bc128a12cf85ce783",
+      "after": "893f41e542b9459212a2a36e3dfac909cba6a8b740f4f78c9daed60d90604a83",
+      "expected_manifest_cache_update": true
+    },
+    "initial_native_verification": "Addon files installed correctly; checker initially included Blender global compat.dat, then corrected using addon_utils.py compatibility-cache implementation. Only this expected cache changed; original failure evidence retained.",
+    "new_blender_crashes": false,
+    "single_material_or_rendered_3d_view_for_preview": true
+  },
+  "evidence": ".verification/release-v2.8.0/"
+}
