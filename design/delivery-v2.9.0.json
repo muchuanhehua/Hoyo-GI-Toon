@@ -1,0 +1,78 @@
+{
+  "version": "2.9.0",
+  "status": "published-and-installed-awaiting-user-feedback",
+  "release_url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/tag/v2.9.0",
+  "release_commit": "f8ab16743185d5363dd1a088cb5d57bbb115d5fd",
+  "workflow": {
+    "id": 42359856046,
+    "url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/actions/runs/42359856046",
+    "conclusion": "success"
+  },
+  "archive": {
+    "name": "hoyo_gi_toon-2.9.0.zip",
+    "sha256": "5c332b227e2847a5c4167e29393775298dc13f5cd81ce0abadec53565c9d2860",
+    "bytes": 6309161,
+    "payload_files": 62,
+    "public_asset_and_tag_download_verified": true,
+    "source_matches_frozen_payload": true
+  },
+  "scope": [
+    "optional_character_local_jelly_eyes",
+    "original_eye_action_and_morph_additive_deformation",
+    "current_iris_surface_constraint",
+    "unchanged_sclera_and_lids",
+    "live_parameters_and_keyframes",
+    "independent_characters_and_glare_integration",
+    "public_release_and_native_extension_update"
+  ],
+  "verification": {
+    "formal_record": "../release/verification-v2.9.0.json",
+    "jelly_record": "jelly-eyes-v2.9.0.md",
+    "release_validation_policy": "incremental; no automatic all-character regression",
+    "actual_package_suites": [
+      "jelly",
+      "jelly-ui",
+      "jelly-interactions"
+    ],
+    "unchanged_payload_files": 51,
+    "changed_payload": [
+      "CHANGELOG.md",
+      "NOTICE",
+      "README.md",
+      "__init__.py",
+      "blender_manifest.toml",
+      "docs/upstream-baseline.md",
+      "docs/workflow.md",
+      "jelly_eye.py",
+      "jelly_geometry.py",
+      "panels.py",
+      "properties.py"
+    ],
+    "full_regression": "stopped on user request; not claimed complete",
+    "jelly_core_checks": 36,
+    "jelly_ui_checks": 8,
+    "jelly_interaction_checks": 7,
+    "jelly_source_zip_exact_rgba_pairs": 24,
+    "new_full_mmd_performance_or_complete_new_game_sdf_claimed": false
+  },
+  "native": {
+    "module": "bl_ext.Hoyo_GI_Toon.hoyo_gi_toon",
+    "directory": "C:\\Users\\MuChu\\AppData\\Roaming\\Blender Foundation\\Blender\\5.2\\extensions\\Hoyo_GI_Toon\\hoyo_gi_toon",
+    "payload_files_verified": 62,
+    "loaded_functions_and_methods_verified": 319,
+    "other_addon_files_verified": 394,
+    "native_preferences_unchanged": true,
+    "startup_and_recent_files_unchanged": true,
+    "existing_addons_preserved": true,
+    "repositories_preserved": true,
+    "no_user_project_opened_or_saved": true,
+    "handlers_verified": true,
+    "seven_panels_verified": true,
+    "jelly_registered_and_default_off": true,
+    "jelly_parameters_and_callback_verified": true,
+    "remote_index_synced": true
+  },
+  "evidence_directory": ".verification/release-v2.9.0/",
+  "before_update_backup": ".verification/release-v2.9.0/before-update/",
+  "user_visual_acceptance": "pending"
+}
