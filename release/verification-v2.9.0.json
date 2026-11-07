@@ -1,0 +1,1165 @@
+{
+  "version": "2.9.0",
+  "scope": "incremental-jelly-release",
+  "archive_sha256": "5c332b227e2847a5c4167e29393775298dc13f5cd81ce0abadec53565c9d2860",
+  "baseline_version": "2.8.0",
+  "baseline_archive_sha256": "39b96fa67528cdefad833c0ab97c4e34610cd8e169ecdc967f11e7241508edff",
+  "changed_payload": [
+    "CHANGELOG.md",
+    "NOTICE",
+    "README.md",
+    "__init__.py",
+    "blender_manifest.toml",
+    "docs/upstream-baseline.md",
+    "docs/workflow.md",
+    "jelly_eye.py",
+    "jelly_geometry.py",
+    "panels.py",
+    "properties.py"
+  ],
+  "unchanged_payload": [
+    "LICENSE",
+    "asset_tracking.py",
+    "assets/faces.json",
+    "assets/faces/Avatar_Boy01_Tex_FaceLightmap-44fd079baba2.png",
+    "assets/faces/Avatar_Boy_Tex_FaceLightmap-9ccfc2afa92e.png",
+    "assets/faces/Avatar_Girl01_Tex_FaceLightmap-bbf751d27d04.png",
+    "assets/faces/Avatar_Girl_Tex_FaceLightmap-236dab958cf6.png",
+    "assets/faces/Avatar_Girl_Tex_FaceSDF-7f0b40b93f56.png",
+    "assets/faces/Avatar_Girl_Tex_FaceSDF-c622a8ae45e6.png",
+    "assets/faces/Avatar_Lady01_Tex_FaceLightmap-11411ed3cf36.png",
+    "assets/faces/Avatar_Lady_Tex_FaceLightmap-b894021d8e75.png",
+    "assets/faces/Avatar_Loli01_Tex_FaceLightmap-1c922484f206.png",
+    "assets/faces/Avatar_Loli_Tex_FaceLightmap-29cd27de16f3.png",
+    "assets/faces/Avatar_Tex_Face01_Shadow-599506e91234.png",
+    "assets/faces/Avatar_Tex_Face02_Shadow-d625173c8a08.png",
+    "assets/faces/Avatar_Tex_Face_Shadow-5c1756318175.png",
+    "assets/original_controls.blend",
+    "assets/original_shader.blend",
+    "assets/scene_city_terrace.blend",
+    "assets/scene_stage.blend",
+    "assets/scenes.json",
+    "assets/upstream.json",
+    "docs/basic-rendering.md",
+    "docs/pmx-rendering.md",
+    "docs/scene-presets.md",
+    "face_assets.py",
+    "face_catalog.py",
+    "face_sdf.py",
+    "gaze.py",
+    "glow.py",
+    "glow_modes.py",
+    "glow_preview.py",
+    "glow_source.py",
+    "head_binding.py",
+    "importers.py",
+    "lighting.py",
+    "material_assets.py",
+    "material_controls.py",
+    "mmd_importer.py",
+    "node_graph.py",
+    "outline_profile.py",
+    "outlines.py",
+    "pmx_materials.py",
+    "project_io.py",
+    "rendering.py",
+    "sampling.py",
+    "scene_models.py",
+    "scene_presets.py",
+    "shaders.py",
+    "shadow_boundary.py",
+    "workflow.py"
+  ],
+  "baseline_policy": "Unchanged files verified byte exact; previous results are not new runs",
+  "source_sha256": {
+    "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+    "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+    "jelly_geometry.py": "01c939be971f0a89ef67af6015f8ca1fe8f347aa8ca105ca5642dd4a81e021ca",
+    "jelly_eye.py": "0b619080eb2e1258496be6f4b12365d1f641e62ec19485b784034c4846ec12be",
+    "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+    "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+    "__init__.py": "f1b3c8ba3d1a7b232909cdc7ce18832803ad5aaf86345284981675b738d1f962",
+    "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+    "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+    "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+    "glow.py": "11054259caf275de0160b37fec31d49a9f254dd898ccf25dd47e75288977b514",
+    "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+    "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+    "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+    "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+    "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+    "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+    "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+    "glow_source.py": "5cfa0cdc70e62245d5453f1cf4d3bf282f9546dc0f095a0ffcb2d1121dab3e8d",
+    "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+    "glow_preview.py": "fd4cdd0ff50b946aa03402f2fa68b29ab047934f449b4930e0ad6efb27cccea2",
+    "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+    "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+    "glow_modes.py": "6d344b36e468d6ec457b2c867515d6a01eaff84f0debca547b284e6c7301c8ae",
+    "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+    "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+    "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+    "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+    "properties.py": "d4efd1c25be3c83892dc5162e75e55e218a66c653fd739f46e2aef657cfa0cdd",
+    "panels.py": "c1578198159c1630013f5394e84ad5e14a5d640e329796667cc2f4e3843678a8",
+    "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+    "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87"
+  },
+  "jelly": {
+    "scope": "GI-TOON-JELLY-EYES",
+    "complete": true,
+    "models": [
+      {
+        "name": "安柏",
+        "blink": [
+          "ウィンク",
+          "ウィンク右"
+        ],
+        "frames": [
+          {
+            "frame": 1,
+            "amount": 1,
+            "response": 0.0023154933005571365,
+            "eyes": [
+              {
+                "side": 1,
+                "surface_error": 1.427812037491094e-07,
+                "normal_shift": 0.0011368662817403674,
+                "center": [
+                  0.037993330508470535,
+                  -0.08123824000358582,
+                  1.218409538269043
+                ],
+                "center_drift": 6.750599277438596e-05,
+                "max_deformation": 0.0023631472140550613
+              },
+              {
+                "side": 2,
+                "surface_error": 1.2338530552824523e-07,
+                "normal_shift": 0.0011471036123111844,
+                "center": [
+                  -0.03606259822845459,
+                  -0.08151228725910187,
+                  1.2184112071990967
+                ],
+                "center_drift": 5.188935392652638e-05,
+                "max_deformation": 0.0024325698614120483
+              }
+            ]
+          },
+          {
+            "frame": 4,
+            "amount": 1,
+            "response": 0.003023361787199974,
+            "eyes": [
+              {
+                "side": 1,
+                "surface_error": 2.408797001862695e-07,
+                "normal_shift": 0.0012847547186538577,
+                "center": [
+                  0.03325854241847992,
+                  -0.08385173976421356,
+                  1.2117948532104492
+                ],
+                "center_drift": 5.263457933324389e-05,
+                "max_deformation": 0.003029275918379426
+              },
+              {
+                "side": 2,
+                "surface_error": 1.6105150280054659e-07,
+                "normal_shift": 0.0012999684549868107,
+                "center": [
+                  -0.04032261669635773,
+                  -0.08202620595693588,
+                  1.2074341773986816
+                ],
+                "center_drift": 3.114646460744552e-05,
+                "max_deformation": 0.0030861045233905315
+              }
+            ]
+          },
+          {
+            "frame": 7,
+            "amount": 1,
+            "response": 0.00295243039727211,
+            "eyes": [
+              {
+                "side": 1,
+                "surface_error": 2.405121506399155e-07,
+                "normal_shift": 0.0012717170175164938,
+                "center": [
+                  0.0288699883967638,
+                  -0.08436667919158936,
+                  1.2047523260116577
+                ],
+                "center_drift": 5.208828952163458e-05,
+                "max_deformation": 0.002969238208606839
+              },
+              {
+                "side": 2,
+                "surface_error": 1.3374777552144224e-07,
+                "normal_shift": 0.001286364276893437,
+                "center": [
+                  -0.043040890246629715,
+                  -0.0807410329580307,
+                  1.195694088935852
+                ],
+                "center_drift": 3.941680915886536e-05,
+                "max_deformation": 0.0030269247945398092
+              }
+            ]
+          },
+          {
+            "frame": 13,
+            "amount": 1,
+            "response": 0.0034755468368530273,
+            "eyes": [
+              {
+                "side": 1,
+                "surface_error": 1.2511652869307e-07,
+                "normal_shift": 0.0010899966582655907,
+                "center": [
+                  0.045611582696437836,
+                  -0.07341404259204865,
+                  1.2268108129501343
+                ],
+                "center_drift": 4.188775346847251e-05,
+                "max_deformation": 0.0034728359896689653
+              },
+              {
+                "side": 2,
+                "surface_error": 1.2798147963621886e-07,
+                "normal_shift": 0.0010902124922722578,
+                "center": [
+                  -0.026996063068509102,
+                  -0.0778048112988472,
+                  1.2329429388046265
+                ],
+                "center_drift": 6.606012175325304e-05,
+                "max_deformation": 0.0034873047843575478
+              }
+            ]
+          },
+          {
+            "frame": 19,
+            "amount": 1,
+            "response": 0.0024532079696655273,
+            "eyes": [
+              {
+                "side": 1,
+                "surface_error": 1.5017124610494648e-07,
+                "normal_shift": 0.0010982300154864788,
+                "center": [
+                  0.03325854241847992,
+                  -0.08385173976421356,
+                  1.2117948532104492
+                ],
+                "center_drift": 1.7361022401019e-05,
+                "max_deformation": 0.0027676026802510023
+              },
+              {
+                "side": 2,
+                "surface_error": 1.3059785430868942e-07,
+                "normal_shift": 0.0010943171801045537,
+                "center": [
+                  -0.04032261669635773,
+                  -0.08202620595693588,
+                  1.2074341773986816
+                ],
+                "center_drift": 2.6350573534728028e-05,
+                "max_deformation": 0.0027783853001892567
+              }
+            ]
+          },
+          {
+            "frame": 25,
+            "amount": 1,
+            "response": 0.0030293483287096024,
+            "eyes": [
+              {
+                "side": 1,
+                "surface_error": 1.3621527727991634e-07,
+                "normal_shift": 0.0012871262151747942,
+                "center": [
+                  0.037993330508470535,
+                  -0.08123824000358582,
+                  1.218409538269043
+                ],
+                "center_drift": 5.2704464906128123e-05,
+                "max_deformation": 0.0030403248965740204
+              },
+              {
+                "side": 2,
+                "surface_error": 2.4811663479340496e-07,
+                "normal_shift": 0.0013023631181567907,
+                "center": [
+                  -0.03606259822845459,
+                  -0.08151228725910187,
+                  1.2184112071990967
+                ],
+                "center_drift": 3.11494804918766e-05,
+                "max_deformation": 0.003097015665844083
+              }
+            ]
+          },
+          {
+            "frame": 1,
+            "amount": 0,
+            "response": 0.0,
+            "eyes": [
+              {
+                "side": 1,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  0.037993330508470535,
+                  -0.08123824000358582,
+                  1.218409538269043
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              },
+              {
+                "side": 2,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  -0.03606259822845459,
+                  -0.08151228725910187,
+                  1.2184112071990967
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              }
+            ]
+          },
+          {
+            "frame": 7,
+            "amount": 0,
+            "response": 0.0,
+            "eyes": [
+              {
+                "side": 1,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  0.0288699883967638,
+                  -0.08436667919158936,
+                  1.2047523260116577
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              },
+              {
+                "side": 2,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  -0.043040890246629715,
+                  -0.0807410329580307,
+                  1.195694088935852
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              }
+            ]
+          },
+          {
+            "frame": 13,
+            "amount": 0,
+            "response": 0.0,
+            "eyes": [
+              {
+                "side": 1,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  0.045611582696437836,
+                  -0.07341404259204865,
+                  1.2268108129501343
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              },
+              {
+                "side": 2,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  -0.026996063068509102,
+                  -0.0778048112988472,
+                  1.2329429388046265
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              }
+            ]
+          }
+        ],
+        "cpu_pose_and_modifier_median": {
+          "off_ms": 2.9786499944748357,
+          "on_ms": 4.7469999990426
+        },
+        "checks": {
+          "original_actions_meshes_weights_keys_and_materials_preserved": true,
+          "original_eye_action_actually_moves_eye": true,
+          "iris_on_current_original_surface": true,
+          "sclera_lids_body_exact": true,
+          "zero_exact": true,
+          "live_parameter_without_frame_change": true,
+          "scrubbing_deterministic": true,
+          "render_responds": true,
+          "save_reopen_exact": true,
+          "disable_restores_exact": true,
+          "cycles_release_resources": true,
+          "failure_atomic": true
+        }
+      },
+      {
+        "name": "纳西妲",
+        "blink": [
+          "まばたき"
+        ],
+        "frames": [
+          {
+            "frame": 1,
+            "amount": 1,
+            "response": 0.0065881721675395966,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 1.2270859883756202e-07,
+                "normal_shift": 0.001650253776460886,
+                "center": [
+                  -0.03973604738712311,
+                  -0.07972096651792526,
+                  0.96826171875
+                ],
+                "center_drift": 0.00012328498996794224,
+                "max_deformation": 0.00332745723426342
+              },
+              {
+                "side": 1,
+                "surface_error": 6.322026990801533e-08,
+                "normal_shift": 0.0016447101952508092,
+                "center": [
+                  0.0402970127761364,
+                  -0.07955032587051392,
+                  0.9683395624160767
+                ],
+                "center_drift": 0.00010611440666252747,
+                "max_deformation": 0.003236887278035283
+              }
+            ]
+          },
+          {
+            "frame": 4,
+            "amount": 1,
+            "response": 0.007612291723489761,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 6.420049203370581e-08,
+                "normal_shift": 0.0016842662589624524,
+                "center": [
+                  -0.04011712595820427,
+                  -0.08069542795419693,
+                  0.9629610776901245
+                ],
+                "center_drift": 0.00012265765690244734,
+                "max_deformation": 0.0042234379798173904
+              },
+              {
+                "side": 1,
+                "surface_error": 1.215152991562718e-07,
+                "normal_shift": 0.001681171590462327,
+                "center": [
+                  0.03802229464054108,
+                  -0.08114702254533768,
+                  0.9701657295227051
+                ],
+                "center_drift": 8.880138921085745e-05,
+                "max_deformation": 0.004106811713427305
+              }
+            ]
+          },
+          {
+            "frame": 7,
+            "amount": 1,
+            "response": 0.007808312773704529,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 1.3186685521304753e-07,
+                "normal_shift": 0.001678171451203525,
+                "center": [
+                  -0.03998126834630966,
+                  -0.08076515048742294,
+                  0.9556849002838135
+                ],
+                "center_drift": 5.409889854490757e-05,
+                "max_deformation": 0.004140084143728018
+              },
+              {
+                "side": 1,
+                "surface_error": 1.2036781527058338e-07,
+                "normal_shift": 0.001675369217991829,
+                "center": [
+                  0.03512561693787575,
+                  -0.08247876167297363,
+                  0.9699479937553406
+                ],
+                "center_drift": 3.4576270991237834e-05,
+                "max_deformation": 0.004047023132443428
+              }
+            ]
+          },
+          {
+            "frame": 13,
+            "amount": 1,
+            "response": 0.003628373146057129,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 8.204100510056378e-08,
+                "normal_shift": 0.0013831057585775852,
+                "center": [
+                  -0.03631411865353584,
+                  -0.07484905421733856,
+                  0.9628879427909851
+                ],
+                "center_drift": 2.208857040386647e-05,
+                "max_deformation": 0.003643554635345936
+              },
+              {
+                "side": 1,
+                "surface_error": 1.2270859883756202e-07,
+                "normal_shift": 0.0013851852854713798,
+                "center": [
+                  0.04299766197800636,
+                  -0.07227085530757904,
+                  0.9525250792503357
+                ],
+                "center_drift": 3.035756162717007e-05,
+                "max_deformation": 0.0036304607056081295
+              }
+            ]
+          },
+          {
+            "frame": 19,
+            "amount": 1,
+            "response": 0.007857024669647217,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 6.143906006172983e-08,
+                "normal_shift": 0.0015008528716862202,
+                "center": [
+                  -0.04012488201260567,
+                  -0.08066321909427643,
+                  0.9627979397773743
+                ],
+                "center_drift": 3.639672650024295e-05,
+                "max_deformation": 0.0034533580765128136
+              },
+              {
+                "side": 1,
+                "surface_error": 6.006850128414953e-08,
+                "normal_shift": 0.0015017815167084336,
+                "center": [
+                  0.03801446780562401,
+                  -0.08113139122724533,
+                  0.9700003862380981
+                ],
+                "center_drift": 3.157097307848744e-05,
+                "max_deformation": 0.003442947054281831
+              }
+            ]
+          },
+          {
+            "frame": 25,
+            "amount": 1,
+            "response": 0.0072597116231918335,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 1.2310378849633707e-07,
+                "normal_shift": 0.0017606895416975021,
+                "center": [
+                  -0.03973604738712311,
+                  -0.07972096651792526,
+                  0.96826171875
+                ],
+                "center_drift": 0.00014379930507857352,
+                "max_deformation": 0.004239199683070183
+              },
+              {
+                "side": 1,
+                "surface_error": 1.2511652869307e-07,
+                "normal_shift": 0.0016849086387082934,
+                "center": [
+                  0.0402970127761364,
+                  -0.07955032587051392,
+                  0.9683395624160767
+                ],
+                "center_drift": 0.0001135822240030393,
+                "max_deformation": 0.004109300207346678
+              }
+            ]
+          },
+          {
+            "frame": 1,
+            "amount": 0,
+            "response": 0.0,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  -0.03973604738712311,
+                  -0.07972096651792526,
+                  0.96826171875
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              },
+              {
+                "side": 1,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  0.0402970127761364,
+                  -0.07955032587051392,
+                  0.9683395624160767
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              }
+            ]
+          },
+          {
+            "frame": 7,
+            "amount": 0,
+            "response": 0.0,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  -0.03998126834630966,
+                  -0.08076515048742294,
+                  0.9556849002838135
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              },
+              {
+                "side": 1,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  0.03512561693787575,
+                  -0.08247876167297363,
+                  0.9699479937553406
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              }
+            ]
+          },
+          {
+            "frame": 13,
+            "amount": 0,
+            "response": 0.0,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  -0.03631411865353584,
+                  -0.07484905421733856,
+                  0.9628879427909851
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              },
+              {
+                "side": 1,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  0.04299766197800636,
+                  -0.07227085530757904,
+                  0.9525250792503357
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              }
+            ]
+          }
+        ],
+        "cpu_pose_and_modifier_median": {
+          "off_ms": 12.382799992337823,
+          "on_ms": 14.70645000517834
+        },
+        "checks": {
+          "original_actions_meshes_weights_keys_and_materials_preserved": true,
+          "original_eye_action_actually_moves_eye": true,
+          "iris_on_current_original_surface": true,
+          "sclera_lids_body_exact": true,
+          "zero_exact": true,
+          "live_parameter_without_frame_change": true,
+          "scrubbing_deterministic": true,
+          "render_responds": true,
+          "save_reopen_exact": true,
+          "disable_restores_exact": true,
+          "cycles_release_resources": true,
+          "failure_atomic": true
+        }
+      },
+      {
+        "name": "奥黛塔",
+        "blink": [
+          "まばたき"
+        ],
+        "frames": [
+          {
+            "frame": 1,
+            "amount": 1,
+            "response": 0.006234645843505859,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 1.4509515722238575e-07,
+                "normal_shift": 0.0010710986098274589,
+                "center": [
+                  -0.03605113551020622,
+                  -0.08625141531229019,
+                  1.4331117868423462
+                ],
+                "center_drift": 0.00011385103425709531,
+                "max_deformation": 0.002472612773999572
+              },
+              {
+                "side": 1,
+                "surface_error": 1.2489448408814496e-07,
+                "normal_shift": 0.001071091159246862,
+                "center": [
+                  0.03605111688375473,
+                  -0.08625141531229019,
+                  1.4331117868423462
+                ],
+                "center_drift": 0.00011389251449145377,
+                "max_deformation": 0.0024726297706365585
+              }
+            ]
+          },
+          {
+            "frame": 4,
+            "amount": 1,
+            "response": 0.006860576570034027,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 1.4389461000519077e-07,
+                "normal_shift": 0.0010696368990465999,
+                "center": [
+                  -0.04254484549164772,
+                  -0.08559322357177734,
+                  1.4271217584609985
+                ],
+                "center_drift": 5.831854650750756e-05,
+                "max_deformation": 0.0031358273699879646
+              },
+              {
+                "side": 1,
+                "surface_error": 1.3144521915364749e-07,
+                "normal_shift": 0.0010696456301957369,
+                "center": [
+                  0.029025914147496223,
+                  -0.08973385393619537,
+                  1.4327532052993774
+                ],
+                "center_drift": 5.824672189191915e-05,
+                "max_deformation": 0.0031358052510768175
+              }
+            ]
+          },
+          {
+            "frame": 7,
+            "amount": 1,
+            "response": 0.006847752258181572,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 1.423431399416586e-07,
+                "normal_shift": 0.0010669167386367917,
+                "center": [
+                  -0.04848487675189972,
+                  -0.08457016944885254,
+                  1.4205621480941772
+                ],
+                "center_drift": 6.118041346780956e-05,
+                "max_deformation": 0.003075876971706748
+              },
+              {
+                "side": 1,
+                "surface_error": 2.423443845600559e-07,
+                "normal_shift": 0.0010668941540643573,
+                "center": [
+                  0.02185451239347458,
+                  -0.0928632915019989,
+                  1.4316619634628296
+                ],
+                "center_drift": 6.113216659286991e-05,
+                "max_deformation": 0.0030758834909647703
+              }
+            ]
+          },
+          {
+            "frame": 13,
+            "amount": 1,
+            "response": 0.007970213890075684,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 4.5320113883917656e-08,
+                "normal_shift": 0.0010578753426671028,
+                "center": [
+                  -0.024771573022007942,
+                  -0.08653991669416428,
+                  1.4413611888885498
+                ],
+                "center_drift": 5.164071262697689e-05,
+                "max_deformation": 0.003362064016982913
+              },
+              {
+                "side": 1,
+                "surface_error": 1.213438594049876e-07,
+                "normal_shift": 0.001057877903804183,
+                "center": [
+                  0.0467098206281662,
+                  -0.0800207108259201,
+                  1.4323066473007202
+                ],
+                "center_drift": 5.162111119716428e-05,
+                "max_deformation": 0.003362108487635851
+              }
+            ]
+          },
+          {
+            "frame": 19,
+            "amount": 1,
+            "response": 0.007320404052734375,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 5.333804153906385e-08,
+                "normal_shift": 0.001058983732946217,
+                "center": [
+                  -0.04254484549164772,
+                  -0.08559322357177734,
+                  1.4271217584609985
+                ],
+                "center_drift": 9.33848787099123e-05,
+                "max_deformation": 0.0026788138784468174
+              },
+              {
+                "side": 1,
+                "surface_error": 1.212866607147589e-07,
+                "normal_shift": 0.0010590206366032362,
+                "center": [
+                  0.029025914147496223,
+                  -0.08973385393619537,
+                  1.4327532052993774
+                ],
+                "center_drift": 9.340103133581579e-05,
+                "max_deformation": 0.002678820863366127
+              }
+            ]
+          },
+          {
+            "frame": 25,
+            "amount": 1,
+            "response": 0.006818503141403198,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 1.617930109887311e-07,
+                "normal_shift": 0.0010701577411964536,
+                "center": [
+                  -0.03605113551020622,
+                  -0.08625141531229019,
+                  1.4331117868423462
+                ],
+                "center_drift": 5.245256397756748e-05,
+                "max_deformation": 0.0031468530651181936
+              },
+              {
+                "side": 1,
+                "surface_error": 2.4867534875738784e-07,
+                "normal_shift": 0.0010701279388740659,
+                "center": [
+                  0.03605111688375473,
+                  -0.08625141531229019,
+                  1.4331117868423462
+                ],
+                "center_drift": 5.2442574087763205e-05,
+                "max_deformation": 0.0031468449160456657
+              }
+            ]
+          },
+          {
+            "frame": 1,
+            "amount": 0,
+            "response": 0.0,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  -0.03605113551020622,
+                  -0.08625141531229019,
+                  1.4331117868423462
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              },
+              {
+                "side": 1,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  0.03605111688375473,
+                  -0.08625141531229019,
+                  1.4331117868423462
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              }
+            ]
+          },
+          {
+            "frame": 7,
+            "amount": 0,
+            "response": 0.0,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  -0.04848487675189972,
+                  -0.08457016944885254,
+                  1.4205621480941772
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              },
+              {
+                "side": 1,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  0.02185451239347458,
+                  -0.0928632915019989,
+                  1.4316619634628296
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              }
+            ]
+          },
+          {
+            "frame": 13,
+            "amount": 0,
+            "response": 0.0,
+            "eyes": [
+              {
+                "side": 2,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  -0.024771573022007942,
+                  -0.08653991669416428,
+                  1.4413611888885498
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              },
+              {
+                "side": 1,
+                "surface_error": 0.0,
+                "normal_shift": 0.0,
+                "center": [
+                  0.0467098206281662,
+                  -0.0800207108259201,
+                  1.4323066473007202
+                ],
+                "center_drift": 0.0,
+                "max_deformation": 0.0
+              }
+            ]
+          }
+        ],
+        "cpu_pose_and_modifier_median": {
+          "off_ms": 20.200599989038892,
+          "on_ms": 24.223149986937642
+        },
+        "checks": {
+          "original_actions_meshes_weights_keys_and_materials_preserved": true,
+          "original_eye_action_actually_moves_eye": true,
+          "iris_on_current_original_surface": true,
+          "sclera_lids_body_exact": true,
+          "zero_exact": true,
+          "live_parameter_without_frame_change": true,
+          "scrubbing_deterministic": true,
+          "render_responds": true,
+          "save_reopen_exact": true,
+          "disable_restores_exact": true,
+          "cycles_release_resources": true,
+          "failure_atomic": true
+        }
+      }
+    ],
+    "source_sha256": {
+      "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+      "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+      "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+      "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+      "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+      "glow.py": "11054259caf275de0160b37fec31d49a9f254dd898ccf25dd47e75288977b514",
+      "glow_modes.py": "6d344b36e468d6ec457b2c867515d6a01eaff84f0debca547b284e6c7301c8ae",
+      "glow_preview.py": "fd4cdd0ff50b946aa03402f2fa68b29ab047934f449b4930e0ad6efb27cccea2",
+      "glow_source.py": "5cfa0cdc70e62245d5453f1cf4d3bf282f9546dc0f095a0ffcb2d1121dab3e8d",
+      "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+      "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+      "jelly_eye.py": "0b619080eb2e1258496be6f4b12365d1f641e62ec19485b784034c4846ec12be",
+      "jelly_geometry.py": "01c939be971f0a89ef67af6015f8ca1fe8f347aa8ca105ca5642dd4a81e021ca",
+      "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+      "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+      "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+      "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+      "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+      "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+      "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+      "panels.py": "c1578198159c1630013f5394e84ad5e14a5d640e329796667cc2f4e3843678a8",
+      "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+      "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+      "properties.py": "d4efd1c25be3c83892dc5162e75e55e218a66c653fd739f46e2aef657cfa0cdd",
+      "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+      "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+      "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+      "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+      "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+      "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+      "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+      "__init__.py": "f1b3c8ba3d1a7b232909cdc7ce18832803ad5aaf86345284981675b738d1f962"
+    },
+    "package_sha256": "5c332b227e2847a5c4167e29393775298dc13f5cd81ce0abadec53565c9d2860"
+  },
+  "jelly_interface": {
+    "scope": "GI-TOON-JELLY-UI",
+    "complete": true,
+    "checks": {
+      "panel_and_operator": true,
+      "enable_undo_redo": true,
+      "live_slider_in_material_view": true,
+      "parameter_undo_redo": true,
+      "native_playback": true,
+      "glow_refreshes_when_jelly_changes": true,
+      "disable_jelly_with_glow_active_cleans_resources": true,
+      "both_enable_orders_restore_resources": true
+    },
+    "source_sha256": {
+      "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+      "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+      "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+      "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+      "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+      "glow.py": "11054259caf275de0160b37fec31d49a9f254dd898ccf25dd47e75288977b514",
+      "glow_modes.py": "6d344b36e468d6ec457b2c867515d6a01eaff84f0debca547b284e6c7301c8ae",
+      "glow_preview.py": "fd4cdd0ff50b946aa03402f2fa68b29ab047934f449b4930e0ad6efb27cccea2",
+      "glow_source.py": "5cfa0cdc70e62245d5453f1cf4d3bf282f9546dc0f095a0ffcb2d1121dab3e8d",
+      "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+      "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+      "jelly_eye.py": "0b619080eb2e1258496be6f4b12365d1f641e62ec19485b784034c4846ec12be",
+      "jelly_geometry.py": "01c939be971f0a89ef67af6015f8ca1fe8f347aa8ca105ca5642dd4a81e021ca",
+      "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+      "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+      "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+      "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+      "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+      "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+      "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+      "panels.py": "c1578198159c1630013f5394e84ad5e14a5d640e329796667cc2f4e3843678a8",
+      "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+      "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+      "properties.py": "d4efd1c25be3c83892dc5162e75e55e218a66c653fd739f46e2aef657cfa0cdd",
+      "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+      "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+      "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+      "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+      "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+      "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+      "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+      "__init__.py": "f1b3c8ba3d1a7b232909cdc7ce18832803ad5aaf86345284981675b738d1f962"
+    },
+    "package_sha256": "5c332b227e2847a5c4167e29393775298dc13f5cd81ce0abadec53565c9d2860",
+    "viewport_response": 0.9215686917304993,
+    "glow_initial_draws": 2
+  },
+  "jelly_interactions": {
+    "scope": "GI-TOON-JELLY-INTERACTIONS",
+    "complete": true,
+    "source_sha256": {
+      "asset_tracking.py": "dbba1a899479a60db1c9509198669289d620fd2eb62ae4b169b1837d7018a066",
+      "face_assets.py": "963cc405537cadb12f8eb55e6fff6d503de07112b8fad1c33fc271587847c00a",
+      "face_catalog.py": "32aaa5e82ff0462bfdf30c66b5043f891cd3aaecceb05d50c1c30760705b721c",
+      "face_sdf.py": "453c899185fec867092bff12a07a4bbb592c52bd7f28f98e017ecbf17f645c1f",
+      "gaze.py": "c89b8db1d49fa22e18b4bcb110a9ea079bccdf1af807a5295f275b0331dae5c0",
+      "glow.py": "11054259caf275de0160b37fec31d49a9f254dd898ccf25dd47e75288977b514",
+      "glow_modes.py": "6d344b36e468d6ec457b2c867515d6a01eaff84f0debca547b284e6c7301c8ae",
+      "glow_preview.py": "fd4cdd0ff50b946aa03402f2fa68b29ab047934f449b4930e0ad6efb27cccea2",
+      "glow_source.py": "5cfa0cdc70e62245d5453f1cf4d3bf282f9546dc0f095a0ffcb2d1121dab3e8d",
+      "head_binding.py": "cb784434124c7078ab9223e48212c93214f432b3554eeac78ea9c9d6cb09651f",
+      "importers.py": "1a2c66c053d0777f440348bde1af0dc51584aedd79514ecfb9c96a1bb2f92f58",
+      "jelly_eye.py": "0b619080eb2e1258496be6f4b12365d1f641e62ec19485b784034c4846ec12be",
+      "jelly_geometry.py": "01c939be971f0a89ef67af6015f8ca1fe8f347aa8ca105ca5642dd4a81e021ca",
+      "lighting.py": "87707ffc7aa3097d53eba263962d6ba47661d9b4ffa67dec02437da96fbbd0f9",
+      "material_assets.py": "0a334dff896f4fb3f1e4af9cdacc057daf52f8f40f114458b755a8a22337d540",
+      "material_controls.py": "89ac33736414aa557f652813fec4e71d7e97749828d199dcb86382e2c9fa1d90",
+      "mmd_importer.py": "6338979a79338355122ddb1e6f42c251b6454f5e87ed28cfb48cb128001d860e",
+      "node_graph.py": "f81a66843f2c595cd7b9a16ae91752ae399bc528546269c0fae95d8b463dcbd7",
+      "outlines.py": "81e474051e90ca37b3ed9b2ed1486f275ff480da6d67853bb4bc539feb2760c3",
+      "outline_profile.py": "fab6cd5071a4fffceb757d1937040f499b3837d28b1fb309b762e0817949ca87",
+      "panels.py": "c1578198159c1630013f5394e84ad5e14a5d640e329796667cc2f4e3843678a8",
+      "pmx_materials.py": "162c015e3b11db2b86eeb3b2eccdbc6301cfb021bb0c07eb6163898124e97325",
+      "project_io.py": "617bdc0032f56ab68aaf92043c4ee375e606a522f42f8af8a990c8edc9ed7f51",
+      "properties.py": "d4efd1c25be3c83892dc5162e75e55e218a66c653fd739f46e2aef657cfa0cdd",
+      "rendering.py": "9accc5e3dbcce7259c2aae1b6080ccae0e6d91abb00e04a5ae287032a0dba9eb",
+      "sampling.py": "12bbaf4f6df673192947b63d4b45d6d950322a9757f79cafc3f8573acda15a83",
+      "scene_models.py": "ba3cece77fcad00deaee2ebed2a64d0bfc08581b3e329a30ad9dfbc47f8d1004",
+      "scene_presets.py": "8979bf95224160ca607a83029c59cb7c30b80b77850f026f44df7da5c8d5efb2",
+      "shaders.py": "e205d044b462a820234593be28bd6beaed3f3870f9ca5bd5908c3a6a32a927a3",
+      "shadow_boundary.py": "188a9456cfe0d7ca35d3b9e74bf9f5fa03b6480ef1e65c67214fad197608988e",
+      "workflow.py": "ef89d8bbd3c495ef4f279e2e61b98097d2411ce390aba11ee2cbbdd373619b24",
+      "__init__.py": "f1b3c8ba3d1a7b232909cdc7ce18832803ad5aaf86345284981675b738d1f962"
+    },
+    "package_sha256": "5c332b227e2847a5c4167e29393775298dc13f5cd81ce0abadec53565c9d2860",
+    "checks": {
+      "native_mmd_materials_and_restore_materials_preserve_effect": true,
+      "apply_materials_keeps_independent_effect": true,
+      "look_at_camera_remains_bounded": true,
+      "unrelated_highlights_ignored": true,
+      "ambiguous_eye_rejected_without_writes": true,
+      "two_real_characters_are_independent": true,
+      "parameters_can_be_keyframed": true
+    }
+  },
+  "full_regression_required": false
+}
