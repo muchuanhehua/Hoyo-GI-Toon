@@ -4,7 +4,7 @@ import bpy
 from bpy.types import Operator, Panel, UIList
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ImportHelper
-from . import workflow, rendering, lighting, gaze, material_controls, scene_models, scene_presets, outlines, glow
+from . import workflow, rendering, lighting, gaze, material_controls, scene_models, scene_presets, outlines, glow, jelly_eye
 
 
 def target(context):
@@ -142,6 +142,28 @@ class HGT_OT_toggle_glow(Operator):
             context.scene.hgt_glow.error = ''
         except (ValueError, RuntimeError) as exc:
             context.scene.hgt_glow.error = str(exc)
+            return report_error(self, exc)
+        return {'FINISHED'}
+
+
+class HGT_OT_toggle_jelly_eye(Operator):
+    bl_idname = 'hgt.toggle_jelly_eye'
+    bl_label = '果冻眼'
+    bl_description = '在原眼睛动作上叠加围绕自身中心的 Q 弹，保持在原虹膜表面范围内'
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return idle(context) and scene_models.selected(context) is not None
+
+    def execute(self, context):
+        root = scene_models.selected(context)
+        try:
+            if jelly_eye.is_active(root):
+                jelly_eye.disable(root)
+            else:
+                jelly_eye.enable(root, context.scene)
+        except (ValueError, RuntimeError) as exc:
             return report_error(self, exc)
         return {'FINISHED'}
 
@@ -384,6 +406,18 @@ class HGT_PT_effects(HGTPanel, Panel):
             column = layout.column()
             column.alert = True
             column.label(text=settings.error, icon='ERROR')
+        layout.separator()
+        root = scene_models.selected(context)
+        enabled = jelly_eye.is_active(root)
+        layout.operator('hgt.toggle_jelly_eye', text='果冻眼', icon='HIDE_OFF', depress=enabled)
+        if enabled:
+            for field in ('amount', 'speed', 'spring'):
+                layout.prop(root.hgt_jelly, field, slider=field != 'speed')
+            issue = jelly_eye.error(root)
+            if issue:
+                column = layout.column()
+                column.alert = True
+                column.label(text=issue, icon='ERROR')
 
 
 class HGT_PT_scene(HGTPanel, Panel):
@@ -443,7 +477,7 @@ class HGT_PT_camera(HGTPanel, Panel):
 
 
 CLASSES = (HGT_OT_import_character, HGT_OT_apply_materials, HGT_OT_toggle_display, HGT_OT_restore, HGT_OT_reset_materials,
-           HGT_OT_default_light, HGT_OT_toggle_glow, HGT_OT_apply_light_preset, HGT_OT_load_scene, HGT_OT_remove_scene, HGT_OT_look_camera, HGT_OT_align_camera, HGT_OT_render,
+           HGT_OT_default_light, HGT_OT_toggle_glow, HGT_OT_toggle_jelly_eye, HGT_OT_apply_light_preset, HGT_OT_load_scene, HGT_OT_remove_scene, HGT_OT_look_camera, HGT_OT_align_camera, HGT_OT_render,
            HGT_UL_materials, HGT_PT_main, HGT_PT_materials, HGT_PT_local_colors, HGT_PT_effects, HGT_PT_scene, HGT_PT_lighting, HGT_PT_camera)
 
 

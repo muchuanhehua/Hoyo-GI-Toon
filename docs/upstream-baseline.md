@@ -15,6 +15,7 @@
 | 辉光 | glow；原生 Bloom、透明光晕 Alpha、合成连接与视口恢复 | 默认值与交互参考作者的 MAVR presets/glow.py；GI-Toon 独立实现 |
 | 默认光 | lighting.default_light；主动调用，复用自有灯 | Hoyo-GI-Toon |
 | 视线 | gaze；可移除眼骨约束及实时跟随 | Hoyo-GI-Toon；MMD 骨名语义参考晨星 |
+| 果冻眼 | jelly_eye、jelly_geometry；原动作后的中心压缩、原虹膜表面约束及可逆资源 | 节奏与三参数参考作者的 MAVR presets/jelly_eye.py；GI-Toon 独立实现，不采用原全眼球形态键缩放 |
 | 工程与渲染 | project_io、rendering；资源记录、当前场景相机和 Blender 原生渲染，图片保存使用原生功能 | Hoyo-GI-Toon / Blender |
 | 编排与面板 | workflow、panels；七个独立可折叠面板，材质与辉光实时预览，无自定义输出区 | Hoyo-GI-Toon |
 

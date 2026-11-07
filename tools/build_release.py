@@ -10,7 +10,7 @@ PAYLOAD={"__init__.py","asset_tracking.py","importers.py","mmd_importer.py","mat
          "assets/scenes.json","assets/scene_city_terrace.blend","assets/scene_stage.blend",
          "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE",
          "docs/upstream-baseline.md","docs/basic-rendering.md","docs/pmx-rendering.md","docs/workflow.md","docs/scene-presets.md"}
-PAYLOAD.add('assets/faces.json')
+PAYLOAD.update({'assets/faces.json', 'jelly_eye.py', 'jelly_geometry.py'})
 FACE_PRESETS=json.loads((ROOT/'assets/faces.json').read_text('utf-8'))['presets']
 for preset in FACE_PRESETS:
     for role,name in preset['textures'].items():
@@ -252,6 +252,29 @@ def validate_shadow_boundaries(evidence, hashes, package_sha256=None):
     if package_sha256 is not None:assert evidence['package_sha256'] == package_sha256
 
 
+def validate_jelly_evidence(evidence, interface, interactions, hashes, package_sha256=None):
+    for report, scope in ((evidence, 'GI-TOON-JELLY-EYES'), (interface, 'GI-TOON-JELLY-UI'),
+                          (interactions, 'GI-TOON-JELLY-INTERACTIONS')):
+        assert report['scope'] == scope and report['complete'] and not report.get('error')
+        assert report['source_sha256'] == hashes, 'Jelly-eye evidence does not match runtime'
+        if package_sha256 is not None:
+            assert report.get('package_sha256') == package_sha256, 'Jelly-eye evidence must use the actual ZIP'
+    assert len(evidence['models']) >= 3
+    required = ('original_actions_meshes_weights_keys_and_materials_preserved', 'original_eye_action_actually_moves_eye',
+                'iris_on_current_original_surface', 'sclera_lids_body_exact', 'zero_exact',
+                'live_parameter_without_frame_change', 'scrubbing_deterministic', 'render_responds',
+                'save_reopen_exact', 'disable_restores_exact', 'cycles_release_resources', 'failure_atomic')
+    assert all(all(model['checks'].get(key) is True for key in required) for model in evidence['models'])
+    assert all(interface['checks'].get(key) is True for key in (
+        'panel_and_operator', 'enable_undo_redo', 'live_slider_in_material_view', 'parameter_undo_redo',
+        'native_playback', 'glow_refreshes_when_jelly_changes',
+        'disable_jelly_with_glow_active_cleans_resources', 'both_enable_orders_restore_resources'))
+    assert all(interactions['checks'].get(key) is True for key in (
+        'native_mmd_materials_and_restore_materials_preserve_effect', 'apply_materials_keeps_independent_effect',
+        'look_at_camera_remains_bounded', 'unrelated_highlights_ignored', 'ambiguous_eye_rejected_without_writes',
+        'two_real_characters_are_independent', 'parameters_can_be_keyframed'))
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('action',choices=('review','candidate','release'))
@@ -270,6 +293,9 @@ def main():
     parser.add_argument('--shadow-viewport-verification',type=Path,required=True)
     parser.add_argument('--glow-verification',type=Path)
     parser.add_argument('--glow-interface-verification',type=Path)
+    parser.add_argument('--jelly-verification',type=Path)
+    parser.add_argument('--jelly-interface-verification',type=Path)
+    parser.add_argument('--jelly-interactions-verification',type=Path)
     parser.add_argument('--scene-verification',type=Path,required=True)
     parser.add_argument('--scene-interface-verification',type=Path,required=True)
     args=parser.parse_args()
@@ -340,6 +366,13 @@ def main():
                 'all_seven_modes_natural_preview','mode_switching_reuses_character_source',
                 'mode_undo_redo_keeps_selection_and_native_type','mode_cycles_release_kernel_and_preview'))
         if args.action=='release':assert glow['package_sha256']==glow_ui['package_sha256']==evidence['package_sha256']
+    jelly=jelly_ui=jelly_interactions=None
+    if tuple(info['version']) >= (2,9,0):
+        assert args.jelly_verification and args.jelly_interface_verification and args.jelly_interactions_verification, 'Bounded jelly-eye animation, viewport and integration evidence is required'
+        jelly=json.loads(args.jelly_verification.read_text('utf-8'))
+        jelly_ui=json.loads(args.jelly_interface_verification.read_text('utf-8'))
+        jelly_interactions=json.loads(args.jelly_interactions_verification.read_text('utf-8'))
+        validate_jelly_evidence(jelly,jelly_ui,jelly_interactions,hashes,evidence.get('package_sha256') if args.action=='release' else None)
     outline=None
     if tuple(info['version'])>=(2,4,1):
         assert args.outline_verification,'Inner-shell colour and exterior silhouette evidence is required'
@@ -416,6 +449,7 @@ def main():
              'shadow_colours':shadow_colors,
              'shadow_viewport':shadow_viewport,
              'glow':glow,'glow_interface':glow_ui,
+             'jelly':jelly,'jelly_interface':jelly_ui,'jelly_interactions':jelly_interactions,
              'new_full_game_algorithm_recovered':sdf['full_new_game_shader_recovered']}
     (release/f"verification-v{manifest['version']}.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('HGT_RELEASE',record['version'],record['sha256'])

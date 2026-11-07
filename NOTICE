@@ -33,6 +33,11 @@ transparent-halo alpha and synchronises viewport state through undo/redo.
 Character-only isolation uses an owned view layer and GPU preview cache; it does
 not copy MAVR character assets or modify the original MMD materials.
 
+Jelly-eye timing and three controls are informed by the author's MAVR project,
+presets/jelly_eye.py. GI-Toon independently uses a post-pose Geometry Nodes
+deformation constrained to the current original iris surface, instead of
+scaling the full eyeball with rest-space shape keys.
+
 FBX, layered-eye extensions, fabric/reflection modules and the previous display
 workflow are retained in the v1.0.1 Git tag, outside the current runtime.
 assets/faces/ contains the shared Genshin Impact face SDF and mask images

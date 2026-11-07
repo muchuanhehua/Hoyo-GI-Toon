@@ -165,6 +165,28 @@ class HGTGazeBone(PropertyGroup):
     helper: PointerProperty(type=bpy.types.Object)
     active_constraint: StringProperty()
 
+
+class HGTJellyMesh(PropertyGroup):
+    object: PointerProperty(type=bpy.types.Object)
+    graph: PointerProperty(type=bpy.types.NodeTree)
+    mask: PointerProperty(type=bpy.types.Object)
+    modifier: StringProperty()
+    vertex_count: IntProperty()
+    animation_created: BoolProperty()
+
+
+def update_jelly(self, context):
+    self.id_data.update_tag()
+
+
+class HGTJellySettings(PropertyGroup):
+    amount: FloatProperty(name='弹性幅度', description='围绕当前虹膜中心向内压缩，0 保持原眼睛；最大不超出原虹膜表面',
+                          default=.55, min=0, max=1, update=update_jelly)
+    speed: FloatProperty(name='弹动速度', description='每秒的弹动次数，不改变原眼骨动作', default=1.2, min=.1, max=5, update=update_jelly)
+    spring: FloatProperty(name='Q弹程度', description='改变周期内的弹性节奏，不扩大最大变形范围', default=.35, min=0, max=1, update=update_jelly)
+    entries: CollectionProperty(type=HGTJellyMesh)
+    collection: PointerProperty(type=bpy.types.Collection)
+
 class HGTMaterialBinding(PropertyGroup):
     source: PointerProperty(type=bpy.types.Material)
     generated: PointerProperty(type=bpy.types.Material)
@@ -321,7 +343,7 @@ def update_light(self, context):
             refresh_character(root, scene=self, appearance=False)
 
 
-CLASSES = (HGTGazeBone, HGTMaterialBinding, HGTSlotSnapshot, HGTMeshReference, HGTControlReference, HGTVisibility,
+CLASSES = (HGTGazeBone, HGTJellyMesh, HGTJellySettings, HGTMaterialBinding, HGTSlotSnapshot, HGTMeshReference, HGTControlReference, HGTVisibility,
            HGTScenePresetSettings, HGTLightParameters, HGTLightingSettings, HGTCharacterSettings, HGTGlowSettings)
 
 def register():
@@ -329,6 +351,7 @@ def register():
     for cls in CLASSES:
         bpy.utils.register_class(cls)
     bpy.types.Object.hgt_character = PointerProperty(type=HGTCharacterSettings)
+    bpy.types.Object.hgt_jelly = PointerProperty(type=HGTJellySettings)
     bpy.types.Scene.hgt_target = PointerProperty(type=bpy.types.Object)
     bpy.types.Scene.hgt_model = PointerProperty(name='模型', type=bpy.types.Object, poll=model_poll, update=update_model)
     bpy.types.Scene.hgt_light = PointerProperty(name='灯光', type=bpy.types.Object, poll=lambda self, obj: obj.type == 'LIGHT' and obj.data.type in {'SUN', 'AREA', 'POINT', 'SPOT'} and obj.name in self.objects, update=update_light)
@@ -346,5 +369,6 @@ def unregister():
     del bpy.types.Scene.hgt_model
     del bpy.types.Scene.hgt_light
     del bpy.types.Object.hgt_character
+    del bpy.types.Object.hgt_jelly
     for cls in reversed(CLASSES):
         bpy.utils.unregister_class(cls)
