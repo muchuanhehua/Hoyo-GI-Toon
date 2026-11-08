@@ -242,8 +242,9 @@ def set_controls(root, vectors=None):
                 scene[key] = value
                 changed = True
         if changed:
-            # ID properties do not notify the VIEW_LAYER attribute uniforms.
-            scene.update_tag()
+            # Copy animated uniforms into evaluated scenes without invalidating
+            # every mesh, modifier and physics dependency in the scene.
+            scene.update_tag(refresh={'TIME'})
             from .rendering import redraw_materials
             redraw_materials(scene)
 

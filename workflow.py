@@ -5,6 +5,7 @@ from mathutils import Vector
 from bpy.app.handlers import persistent
 from . import asset_tracking, importers, lighting, outlines, rendering, shaders, project_io, gaze, material_controls, scene_models
 from .pmx_materials import Catalog, DEFAULT_SHADOW_POSITION, DEFAULT_OUTLINE
+from .glow_source import TAG as GLOW_SOURCE_TAG
 _REFRESHING = False
 
 def current(root):
@@ -255,6 +256,10 @@ def restore(root):
 
 @persistent
 def update_scene(scene, depsgraph=None):
+    # The glow source uses the same objects and controls as the main layer.
+    # Re-entering here while evaluating it repeats work and dirties both graphs.
+    if depsgraph and depsgraph.view_layer.get(GLOW_SOURCE_TAG):
+        return
     scene_models.sync_active(scene)
     for obj in tuple(scene.objects):
         if current(obj):
@@ -263,13 +268,16 @@ def update_scene(scene, depsgraph=None):
 
 @persistent
 def update_frame(scene, depsgraph=None):
+    if depsgraph and depsgraph.view_layer.get(GLOW_SOURCE_TAG):
+        return
     # A material can be reused in a scene that does not contain its source rig.
     for obj in bpy.data.objects:
-        if current(obj) and obj.hgt_character.managed:
-            shaders.set_controls(obj)
-    for obj in tuple(scene.objects):
-        if current(obj):
+        if not current(obj):
+            continue
+        if obj.name in scene.objects:
             refresh_character(obj, depsgraph, scene)
+        elif obj.hgt_character.managed:
+            shaders.set_controls(obj)
 
 def register():
     bpy.app.handlers.depsgraph_update_post.append(update_scene)

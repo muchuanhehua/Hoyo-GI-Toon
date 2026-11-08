@@ -50,11 +50,28 @@ def validate_camera_evidence(evidence, camera, audit, hashes, archive_sha):
     assert audit['legacy_scale_upgrade_and_shared_compositor_verified']
 
 
+def validate_animation_evidence(evidence, compatibility, audit, hashes, archive_sha):
+    assert evidence['scope'] == 'ANIMATION-PREVIEW-PERFORMANCE' and evidence['complete']
+    assert evidence['source_sha256'] == hashes and evidence['package_sha256'] == archive_sha
+    samples = evidence['paired_measurements']
+    assert [row['mode'] for row in samples] == ['baseline_on', 'fixed_on', 'baseline_repeat']
+    assert all(row['draws'] > 0 and row['uploads'] > 0 and not row['error'] for row in samples)
+    assert samples[1]['interval_median_ms'] < min(samples[0]['interval_median_ms'], samples[2]['interval_median_ms'])
+    assert len({tuple(sorted(row['resources'].items())) for row in samples}) == 1
+    assert compatibility['scope'] == 'ANIMATION-PREVIEW-COMPATIBILITY' and compatibility['complete']
+    assert compatibility['source_sha256'] == hashes and compatibility['package_sha256'] == archive_sha
+    assert len(compatibility['checks']) == 17 and all(compatibility['checks'].values())
+    assert len(compatibility['renders']) == 3 and all(row['max_abs_error'] == 0 for row in compatibility['renders'])
+    assert audit['scope'] == 'INCREMENTAL-ANIMATION-PREVIEW-RELEASE' and audit['complete']
+    assert audit['source_sha256'] == hashes and audit['archive_sha256'] == archive_sha
+    assert audit['glow_render_and_capture_byte_exact'] and audit['shader_and_animation_compatibility_verified']
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--candidate', type=Path, required=True)
     parser.add_argument('--base-version', required=True)
-    parser.add_argument('--scope', choices=('jelly', 'glow', 'glow-camera'), required=True)
+    parser.add_argument('--scope', choices=('jelly', 'glow', 'glow-camera', 'animation-preview'), required=True)
     parser.add_argument('--verification', type=Path, required=True)
     parser.add_argument('--interface-verification', type=Path, required=True)
     parser.add_argument('--interactions-verification', type=Path, required=True)
@@ -68,8 +85,10 @@ def main():
         validate_jelly_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     elif args.scope == 'glow':
         validate_glow_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
-    else:
+    elif args.scope == 'glow-camera':
         validate_camera_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
+    else:
+        validate_animation_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     base = read(ROOT / 'release' / ('build-v' + args.base_version + '.json'))
     previous = ROOT / 'release' / base['archive']
     assert sha(previous.read_bytes()) == base['sha256'], 'Baseline archive changed'
@@ -82,6 +101,9 @@ def main():
                        'blender_manifest.toml', 'README.md', 'CHANGELOG.md', 'NOTICE',
                        'docs/upstream-baseline.md', 'docs/workflow.md'}
             assert new_files - old_files == {'jelly_eye.py', 'jelly_geometry.py'}
+        elif args.scope == 'animation-preview':
+            allowed = {'__init__.py', 'blender_manifest.toml', 'CHANGELOG.md', 'workflow.py', 'shaders.py'}
+            assert new_files == old_files
         else:
             allowed = {'__init__.py', 'blender_manifest.toml', 'CHANGELOG.md', 'glow.py', 'glow_preview.py'}
             assert new_files == old_files
@@ -118,12 +140,17 @@ def main():
             'functional_complete', 'performance_verified', 'native_checks', 'native_mode_checks',
             'viewport_checks', 'moving_timeline_uploads', 'native_render_core_ast_unchanged')},
             glow_interface=interface, glow_incremental_audit=interactions)
-    else:
+    elif args.scope == 'glow-camera':
         summary.update(camera_source_checks={'camera_cases':len(evidence['camera_cases']),
             'ordinary_view_cases':len(evidence['ordinary_view_cases']), 'viewport_checks':evidence['viewport_checks'],
             'moving_timeline_uploads':evidence['moving_timeline_uploads'],
             'final_render_core_ast_unchanged':evidence['final_render_core_ast_unchanged']},
             camera_package=interface, camera_incremental_audit=interactions)
+    else:
+        summary.update(animation_performance=evidence,
+                       animation_package_checks={'count':len(interface['checks']), 'all_passed':True,
+                           'renders':interface['renders'], 'package_sha256':interface['package_sha256']},
+                       animation_incremental_audit=interactions)
     shutil.copy2(candidate, target)
     (release / ('build-v' + version + '.json')).write_text(json.dumps(record, indent=2) + '\n', 'utf-8', newline='\n')
     (release / ('verification-v' + version + '.json')).write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n', 'utf-8', newline='\n')
