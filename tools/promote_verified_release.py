@@ -34,11 +34,27 @@ def validate_glow_evidence(evidence, interface, audit, hashes, archive_sha):
     assert audit['published_on_user_request_without_idle_gpu_benchmark']
 
 
+def validate_camera_evidence(evidence, camera, audit, hashes, archive_sha):
+    assert evidence['scope'] == 'GLOW-CAMERA-FRAME-FIX' and evidence['complete']
+    for name, expected in evidence['source_sha256'].items():
+        if name != '__init__.py':assert hashes[name] == expected, name
+    assert len(evidence['camera_cases']) == 9 and len(evidence['ordinary_view_cases']) == 2
+    assert len(evidence['viewport_checks']) == 20 and all(evidence['viewport_checks'].values())
+    assert evidence['moving_timeline_uploads'] >= 2 and evidence['final_render_core_ast_unchanged']
+    assert camera['scope'] == 'GLOW-CAMERA-ALIGNMENT' and camera['complete'] and not camera.get('error')
+    assert camera['source_sha256'] == hashes and camera['package_sha256'] == archive_sha
+    assert len(camera['cases']) == 11 and all(max(map(abs, case['offset_px'])) < 3 for case in camera['cases'])
+    assert audit['scope'] == 'INCREMENTAL-GLOW-CAMERA-RELEASE' and audit['complete']
+    assert audit['source_sha256'] == hashes and audit['archive_sha256'] == archive_sha
+    assert audit['native_render_core_ast_unchanged'] and audit['version_metadata_only']
+    assert audit['legacy_scale_upgrade_and_shared_compositor_verified']
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--candidate', type=Path, required=True)
     parser.add_argument('--base-version', required=True)
-    parser.add_argument('--scope', choices=('jelly', 'glow'), required=True)
+    parser.add_argument('--scope', choices=('jelly', 'glow', 'glow-camera'), required=True)
     parser.add_argument('--verification', type=Path, required=True)
     parser.add_argument('--interface-verification', type=Path, required=True)
     parser.add_argument('--interactions-verification', type=Path, required=True)
@@ -50,8 +66,10 @@ def main():
         args.verification, args.interface_verification, args.interactions_verification)]
     if args.scope == 'jelly':
         validate_jelly_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
-    else:
+    elif args.scope == 'glow':
         validate_glow_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
+    else:
+        validate_camera_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     base = read(ROOT / 'release' / ('build-v' + args.base_version + '.json'))
     previous = ROOT / 'release' / base['archive']
     assert sha(previous.read_bytes()) == base['sha256'], 'Baseline archive changed'
@@ -95,11 +113,17 @@ def main():
                'source_sha256': runtime_hashes(), 'full_regression_required': False}
     if args.scope == 'jelly':
         summary.update(jelly=evidence, jelly_interface=interface, jelly_interactions=interactions)
-    else:
+    elif args.scope == 'glow':
         summary.update(glow_functional={k:evidence[k] for k in (
             'functional_complete', 'performance_verified', 'native_checks', 'native_mode_checks',
             'viewport_checks', 'moving_timeline_uploads', 'native_render_core_ast_unchanged')},
             glow_interface=interface, glow_incremental_audit=interactions)
+    else:
+        summary.update(camera_source_checks={'camera_cases':len(evidence['camera_cases']),
+            'ordinary_view_cases':len(evidence['ordinary_view_cases']), 'viewport_checks':evidence['viewport_checks'],
+            'moving_timeline_uploads':evidence['moving_timeline_uploads'],
+            'final_render_core_ast_unchanged':evidence['final_render_core_ast_unchanged']},
+            camera_package=interface, camera_incremental_audit=interactions)
     shutil.copy2(candidate, target)
     (release / ('build-v' + version + '.json')).write_text(json.dumps(record, indent=2) + '\n', 'utf-8', newline='\n')
     (release / ('verification-v' + version + '.json')).write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n', 'utf-8', newline='\n')

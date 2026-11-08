@@ -61,26 +61,47 @@ def invalidate(scene, sync=False, discard=False):
 
 def _identity(scene, area, region):
     settings = scene.hgt_glow
+    view, projection = _matrices(scene, area.spaces.active, _records.get(scene.as_pointer(), {}))
     return (settings.scope_id, settings.target.as_pointer() if settings.target else 0,
-            area.as_pointer(), region.width, region.height, area.spaces.active.shading.type)
+            area.as_pointer(), region.width, region.height, area.spaces.active.shading.type,
+            tuple(x for row in view for x in row), tuple(x for row in projection for x in row))
 
 
-def _size(region):
+def _camera(scene, space):
+    return (space.camera or scene.camera) if space.region_3d.view_perspective == 'CAMERA' else None
+
+
+def _matrices(scene, space, record):
+    view = space.region_3d
+    camera = _camera(scene, space)
+    graph = record.get('depsgraph')
+    if camera is None or graph is None:return view.view_matrix, view.window_matrix
+    evaluated = camera.evaluated_get(graph)
+    projection = camera.calc_matrix_camera(graph, x=scene.render.resolution_x, y=scene.render.resolution_y,
+                                          scale_x=scene.render.pixel_aspect_x, scale_y=scene.render.pixel_aspect_y)
+    return evaluated.matrix_world.normalized().inverted(), projection
+
+
+def _size(region, scene=None, space=None):
     # Bloom is a low-frequency effect. Keep one stable GPUViewport rather than
     # rebuilding its EEVEE resources whenever interaction starts or stops.
-    ratio = min(1, PREVIEW_EDGE / max(region.width, region.height))
-    return max(1, round(region.width * ratio)), max(1, round(region.height * ratio))
+    width, height = region.width, region.height
+    if scene is not None and space is not None and _camera(scene, space):
+        width = scene.render.resolution_x * scene.render.pixel_aspect_x
+        height = scene.render.resolution_y * scene.render.pixel_aspect_y
+    ratio = min(1, PREVIEW_EDGE / max(width, height))
+    return max(1, round(width * ratio)), max(1, round(height * ratio))
 
 
 def _key(scene, area, region, record):
-    view = area.spaces.active.region_3d
+    view, projection = _matrices(scene, area.spaces.active, record)
     shading = area.spaces.active.shading
     uniforms = tuple((k, tuple(v) if hasattr(v, '__len__') and not isinstance(v, str) else v)
                      for k, v in scene.items() if k.startswith('hgt_') and k != 'hgt_glow'
                      and (isinstance(v, (int, float, str, list, tuple)) or hasattr(v, 'to_list')))
     return (area.as_pointer(), region.width, region.height, record.get('revision', 0),
-            scene.frame_current, scene.frame_subframe, tuple(x for row in view.view_matrix for x in row),
-            tuple(x for row in view.window_matrix for x in row), shading.type,
+            scene.frame_current, scene.frame_subframe, tuple(x for row in view for x in row),
+            tuple(x for row in projection for x in row), shading.type,
             shading.use_scene_world, shading.use_scene_lights,
             shading.use_scene_world_render, shading.use_scene_lights_render,
             shading.studio_light, shading.studiolight_rotate_z, shading.studiolight_intensity, uniforms)
@@ -101,7 +122,7 @@ def _draw():
         record['dirty'], record['prepared'] = True, False
         return
     now = time.perf_counter()
-    size = _size(region)
+    size = _size(region, scene, area.spaces.active)
     if record.get('pending') or now < record.get('next_capture', 0):return
     if record.get('key') == key and record.get('image_size') == size and not record.get('settle'):return
     capture_key = (key, size)
@@ -142,8 +163,9 @@ def _draw():
         samples = PREVIEW_SAMPLES
         eevee.taa_samples = min(original_samples or samples, samples)
         started = time.perf_counter()
-        buffer.draw_view3d(scene, layer, space, region, space.region_3d.view_matrix,
-                          space.region_3d.window_matrix, do_color_management=False, draw_background=False)
+        view_matrix, projection_matrix = _matrices(scene, space, record)
+        buffer.draw_view3d(scene, layer, space, region, view_matrix,
+                          projection_matrix, do_color_management=False, draw_background=False)
         record['sample_limit'] = eevee.taa_samples
         pixels = np.array(buffer.texture_color.read(), dtype=np.float32).ravel()
         record['pending'] = (key, _identity(scene, area, region), *size, pixels)
@@ -211,7 +233,7 @@ def _timer():
                 record['prepared'] = True
             key = _key(scene, area, region, record)
             identity = _identity(scene, area, region)
-            size = _size(region)
+            size = _size(region, scene, area.spaces.active)
             if record.get('identity') != identity:_value(nodes, 'ready', 0)
             pending = record.pop('pending', None)
             # Accept the latest completed frame of this actor/view. Exact frame
@@ -233,9 +255,6 @@ def _timer():
                 image.update()
                 image.update_tag()
                 if nodes['image'].image != image:nodes['image'].image = image
-                for name, value in (('X', region.width / width), ('Y', region.height / height)):
-                    if nodes['scale'].inputs[name].default_value != value:
-                        nodes['scale'].inputs[name].default_value = value
                 scene.compositing_node_group.update_tag()
                 record['key'], record['identity'], record['image_size'] = captured_key, identity, (width, height)
                 record['uploads'] = record.get('uploads', 0) + 1
@@ -266,7 +285,7 @@ def changed(scene, depsgraph):
     shades = record.setdefault('object_shading', {})
     dirty = False
     synchronise = False
-    types = (bpy.types.Mesh, bpy.types.Armature, bpy.types.Material, bpy.types.Light, bpy.types.World)
+    types = (bpy.types.Mesh, bpy.types.Armature, bpy.types.Material, bpy.types.Light, bpy.types.World, bpy.types.Camera)
     collections_changed = False
     for update in depsgraph.updates:
         data = update.id.original

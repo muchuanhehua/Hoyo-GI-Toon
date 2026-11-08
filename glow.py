@@ -148,9 +148,14 @@ def preview_nodes(scene):
     from .glow_preview import TAG as PREVIEW_TAG
     tree = scene.compositing_node_group
     nodes = {n.get(PREVIEW_TAG): n for n in tree.nodes if n.get(PREVIEW_TAG)}
-    if 'scale' in nodes:return nodes
+    if ('scale' in nodes and nodes['scale'].inputs['Type'].default_value == 'Render Size'
+            and nodes['scale'].inputs['Frame Type'].default_value == 'Stretch'):return nodes
     tree = _private_tree(scene)
     nodes = {n.get(PREVIEW_TAG): n for n in tree.nodes if n.get(PREVIEW_TAG)}
+    if 'scale' in nodes:
+        nodes['scale'].inputs['Type'].default_value = 'Render Size'
+        nodes['scale'].inputs['Frame Type'].default_value = 'Stretch'
+        return nodes
     image, ready = nodes['image'], nodes['ready']
     destinations = [link.to_socket for link in image.outputs['Image'].links
                     if link.to_node.get(HELPER) and link.to_node.bl_idname == 'ShaderNodeMix'
@@ -160,7 +165,10 @@ def preview_nodes(scene):
         raise ValueError('人物辉光预览连接已改变，请关闭后重新启用辉光')
     scale = _helper(tree, 'CompositorNodeScale')
     scale[PREVIEW_TAG] = 'scale'
-    scale.inputs['Type'].default_value = 'Relative'
+    # The viewport compositor crops native passes to its camera frame. Its
+    # render-size domain also carries partially visible camera-frame offsets.
+    scale.inputs['Type'].default_value = 'Render Size'
+    scale.inputs['Frame Type'].default_value = 'Stretch'
     tree.links.new(image.outputs['Image'], scale.inputs['Image'])
     tree.links.new(scale.outputs['Image'], destinations[0])
     nodes['scale'] = scale
