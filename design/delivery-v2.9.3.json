@@ -1,0 +1,122 @@
+{
+  "version": "2.9.3",
+  "status": "published-and-installed-restart-existing-blender-to-activate",
+  "release_url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/tag/v2.9.3",
+  "release_commit": "42cd22b66371d77599ffae56bf171739687b6520",
+  "workflow": {
+    "id": 42511174219,
+    "url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/actions/runs/42511174219",
+    "conclusion": "success"
+  },
+  "archive": {
+    "name": "hoyo_gi_toon-2.9.3.zip",
+    "sha256": "db7a54e96d8b5d3cf67c2a2eea4a7eb377c93683eab3f93401e18fa0866f284d",
+    "bytes": 6311576,
+    "payload_files": 62,
+    "public_asset_and_tag_download_verified": true,
+    "source_matches_frozen_payload": true
+  },
+  "scope": [
+    "animated_scene_uniform_refresh",
+    "auxiliary_glow_callback_deduplication",
+    "single_frame_handler_traversal"
+  ],
+  "verification": {
+    "policy": "incremental",
+    "changed_payload": [
+      "CHANGELOG.md",
+      "__init__.py",
+      "blender_manifest.toml",
+      "shaders.py",
+      "workflow.py"
+    ],
+    "unchanged_payload_files": 57,
+    "actual_package_animation_checks": 17,
+    "representative_render_pairs_pixel_exact": 3,
+    "paired_performance": [
+      {
+        "mode": "baseline_on",
+        "seconds": 6.231794200022705,
+        "ticks": 5,
+        "interval_median_ms": 1498.1462000287138,
+        "interval_p95_ms": 1547.8183600120246,
+        "frame_set_median_ms": 1341.172699991148,
+        "draws": 3,
+        "uploads": 2,
+        "last_draw_readback_ms": 39.53559999354184,
+        "resources": {
+          "images": 70,
+          "layers": 2,
+          "objects": 12076
+        },
+        "error": ""
+      },
+      {
+        "mode": "fixed_on",
+        "seconds": 6.267562500026543,
+        "ticks": 7,
+        "interval_median_ms": 972.2431999980472,
+        "interval_p95_ms": 1072.5733099679928,
+        "frame_set_median_ms": 858.7948000058532,
+        "draws": 4,
+        "uploads": 3,
+        "last_draw_readback_ms": 45.399900001939386,
+        "resources": {
+          "images": 70,
+          "layers": 2,
+          "objects": 12076
+        },
+        "error": ""
+      },
+      {
+        "mode": "baseline_repeat",
+        "seconds": 6.046228700026404,
+        "ticks": 5,
+        "interval_median_ms": 1464.0708000515588,
+        "interval_p95_ms": 1513.1044199690223,
+        "frame_set_median_ms": 1331.2109999824315,
+        "draws": 3,
+        "uploads": 2,
+        "last_draw_readback_ms": 61.68189999880269,
+        "resources": {
+          "images": 70,
+          "layers": 2,
+          "objects": 12076
+        },
+        "error": ""
+      }
+    ],
+    "metric": "Same hidden process and real action, four CPU threads; UI timer interval includes viewport blocking, not playback FPS",
+    "limitations": [
+      "Original scene physics and animation evaluation remain; these measurements are not user playback FPS",
+      "Selected-character glow still performs its original extra draw and CPU image transfer"
+    ],
+    "full_character_regression_run": false,
+    "user_scene_edited_or_saved": false,
+    "formal_record": "../release/verification-v2.9.3.json"
+  },
+  "native": {
+    "module": "bl_ext.Hoyo_GI_Toon.hoyo_gi_toon",
+    "payload_files_verified": 62,
+    "other_addon_files_verified": 394,
+    "native_preferences_unchanged": true,
+    "startup_and_recent_files_unchanged": true,
+    "existing_addons_preserved": true,
+    "repositories_preserved": true,
+    "no_user_project_opened_or_saved": true,
+    "remote_index_synced": true,
+    "handlers_verified": true,
+    "active_user_process_hot_reloaded": false,
+    "restart_required_for_existing_process": true,
+    "other_addon_shutdown_errors": [
+      "MBTs-NG",
+      "MBTs-face"
+    ],
+    "loaded_functions_and_methods_verified": 324,
+    "preferences_used": "private-copy-default-scene"
+  },
+  "private_evidence": ".verification/release-v2.9.3/",
+  "private_performance_evidence": ".verification/development/animation-preview-performance-20261109/",
+  "before_update_backup": ".verification/release-v2.9.3/before-update/",
+  "user_visual_acceptance": "pending"
+}
