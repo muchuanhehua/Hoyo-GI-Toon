@@ -143,6 +143,30 @@ def _output(tree):
     return target
 
 
+def preview_nodes(scene):
+    """Upgrade our preview branch; the full-resolution render bypasses it."""
+    from .glow_preview import TAG as PREVIEW_TAG
+    tree = scene.compositing_node_group
+    nodes = {n.get(PREVIEW_TAG): n for n in tree.nodes if n.get(PREVIEW_TAG)}
+    if 'scale' in nodes:return nodes
+    tree = _private_tree(scene)
+    nodes = {n.get(PREVIEW_TAG): n for n in tree.nodes if n.get(PREVIEW_TAG)}
+    image, ready = nodes['image'], nodes['ready']
+    destinations = [link.to_socket for link in image.outputs['Image'].links
+                    if link.to_node.get(HELPER) and link.to_node.bl_idname == 'ShaderNodeMix'
+                    and link.to_socket == link.to_node.inputs[7]
+                    and any(l.from_node == ready for l in link.to_node.inputs[0].links)]
+    if len(destinations) != 1:
+        raise ValueError('人物辉光预览连接已改变，请关闭后重新启用辉光')
+    scale = _helper(tree, 'CompositorNodeScale')
+    scale[PREVIEW_TAG] = 'scale'
+    scale.inputs['Type'].default_value = 'Relative'
+    tree.links.new(image.outputs['Image'], scale.inputs['Image'])
+    tree.links.new(scale.outputs['Image'], destinations[0])
+    nodes['scale'] = scale
+    return nodes
+
+
 def enable(scene):
     if not scene.is_editable:
         raise ValueError('当前场景不可编辑，请先建立本地场景')
@@ -320,7 +344,7 @@ def update_target(scene):
         scene.hgt_glow.error = '' if scene.hgt_glow.target else '请在角色管理中选定人物'
     except (ValueError, RuntimeError) as exc:
         scene.hgt_glow.error = str(exc)
-    glow_preview.invalidate(scene)
+    glow_preview.invalidate(scene, discard=True)
 
 
 @persistent
@@ -342,7 +366,7 @@ def render_finished(scene, *_):
     from . import glow_preview
     for n in scene.compositing_node_group.nodes:
         if n.get(glow_preview.TAG) == 'render':n.outputs[0].default_value = 0
-    glow_preview.invalidate(scene)
+    glow_preview.invalidate(scene, sync=True, discard=True)
 
 
 def viewport(context, enabled):

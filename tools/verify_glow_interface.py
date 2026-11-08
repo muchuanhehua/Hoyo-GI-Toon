@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import sys
 import traceback
+import time
 
 import bpy
 import numpy as np
@@ -40,6 +41,7 @@ area=next(a for a in window.screen.areas if a.type=='VIEW_3D')
 space=area.spaces.active
 initial=None
 phase=-2
+phase_wait=None
 images={}
 report={'complete':False,'scope':'GI-TOON-GLOW-UI','character_only':True,'checks':{},
         'source_sha256':{p.name:file_hash(p) for p in payload.glob('*.py')},
@@ -75,9 +77,18 @@ def raw():
 
 
 def step():
-    global phase,initial
+    global phase,initial,phase_wait
     try:
         scene=bpy.context.scene
+        if phase in {1,4,6,19}:
+            if phase_wait is None or phase_wait[0]!=phase:phase_wait=(phase,time.perf_counter())
+            record=addon.glow_preview._records.get(scene.as_pointer(),{})
+            region=next(r for r in area.regions if r.type=='WINDOW')
+            ready=record.get('key')==addon.glow_preview._key(scene,area,region,record)
+            ready=ready and record.get('image') and not record.get('settle') and not record.get('dirty')
+            if not ready:
+                assert time.perf_counter()-phase_wait[1]<30, ('Preview did not settle',phase,scene.hgt_glow.error)
+                return .1
         if phase==-2:
             with bpy.context.temp_override(window=window,area=area):
                 space.show_region_ui=True
