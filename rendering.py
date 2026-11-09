@@ -11,6 +11,16 @@ def check_idle():
 def prepare(scene, model=None):
     if scene.camera:
         return scene.camera
+    cameras = [obj for obj in scene.objects if obj.type == 'CAMERA']
+    if cameras:
+        managed = [obj for obj in cameras if obj.get('hgt_scene_camera')]
+        if len(cameras) == 1:
+            scene.camera = cameras[0]
+        elif len(managed) == 1:
+            scene.camera = managed[0]
+        else:
+            raise ValueError('场景已有多台相机，请先在场景属性中指定使用的相机')
+        return scene.camera
     data = bpy.data.cameras.new('HGT • Camera')
     camera = bpy.data.objects.new(data.name, data)
     scene.collection.objects.link(camera)

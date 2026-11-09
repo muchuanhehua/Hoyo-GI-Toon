@@ -52,7 +52,7 @@ def validate(root):
 @persistent
 def on_load(_):
     from . import scene_models, workflow, material_controls, outlines
-    scene_models.reset_selection_cache()
+    workflow.reset_runtime_cache()
     for scene in bpy.data.scenes:
         for obj in tuple(scene.objects):
             if workflow.current(obj) and obj.hgt_character.managed:

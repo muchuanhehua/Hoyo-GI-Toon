@@ -143,6 +143,8 @@ def ensure(source, context, filepath=''):
         entry.original_hidden, entry.original_view_hidden = mesh.hide_render, mesh.hide_get()
     context.scene.hgt_target = root
     context.scene.hgt_model = model
+    from .workflow import reset_runtime_cache
+    reset_runtime_cache()
     return root
 
 

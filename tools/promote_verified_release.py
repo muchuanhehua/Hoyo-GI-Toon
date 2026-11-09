@@ -94,11 +94,35 @@ def validate_fullframe_evidence(evidence, interface, audit, hashes, archive_sha)
     assert max(rows[1]['interval_median_ms'], rows[3]['interval_median_ms']) <= rows[2]['interval_p95_ms']+20
 
 
+def validate_stage_animation_evidence(evidence, playback, audit, hashes, archive_sha):
+    assert evidence['scope'] == 'STAGE-ANIMATION-COMPATIBILITY' and evidence['complete']
+    assert evidence['source_sha256'] == hashes and evidence['package_sha256'] == archive_sha
+    assert len(evidence['checks']) == 29 and all(evidence['checks'].values())
+    assert len(evidence['renders']) == 3 and all(row['max_error'] == 0 for row in evidence['renders'])
+    assert playback['scope'] == 'STAGE-ANIMATION-PLAYBACK' and playback['complete'] and not playback.get('error')
+    assert playback['source_sha256'] == hashes and playback['package_sha256'] == archive_sha
+    assert len(playback['checks']) == 3 and all(playback['checks'].values())
+    rows = playback['cases']
+    assert [r['mode'] for r in rows] == ['baseline_2100', 'candidate_2110', 'baseline_repeat', 'candidate_repeat', 'candidate_panorama']
+    assert all(r['frames'] == 36 and r['frame_range'] == [193, 228] for r in rows)
+    assert min(rows[i]['fps'] for i in (1, 3)) > max(rows[i]['fps'] for i in (0, 2))
+    assert rows[4]['cameras'] == 1 and rows[4]['stage_layout'] == 'panorama-360-v1'
+    assert audit['scope'] == 'INCREMENTAL-STAGE-ANIMATION-RELEASE' and audit['complete']
+    assert audit['source_sha256'] == hashes and audit['archive_sha256'] == archive_sha
+    assert audit['outline_shader_assets_and_physics_byte_exact']
+    assert audit['six_stage_views_reviewed'] and audit['camera_trajectory']['camera_max_error'] == 0
+    assert audit['camera_trajectory']['checks']['all_1053_camera_frames_identical']
+    assert all(audit['camera_trajectory']['checks'].values())
+    ownership = audit['camera_ownership']
+    assert ownership['complete'] and ownership['package_sha256'] == archive_sha
+    assert len(ownership['checks']) == 7 and all(ownership['checks'].values())
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--candidate', type=Path, required=True)
     parser.add_argument('--base-version', required=True)
-    parser.add_argument('--scope', choices=('jelly', 'glow', 'glow-camera', 'animation-preview', 'fullframe-glow'), required=True)
+    parser.add_argument('--scope', choices=('jelly', 'glow', 'glow-camera', 'animation-preview', 'fullframe-glow', 'stage-animation'), required=True)
     parser.add_argument('--verification', type=Path, required=True)
     parser.add_argument('--interface-verification', type=Path, required=True)
     parser.add_argument('--interactions-verification', type=Path, required=True)
@@ -116,6 +140,8 @@ def main():
         validate_camera_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     elif args.scope == 'animation-preview':
         validate_animation_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
+    elif args.scope == 'stage-animation':
+        validate_stage_animation_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     else:
         validate_fullframe_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     base = read(ROOT / 'release' / ('build-v' + args.base_version + '.json'))
@@ -138,6 +164,12 @@ def main():
             allowed = {'__init__.py','blender_manifest.toml','CHANGELOG.md','README.md','docs/workflow.md',
                        'glow.py','glow_source.py','properties.py','panels.py'}
             assert not new_files - old_files
+        elif args.scope == 'stage-animation':
+            allowed = {'__init__.py', 'blender_manifest.toml', 'CHANGELOG.md', 'README.md', 'docs/scene-presets.md',
+                       'assets/scene_city_terrace.blend', 'assets/scene_stage.blend', 'assets/scenes.json',
+                       'animation_uniforms.py', 'scene_camera.py', 'lighting.py', 'project_io.py', 'properties.py',
+                       'rendering.py', 'scene_models.py', 'scene_presets.py', 'shaders.py', 'workflow.py'}
+            assert new_files - old_files == {'animation_uniforms.py', 'scene_camera.py'}
         else:
             allowed = {'__init__.py', 'blender_manifest.toml', 'CHANGELOG.md', 'glow.py', 'glow_preview.py'}
             assert new_files == old_files
@@ -186,6 +218,8 @@ def main():
                        animation_package_checks={'count':len(interface['checks']), 'all_passed':True,
                            'renders':interface['renders'], 'package_sha256':interface['package_sha256']},
                        animation_incremental_audit=interactions)
+    elif args.scope == 'stage-animation':
+        summary.update(stage_animation=evidence, native_playback=interface, stage_animation_audit=interactions)
     else:
         summary.update(fullframe_glow={'checks':evidence['checks'],'modes':evidence['modes'],
                            'transparent_halo_pixels':evidence['transparent_halo_pixels']},

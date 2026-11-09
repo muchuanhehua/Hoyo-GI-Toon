@@ -215,7 +215,8 @@ def set_controls(root, vectors=None):
         from .lighting import shader_vectors
         vectors = shader_vectors(root)
     for scene in bpy.data.scenes:
-        changed = False
+        from . import animation_uniforms
+        driven, changed = animation_uniforms.sync(root, scene, vectors)
         for key, value in (('hgt_shadow_position', settings.shadow_position),
                            ('hgt_shadow_transition', settings.shadow_transition),
                            ('hgt_face_softness', settings.face_softness),
@@ -235,6 +236,8 @@ def set_controls(root, vectors=None):
             scene[key] = value
             changed = True
         for name, vector in vectors.items():
+            if name in driven:
+                continue
             key = f'hgt_{settings.uid}_{name}'
             value = (*vector, 1)
             previous = scene.get(key)

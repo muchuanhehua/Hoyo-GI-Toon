@@ -7,6 +7,7 @@ import sys
 import bpy
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'tools'))
 parser = argparse.ArgumentParser()
 parser.add_argument('--city-terrace', type=Path)
 parser.add_argument('--stage', type=Path)
@@ -36,8 +37,13 @@ for preset in catalog['presets']:
         root.objects.link(obj)
     assert not any(obj.type == 'ARMATURE' for obj in root.all_objects)
     assert scene.camera and scene.world
+    for camera in [obj for obj in root.all_objects if obj.type == 'CAMERA']:
+        bpy.data.objects.remove(camera, do_unlink=True)
+    if preset['id'] == 'STAGE':
+        from stage_environment import build
+        build(scene, root)
     root['hgt_scene_asset'] = preset['id']
-    root['hgt_scene_camera'] = scene.camera
+    root['hgt_scene_layout'] = preset['layout']
     root['hgt_scene_light'] = scene.objects[preset['key_light']]
     root['hgt_scene_world'] = scene.world
     for image in bpy.data.images:

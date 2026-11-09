@@ -10,7 +10,7 @@ PAYLOAD={"__init__.py","asset_tracking.py","importers.py","mmd_importer.py","mat
          "assets/scenes.json","assets/scene_city_terrace.blend","assets/scene_stage.blend",
          "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE",
          "docs/upstream-baseline.md","docs/basic-rendering.md","docs/pmx-rendering.md","docs/workflow.md","docs/scene-presets.md"}
-PAYLOAD.update({'assets/faces.json', 'jelly_eye.py', 'jelly_geometry.py'})
+PAYLOAD.update({'assets/faces.json', 'jelly_eye.py', 'jelly_geometry.py', 'scene_camera.py', 'animation_uniforms.py'})
 FACE_PRESETS=json.loads((ROOT/'assets/faces.json').read_text('utf-8'))['presets']
 for preset in FACE_PRESETS:
     for role,name in preset['textures'].items():

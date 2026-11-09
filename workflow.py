@@ -7,6 +7,60 @@ from . import asset_tracking, importers, lighting, outlines, rendering, shaders,
 from .pmx_materials import Catalog, DEFAULT_SHADOW_POSITION, DEFAULT_OUTLINE
 from .glow_source import TAG as GLOW_SOURCE_TAG
 _REFRESHING = False
+_ROOTS = None
+_OBJECT_COUNT = -1
+_APPEARANCE = {}
+
+
+@persistent
+def reset_runtime_cache(_=None):
+    from .animation_uniforms import reset
+    global _ROOTS, _OBJECT_COUNT
+    _ROOTS, _OBJECT_COUNT = None, -1
+    _APPEARANCE.clear()
+    reset()
+    scene_models.reset_selection_cache()
+
+
+def tracked_roots():
+    """Only rebuild the character index when IDs change, load or undo occurs."""
+    global _ROOTS, _OBJECT_COUNT
+    count = len(bpy.data.objects)
+    if _ROOTS is not None and count == _OBJECT_COUNT:
+        try:
+            if all(current(root) for root in _ROOTS):
+                return _ROOTS
+        except ReferenceError:
+            # Blender can replace deleted IDs in one undo/redo operation.
+            reset_runtime_cache()
+    _ROOTS = tuple(obj for obj in bpy.data.objects if current(obj))
+    _OBJECT_COUNT = count
+    return _ROOTS
+
+
+def invalidate_appearance(root):
+    _APPEARANCE.pop(root.as_pointer(), None)
+
+
+def refresh_appearance(root, changed_only=False):
+    settings = root.hgt_character
+    material_key = tuple((binding.generated.as_pointer() if binding.generated else 0,
+                          binding.outline.as_pointer() if binding.outline else 0,
+                          tuple(binding.tint), binding.brightness, binding.saturation,
+                          binding.opacity, tuple(binding.shadow_color), tuple(binding.outline_color))
+                         for binding in settings.bindings)
+    outline_key = (settings.outline, settings.height,
+                   tuple((entry.object.as_pointer(), tuple(entry.object.matrix_world.to_scale()))
+                         for entry in settings.meshes if entry.object))
+    key = root.as_pointer()
+    previous = _APPEARANCE.get(key)
+    if not changed_only or previous is None or previous[0] != material_key:
+        material_controls.apply(root)
+    if not changed_only or previous is None or previous[1] != outline_key:
+        for entry in settings.meshes:
+            if entry.object:
+                outlines.update(entry.object, root)
+    _APPEARANCE[key] = material_key, outline_key
 
 def current(root):
     return bool(root and root.hgt_character.uid and root.hgt_character.source_root and root.hgt_character.schema_version == 2)
@@ -200,7 +254,7 @@ def change_face_sdf(root, context):
     rendering.preview_materials(context)
 
 
-def refresh_character(root, depsgraph=None, scene=None, appearance=True):
+def refresh_character(root, depsgraph=None, scene=None, appearance=True, changed_only=False):
     global _REFRESHING
     if _REFRESHING or not current(root) or root.hgt_character.building:
         return
@@ -215,10 +269,7 @@ def refresh_character(root, depsgraph=None, scene=None, appearance=True):
         if settings.managed:
             lighting.update(root, depsgraph=depsgraph, scene=scene)
             if appearance:
-                material_controls.apply(root)
-                for entry in settings.meshes:
-                    if entry.object:
-                        outlines.update(entry.object, root)
+                refresh_appearance(root, changed_only)
     finally:
         _REFRESHING = False
 
@@ -226,6 +277,8 @@ def restore(root):
     if not current(root) or not root.hgt_character.managed:
         raise ValueError('请先应用材质')
     settings = root.hgt_character
+    from .animation_uniforms import freeze
+    freeze(root)
     settings.building = True
     from . import outline_profile
     profile_state = outline_profile.snapshot(settings)
@@ -261,8 +314,8 @@ def update_scene(scene, depsgraph=None):
     if depsgraph and depsgraph.view_layer.get(GLOW_SOURCE_TAG):
         return
     scene_models.sync_active(scene)
-    for obj in tuple(scene.objects):
-        if current(obj):
+    for obj in tracked_roots():
+        if obj.name in scene.objects:
             refresh_character(obj, depsgraph, scene, appearance=False)
 
 
@@ -271,23 +324,27 @@ def update_frame(scene, depsgraph=None):
     if depsgraph and depsgraph.view_layer.get(GLOW_SOURCE_TAG):
         return
     # A material can be reused in a scene that does not contain its source rig.
-    for obj in bpy.data.objects:
-        if not current(obj):
-            continue
+    for obj in tracked_roots():
         if obj.name in scene.objects:
-            refresh_character(obj, depsgraph, scene)
+            refresh_character(obj, depsgraph, scene, changed_only=True)
         elif obj.hgt_character.managed:
             shaders.set_controls(obj)
 
 def register():
+    reset_runtime_cache()
     bpy.app.handlers.depsgraph_update_post.append(update_scene)
     bpy.app.handlers.frame_change_post.append(update_frame)
     bpy.app.handlers.render_pre.append(update_frame)
+    for handlers in (bpy.app.handlers.load_post, bpy.app.handlers.undo_post, bpy.app.handlers.redo_post):
+        handlers.append(reset_runtime_cache)
 
 def unregister():
-    scene_models.reset_selection_cache()
+    reset_runtime_cache()
     for handlers, callback in ((bpy.app.handlers.depsgraph_update_post, update_scene),
                                (bpy.app.handlers.frame_change_post, update_frame),
                                (bpy.app.handlers.render_pre, update_frame)):
         if callback in handlers:
             handlers.remove(callback)
+    for handlers in (bpy.app.handlers.load_post, bpy.app.handlers.undo_post, bpy.app.handlers.redo_post):
+        if reset_runtime_cache in handlers:
+            handlers.remove(reset_runtime_cache)

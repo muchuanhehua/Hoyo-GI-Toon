@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from uuid import uuid4
 import bpy
-from . import asset_tracking, rendering
+from . import asset_tracking, rendering, scene_camera
 
 ASSETS = Path(__file__).resolve().parent / 'assets'
 PRESETS = {item['id']: item for item in json.loads((ASSETS / 'scenes.json').read_text('utf-8'))['presets']}
@@ -85,7 +85,7 @@ def load(context, preset_id):
         raise ValueError('缺少场景资产：' + preset['name'])
     scene, state = context.scene, context.scene.hgt_scene
     if (state.collection and state.preset == preset_id and state.collection in scene.collection.children_recursive
-            and state.collection.get('hgt_city_layout') == preset.get('layout')):
+            and state.collection.get('hgt_scene_layout') == preset['layout']):
         return state.collection
     before = asset_tracking.data_pointers()
     previous = {name: getattr(state, name) for name in state.bl_rna.properties.keys() if name != 'rna_type'}
@@ -99,24 +99,26 @@ def load(context, preset_id):
                 raise ValueError('场景资产缺少预设集合：' + preset['name'])
             target.collections = [preset['collection']]
         collection = target.collections[0]
-        camera, light, world = (collection.get('hgt_scene_' + key) for key in ('camera', 'light', 'world'))
-        if (collection.get('hgt_scene_asset') != preset_id or not isinstance(camera, bpy.types.Object)
-                or camera.type != 'CAMERA' or camera.name not in collection.all_objects
+        light, world = (collection.get('hgt_scene_' + key) for key in ('light', 'world'))
+        if (collection.get('hgt_scene_asset') != preset_id
+                or collection.get('hgt_scene_layout') != preset['layout']
+                or any(obj.type == 'CAMERA' for obj in collection.all_objects)
                 or not isinstance(light, bpy.types.Object) or light.type != 'LIGHT'
                 or light.data.type not in {'SUN', 'AREA', 'POINT', 'SPOT'} or light.name not in collection.all_objects
                 or not isinstance(world, bpy.types.World)):
-            raise ValueError('场景资产的相机、主光或世界引用无效：' + preset['name'])
+            raise ValueError('场景资产的布局、主光或世界引用无效：' + preset['name'])
         uid = uuid4().hex
         for values in asset_tracking.new_data(before).values():
             for item in values:
                 item[OWNER] = uid
+        scene_camera.migrate(scene)
         if not old_uid:
-            state.previous_world, state.previous_camera, state.previous_light = pointers
+            state.previous_world, state.previous_light = pointers[0], pointers[2]
         _mute_default_light(scene)
         scene.collection.children.link(collection)
-        scene.world, scene.camera, scene.hgt_light = world, camera, light
+        scene.world, scene.hgt_light = world, light
         state.collection, state.uid, state.preset = collection, uid, preset_id
-        state.world, state.camera, state.light = world, camera, light
+        state.world, state.light = world, light
     except Exception:
         for name, value in previous.items():
             setattr(state, name, value)
@@ -138,7 +140,8 @@ def remove(context):
     collection, uid = state.collection, state.uid
     if not uid:
         raise ValueError('当前没有载入的场景预设')
-    for name in ('world', 'camera'):
+    scene_camera.migrate(scene)
+    for name in ('world',):
         if getattr(scene, name) == getattr(state, name):
             setattr(scene, name, getattr(state, 'previous_' + name))
     if scene.hgt_light == state.light:

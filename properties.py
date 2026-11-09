@@ -93,6 +93,8 @@ def set_outline_difference(self, value):
 
 def update_outline(self, context):
     if self.managed and not self.building:
+        from .workflow import invalidate_appearance
+        invalidate_appearance(self.id_data)
         from .outlines import update
         for entry in self.meshes:
             if entry.object:
@@ -103,6 +105,8 @@ def update_outline(self, context):
 
 def update_material(self, context):
     if not self.id_data.hgt_character.building:
+        from .workflow import invalidate_appearance
+        invalidate_appearance(self.id_data)
         from .material_controls import apply_binding
         apply_binding(self)
         from .rendering import preview_materials

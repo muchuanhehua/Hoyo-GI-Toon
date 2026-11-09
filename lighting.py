@@ -94,8 +94,11 @@ def shader_vectors(root, depsgraph=None):
         # the uncanonicalized RNA Euler values previously assigned to a helper.
         rotation = rotation.to_matrix().to_euler()
     else:
+        from .animation_uniforms import previous_rotation
         key = f'hgt_{settings.uid}_hgt_light_rotation'
-        previous = next((scene[key] for scene in bpy.data.scenes if key in scene), None)
+        previous = previous_rotation(root, depsgraph)
+        if previous is None:
+            previous = next((scene[key] for scene in bpy.data.scenes if key in scene), None)
         # Clearing a light freezes the last direction, as the old helper did.
         rotation = previous[:3] if previous is not None else settings.light.evaluated_get(depsgraph).matrix_world.to_euler()
     controls = {entry.key: entry.object for entry in settings.controls if entry.object}
