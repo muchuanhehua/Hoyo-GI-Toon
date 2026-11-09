@@ -1,11 +1,11 @@
-"""Build a local review archive or promote a fully verified PMX candidate."""
+"""Payload validation and legacy full regression; incremental releases use promote_verified_release.py."""
 import argparse,ast,hashlib,json,subprocess,tomllib,zipfile,shutil
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 PAYLOAD={"__init__.py","asset_tracking.py","importers.py","mmd_importer.py","material_assets.py",
          "material_controls.py","pmx_materials.py","node_graph.py","sampling.py","shaders.py","lighting.py",
          "face_assets.py","face_catalog.py","face_sdf.py","head_binding.py","scene_presets.py",
-         "outlines.py","outline_profile.py","shadow_boundary.py","glow.py","glow_source.py","glow_preview.py","glow_modes.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
+         "outlines.py","outline_profile.py","shadow_boundary.py","glow.py","glow_source.py","glow_modes.py","gaze.py","workflow.py","properties.py","panels.py","rendering.py","scene_models.py","project_io.py",
          "assets/original_shader.blend","assets/original_controls.blend","assets/upstream.json",
          "assets/scenes.json","assets/scene_city_terrace.blend","assets/scene_stage.blend",
          "blender_manifest.toml","README.md","CHANGELOG.md","LICENSE","NOTICE",

@@ -1,4 +1,4 @@
-"""Compare native input and cached character source under camera navigation."""
+"""Historical 2.9 character-cache alignment; current checks use verify_fullframe_viewport.py."""
 import argparse,ctypes,json,os,sys,time,traceback
 from pathlib import Path
 import bpy

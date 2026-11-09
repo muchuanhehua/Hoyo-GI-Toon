@@ -1,8 +1,9 @@
-"""Owned character glare, with reversible graph and viewport changes.
+"""Native full-frame glare, with reversible graph and viewport changes.
 
 Defaults and viewport behaviour follow the author's MAVR glow module.
 """
 import json
+from uuid import uuid4
 
 import bpy
 from bpy.app.handlers import persistent
@@ -15,6 +16,8 @@ VIEWPORT = 'hgt_glow_viewport'
 NAME = 'HGT • Bloom'
 KERNEL = 'hgt_glow_kernel'
 OWNER = 'hgt_glow_scene'
+VIEWER_BACKUP = 'hgt_glow_viewer_backup'
+VIEWER_TOKEN = 'hgt_glow_viewer_restore'
 _VIEW_CACHE = {}
 
 
@@ -25,7 +28,9 @@ def node(scene):
 
 def is_active(scene):
     effect = node(scene)
-    return bool(effect and not effect.mute and effect.get(OWNER) == scene and effect.inputs.get('Glow Source'))
+    return bool(effect and not effect.mute and effect.get(OWNER) == scene
+                and effect.bl_idname == 'CompositorNodeGroup' and effect.node_tree
+                and effect.node_tree.get(KERNEL) == 2 and not effect.inputs.get('Glow Source'))
 
 
 def _image_socket(sockets):
@@ -68,6 +73,8 @@ def _private_tree(scene):
 def update(scene):
     effect = node(scene)
     if effect:
+        if effect.get(OWNER) != scene:
+            raise ValueError('辉光属于其他场景，请在当前场景重新启用')
         from . import glow_modes
         values = _parameters(effect, scene.hgt_glow)
         glow_modes.validate(effect, scene.hgt_glow)
@@ -86,8 +93,8 @@ def _helper(tree, kind):
 
 
 def _kernel(tree):
-    tree[KERNEL] = True
-    for name, kind, direction in (('Image', 'Color', 'INPUT'), ('Glow Source', 'Color', 'INPUT'), ('Threshold', 'Float', 'INPUT'),
+    tree[KERNEL] = 2
+    for name, kind, direction in (('Image', 'Color', 'INPUT'), ('Threshold', 'Float', 'INPUT'),
                                    ('Strength', 'Float', 'INPUT'), ('Size', 'Float', 'INPUT'),
                                    ('Image', 'Color', 'OUTPUT')):
         tree.interface.new_socket(name=name, in_out=direction, socket_type='NodeSocket' + kind)
@@ -100,7 +107,7 @@ def _kernel(tree):
     bloom.inputs['Strength'].default_value = 1
     for name in ('Threshold', 'Size'):
         tree.links.new(inputs.outputs[name], bloom.inputs[name])
-    tree.links.new(inputs.outputs['Glow Source'], bloom.inputs['Image'])
+    tree.links.new(inputs.outputs['Image'], bloom.inputs['Image'])
     add = tree.nodes.new('ShaderNodeMix')
     add.data_type, add.blend_type = 'RGBA', 'ADD'
     add.clamp_factor = False
@@ -143,36 +150,43 @@ def _output(tree):
     return target
 
 
-def preview_nodes(scene):
-    """Upgrade our preview branch; the full-resolution render bypasses it."""
-    from .glow_preview import TAG as PREVIEW_TAG
-    tree = scene.compositing_node_group
-    nodes = {n.get(PREVIEW_TAG): n for n in tree.nodes if n.get(PREVIEW_TAG)}
-    if ('scale' in nodes and nodes['scale'].inputs['Type'].default_value == 'Render Size'
-            and nodes['scale'].inputs['Frame Type'].default_value == 'Stretch'):return nodes
-    tree = _private_tree(scene)
-    nodes = {n.get(PREVIEW_TAG): n for n in tree.nodes if n.get(PREVIEW_TAG)}
-    if 'scale' in nodes:
-        nodes['scale'].inputs['Type'].default_value = 'Render Size'
-        nodes['scale'].inputs['Frame Type'].default_value = 'Stretch'
-        return nodes
-    image, ready = nodes['image'], nodes['ready']
-    destinations = [link.to_socket for link in image.outputs['Image'].links
-                    if link.to_node.get(HELPER) and link.to_node.bl_idname == 'ShaderNodeMix'
-                    and link.to_socket == link.to_node.inputs[7]
-                    and any(l.from_node == ready for l in link.to_node.inputs[0].links)]
-    if len(destinations) != 1:
-        raise ValueError('人物辉光预览连接已改变，请关闭后重新启用辉光')
-    scale = _helper(tree, 'CompositorNodeScale')
-    scale[PREVIEW_TAG] = 'scale'
-    # The viewport compositor crops native passes to its camera frame. Its
-    # render-size domain also carries partially visible camera-frame offsets.
-    scale.inputs['Type'].default_value = 'Render Size'
-    scale.inputs['Frame Type'].default_value = 'Stretch'
-    tree.links.new(image.outputs['Image'], scale.inputs['Image'])
-    tree.links.new(scale.outputs['Image'], destinations[0])
-    nodes['scale'] = scale
-    return nodes
+def _preview_viewers(tree, effect):
+    viewers = [n for n in tree.nodes if n.bl_idname == 'CompositorNodeViewer']
+    if any(n.get(VIEWER_TOKEN) for n in viewers):
+        raise ValueError('Viewer 已有辉光恢复记录，请先恢复旧辉光连接')
+    for viewer in viewers:
+        backup = _helper(tree, 'NodeReroute')
+        token = uuid4().hex
+        backup[VIEWER_BACKUP], backup[VIEWER_TOKEN] = True, token
+        backup['hgt_viewer_was_linked'] = viewer.inputs['Image'].is_linked
+        backup.label = 'GI-Toon Viewer Restore'
+        if viewer.inputs['Image'].is_linked:
+            tree.links.new(viewer.inputs['Image'].links[0].from_socket, backup.inputs[0])
+        viewer[VIEWER_TOKEN] = token
+        tree.links.new(effect.outputs['Image'], viewer.inputs['Image'])
+
+
+def _restore_viewers(tree, effect):
+    records = []
+    for viewer in tree.nodes:
+        token = viewer.get(VIEWER_TOKEN) if viewer.bl_idname == 'CompositorNodeViewer' else None
+        if not token:continue
+        image = viewer.inputs['Image']
+        owned = image.is_linked and image.links[0].from_node == effect
+        backup = next((n for n in tree.nodes if n.get(VIEWER_BACKUP) and n.get(VIEWER_TOKEN) == token), None)
+        if backup is None and not owned:continue
+        if owned and (backup is None or backup.get('hgt_viewer_was_linked') and not backup.inputs[0].is_linked):
+            raise ValueError('Viewer 的原输入恢复记录已改变，请先手动恢复 Viewer 连接')
+        records.append((viewer, image, owned, backup))
+    for viewer, image, owned, backup in records:
+        if owned:
+            if backup.get('hgt_viewer_was_linked'):
+                tree.links.new(backup.inputs[0].links[0].from_socket, image)
+            else:
+                tree.links.remove(image.links[0])
+        del viewer[VIEWER_TOKEN]
+        if backup and not any(socket.is_linked for socket in backup.outputs):
+            tree.nodes.remove(backup)
 
 
 def enable(scene):
@@ -180,9 +194,6 @@ def enable(scene):
         raise ValueError('当前场景不可编辑，请先建立本地场景')
     if is_active(scene):
         return
-    from . import glow_source
-    root = glow_source.target(scene)
-    glow_source.preflight(scene, root)
     if node(scene):
         disable(scene)
     original = scene.compositing_node_group
@@ -203,7 +214,6 @@ def enable(scene):
     interface = None
     kernel = None
     previous_compositing = scene.render.use_compositing
-    source_created = False
     try:
         if not tree.nodes:
             interface = tree.interface.new_socket(name='Image', in_out='OUTPUT', socket_type='NodeSocketColor')
@@ -230,36 +240,16 @@ def enable(scene):
         _configure(effect, _parameters(effect, scene.hgt_glow))
         from . import glow_modes
         glow_modes.configure(effect, scene.hgt_glow)
-        source_created = True
-        layer = glow_source.create(scene, root)
-        render = _helper(tree, 'CompositorNodeRLayers')
-        render.scene, render.layer = scene, layer.name
-        render['hgt_glow_preview'] = 'source'
-        image = _helper(tree, 'CompositorNodeImage')
-        image['hgt_glow_preview'] = 'image'
-        ready = _helper(tree, 'ShaderNodeValue')
-        ready['hgt_glow_preview'] = 'ready'
-        ready.outputs[0].default_value = 0
-        mode = _helper(tree, 'ShaderNodeValue')
-        mode['hgt_glow_preview'] = 'render'
-        mode.outputs[0].default_value = 1 if bpy.app.background else 0
-        preview = _helper(tree, 'ShaderNodeMix')
-        preview.data_type = 'RGBA'
-        preview.inputs[6].default_value = (0, 0, 0, 0)
-        tree.links.new(ready.outputs[0], preview.inputs[0])
-        tree.links.new(image.outputs['Image'], preview.inputs[7])
-        switch = _helper(tree, 'ShaderNodeMix')
-        switch.data_type = 'RGBA'
-        tree.links.new(mode.outputs[0], switch.inputs[0])
-        tree.links.new(preview.outputs[2], switch.inputs[6])
-        tree.links.new(render.outputs['Image'], switch.inputs[7])
-        tree.links.new(switch.outputs[2], effect.inputs['Glow Source'])
         tree.links.new(incoming, effect.inputs['Image'])
         tree.links.new(effect.outputs['Image'], target)
+        # Root Viewers override the final output in viewport previews. Redirect
+        # them reversibly; file-output branches remain at their original input.
+        _preview_viewers(tree, effect)
         scene.compositing_node_group = tree
         scene.render.use_compositing = True
     except Exception:
         # Keep the scene and existing links untouched if construction fails.
+        if 'effect' in locals():_restore_viewers(tree, effect)
         if 'target' in locals() and target.node in previous_nodes and 'incoming' in locals():
             tree.links.new(incoming, target)
         for added in set(tree.nodes) - previous_nodes:
@@ -270,12 +260,9 @@ def enable(scene):
         glow_modes.clear_unused()
         if interface:
             tree.interface.remove(interface)
-        if created or shared:
-            bpy.data.node_groups.remove(tree)
+        if created or shared:bpy.data.node_groups.remove(tree)
         scene.compositing_node_group = original
         scene.render.use_compositing = previous_compositing
-        if source_created:
-            glow_source.remove(scene)
         raise
 
 
@@ -287,10 +274,10 @@ def disable(scene):
         raise ValueError('辉光输入已改变，请先恢复原图像连接')
     if any(s.is_linked for s in effect.outputs if s.name != 'Image'):
         raise ValueError('其他节点正在使用辉光通道，请先断开该连接')
-    from . import glow_preview, glow_source
+    from . import glow_source
     glow_source.preflight_remove(scene)
     helpers = {n for n in scene.compositing_node_group.nodes if n.get(HELPER)}
-    source_nodes = {n for n in helpers if n.get(glow_preview.TAG) == 'source'}
+    source_nodes = {n for n in helpers if n.get(glow_source.PREVIEW_TAG) == 'source'}
     pending, connected = list(source_nodes), set(source_nodes)
     while pending:
         current = pending.pop()
@@ -307,6 +294,7 @@ def disable(scene):
     identifier = effect.get(INTERFACE)
     source = effect.inputs['Image'].links[0].from_socket
     kernel = effect.node_tree
+    _restore_viewers(tree, effect)
     for destination in [link.to_socket for link in effect.outputs['Image'].links]:
         tree.links.new(source, destination)
     tree.nodes.remove(effect)
@@ -331,7 +319,10 @@ def disable(scene):
         tree.nodes.remove(helper)
     for helper in keep:
         del helper[HELPER]
-        if helper.get(glow_preview.TAG):del helper[glow_preview.TAG]
+        if helper.get(glow_source.PREVIEW_TAG):del helper[glow_source.PREVIEW_TAG]
+        if helper.get(VIEWER_BACKUP):
+            for key in (VIEWER_BACKUP, VIEWER_TOKEN, 'hgt_viewer_was_linked'):
+                if key in helper:del helper[key]
     if identifier and not keep:
         socket = next((s for s in tree.interface.items_tree if s.item_type == 'SOCKET' and s.identifier == identifier), None)
         if socket:
@@ -341,18 +332,35 @@ def disable(scene):
         bpy.data.node_groups.remove(tree)
     if scene.render.use_compositing:
         scene.render.use_compositing = previous
-    glow_preview.clear(scene)
+    glow_source.clear_preview(scene)
     glow_source.remove(scene)
 
 
-def update_target(scene):
-    from . import glow_source, glow_preview
+def migrate(scene):
+    """Validate the replacement before retiring a legacy character source."""
+    effect = node(scene)
+    if not effect or not effect.inputs.get('Glow Source'):
+        return
+    if effect.get(OWNER) != scene:
+        raise ValueError('旧辉光属于其他场景，请先分离原辉光设置')
+    muted = effect.mute
+    # Build and validate all modes/parameters before touching the saved graph.
+    probe = bpy.data.node_groups.new('HGT • Glow Migration Check', 'CompositorNodeTree')
+    kernel = bpy.data.node_groups.new('HGT • Glow Migration Kernel', 'CompositorNodeTree')
     try:
-        glow_source.sync(scene)
-        scene.hgt_glow.error = '' if scene.hgt_glow.target else '请在角色管理中选定人物'
-    except (ValueError, RuntimeError) as exc:
-        scene.hgt_glow.error = str(exc)
-    glow_preview.invalidate(scene, discard=True)
+        candidate = probe.nodes.new('CompositorNodeGroup')
+        candidate.node_tree = kernel
+        _kernel(kernel)
+        _configure(candidate, _parameters(candidate, scene.hgt_glow))
+        from . import glow_modes
+        glow_modes.configure(candidate, scene.hgt_glow)
+    finally:
+        bpy.data.node_groups.remove(probe)
+        if kernel.users == 0:bpy.data.node_groups.remove(kernel)
+    disable(scene)
+    enable(scene)
+    node(scene).mute = muted
+    scene.hgt_glow.error = ''
 
 
 @persistent
@@ -361,20 +369,7 @@ def render_prepare(scene, *_):
     if effect and effect.get(OWNER) != scene:
         next(n for n in _private_tree(scene).nodes if n.get(TAG)).mute = True
         return
-    if not is_active(scene):return
-    from . import glow_source, glow_preview
-    glow_source.sync(scene, render=True)
-    for n in scene.compositing_node_group.nodes:
-        if n.get(glow_preview.TAG) == 'render':n.outputs[0].default_value = 1
-
-
-@persistent
-def render_finished(scene, *_):
-    if not is_active(scene):return
-    from . import glow_preview
-    for n in scene.compositing_node_group.nodes:
-        if n.get(glow_preview.TAG) == 'render':n.outputs[0].default_value = 0
-    glow_preview.invalidate(scene, sync=True, discard=True)
+    migrate(scene)
 
 
 def viewport(context, enabled):
@@ -423,6 +418,7 @@ def sync_undo(_):
     # Scene/node undo does not undo SpaceView3D shading. Retain its original
     # state outside the undo stack, then reconcile only effect transitions.
     for scene in bpy.data.scenes:
+        _migrate_saved(scene)
         active = is_active(scene)
         if active != (scene.name in _VIEW_CACHE):
             with bpy.context.temp_override(scene=scene):
@@ -434,20 +430,30 @@ def on_load(_):
     _VIEW_CACHE.clear()
     for scene in bpy.data.scenes:
         effect = node(scene)
-        if effect and (effect.get(OWNER) != scene or not effect.inputs.get('Glow Source')):
+        if effect and effect.get(OWNER) != scene:
             next(n for n in _private_tree(scene).nodes if n.get(TAG)).mute = True
-            scene.hgt_glow.error = '旧辉光已暂停，请选定人物后重新开启'
+        elif effect:
+            _migrate_saved(scene)
         if is_active(scene) and VIEWPORT in scene:
             _VIEW_CACHE[scene.name] = json.loads(scene[VIEWPORT])
+
+
+def _migrate_saved(scene):
+    effect = node(scene)
+    if not effect or effect.get(OWNER) != scene:return
+    try:
+        migrate(scene)
+    except (ValueError, RuntimeError) as exc:
+        next(n for n in _private_tree(scene).nodes if n.get(TAG)).mute = True
+        scene.hgt_glow.error = '旧辉光迁移未完成：' + str(exc)
+        import traceback
+        traceback.print_exc()
 
 
 def register():
     for handlers, function in ((bpy.app.handlers.undo_post, sync_undo),
                                (bpy.app.handlers.redo_post, sync_undo),
                                (bpy.app.handlers.render_init, render_prepare),
-                               (bpy.app.handlers.render_pre, render_prepare),
-                               (bpy.app.handlers.render_complete, render_finished),
-                               (bpy.app.handlers.render_cancel, render_finished),
                                (bpy.app.handlers.load_post, on_load)):
         if function not in handlers:
             handlers.append(function)
@@ -456,21 +462,14 @@ def register():
 
 def _initialise():
     on_load(None)
-    from . import glow_preview
-    glow_preview.register()
 
 
 def unregister():
-    from . import glow_preview
-    glow_preview.unregister()
     if bpy.app.timers.is_registered(_initialise):
         bpy.app.timers.unregister(_initialise)
     for handlers, function in ((bpy.app.handlers.undo_post, sync_undo),
                                (bpy.app.handlers.redo_post, sync_undo),
                                (bpy.app.handlers.render_init, render_prepare),
-                               (bpy.app.handlers.render_pre, render_prepare),
-                               (bpy.app.handlers.render_complete, render_finished),
-                               (bpy.app.handlers.render_cancel, render_finished),
                                (bpy.app.handlers.load_post, on_load)):
         if function in handlers:
             handlers.remove(function)

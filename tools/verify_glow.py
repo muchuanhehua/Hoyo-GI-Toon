@@ -1,4 +1,4 @@
-"""Render Bloom and verify restoration, shared trees and saved projects."""
+"""Historical pre-2.10 character-glow checks; full-frame checks use verify_fullframe_glow.py."""
 import argparse
 import json
 from pathlib import Path

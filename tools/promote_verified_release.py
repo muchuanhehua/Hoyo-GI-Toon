@@ -67,11 +67,38 @@ def validate_animation_evidence(evidence, compatibility, audit, hashes, archive_
     assert audit['glow_render_and_capture_byte_exact'] and audit['shader_and_animation_compatibility_verified']
 
 
+def validate_fullframe_evidence(evidence, interface, audit, hashes, archive_sha):
+    assert evidence['scope'] == 'FULLFRAME-GLOW-COMPATIBILITY' and evidence['complete']
+    assert evidence['source_sha256'] == hashes and evidence['package_sha256'] == archive_sha
+    assert len(evidence['checks']) == 40 and all(evidence['checks'].values())
+    assert all(evidence['checks'].get(k) is True for k in (
+        'viewer_preview_and_restore_record','user_file_output_still_executes',
+        'manual_viewer_rewire_preserved','legacy_user_dependencies_protected',
+        'no_glow_depsgraph_or_frame_handlers'))
+    assert len(evidence['modes']) == 7 and all(m['zero_exact'] and m['native_rgb_max_error'] <= 1/255+1e-6 for m in evidence['modes'])
+    assert evidence['transparent_halo_pixels'] > 20
+    assert interface['scope'] == 'FULLFRAME-GLOW-VIEWPORT' and interface['complete'] and not interface.get('error')
+    assert interface['source_sha256'] == hashes and interface['package_sha256'] == archive_sha
+    assert all(interface['checks'].values()) and len(interface['camera_cases']) == 3
+    assert interface['checks'].get('natural_viewport_parameter_response') is True and interface['viewport_parameter_response'] > .002
+    assert audit['scope'] == 'INCREMENTAL-FULLFRAME-GLOW-RELEASE' and audit['complete']
+    assert audit['source_sha256'] == hashes and audit['archive_sha256'] == archive_sha
+    assert audit['material_animation_and_assets_byte_exact'] and audit['capture_module_removed']
+    rows = audit['performance']
+    assert [r['mode'] for r in rows] == ['legacy_2.9.3', 'fullframe', 'off', 'fullframe_repeat']
+    assert all(not r['error'] for r in rows)
+    assert rows[0]['resources']['layers'] == 2 and rows[0]['draws'] > 0
+    assert all(r['resources']['layers'] == 1 and r['draws'] == r['uploads'] == 0 for r in rows[1:])
+    assert all(r['resources']['objects'] == rows[0]['resources']['objects'] for r in rows)
+    assert max(rows[1]['interval_median_ms'], rows[3]['interval_median_ms']) < rows[0]['interval_median_ms']*.75
+    assert max(rows[1]['interval_median_ms'], rows[3]['interval_median_ms']) <= rows[2]['interval_p95_ms']+20
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--candidate', type=Path, required=True)
     parser.add_argument('--base-version', required=True)
-    parser.add_argument('--scope', choices=('jelly', 'glow', 'glow-camera', 'animation-preview'), required=True)
+    parser.add_argument('--scope', choices=('jelly', 'glow', 'glow-camera', 'animation-preview', 'fullframe-glow'), required=True)
     parser.add_argument('--verification', type=Path, required=True)
     parser.add_argument('--interface-verification', type=Path, required=True)
     parser.add_argument('--interactions-verification', type=Path, required=True)
@@ -87,14 +114,17 @@ def main():
         validate_glow_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     elif args.scope == 'glow-camera':
         validate_camera_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
-    else:
+    elif args.scope == 'animation-preview':
         validate_animation_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
+    else:
+        validate_fullframe_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     base = read(ROOT / 'release' / ('build-v' + args.base_version + '.json'))
     previous = ROOT / 'release' / base['archive']
     assert sha(previous.read_bytes()) == base['sha256'], 'Baseline archive changed'
     with zipfile.ZipFile(previous) as old, zipfile.ZipFile(candidate) as new:
         old_files, new_files = set(old.namelist()), set(new.namelist())
-        assert not old_files - new_files, 'Incremental release cannot remove payload files'
+        removed = sorted(old_files - new_files)
+        assert set(removed) == ({'glow_preview.py'} if args.scope == 'fullframe-glow' else set()), 'Unexpected payload removal'
         changed = sorted(n for n in new_files if n not in old_files or new.read(n) != old.read(n))
         if args.scope == 'jelly':
             allowed = {'__init__.py', 'properties.py', 'panels.py', 'jelly_eye.py', 'jelly_geometry.py',
@@ -104,6 +134,10 @@ def main():
         elif args.scope == 'animation-preview':
             allowed = {'__init__.py', 'blender_manifest.toml', 'CHANGELOG.md', 'workflow.py', 'shaders.py'}
             assert new_files == old_files
+        elif args.scope == 'fullframe-glow':
+            allowed = {'__init__.py','blender_manifest.toml','CHANGELOG.md','README.md','docs/workflow.md',
+                       'glow.py','glow_source.py','properties.py','panels.py'}
+            assert not new_files - old_files
         else:
             allowed = {'__init__.py', 'blender_manifest.toml', 'CHANGELOG.md', 'glow.py', 'glow_preview.py'}
             assert new_files == old_files
@@ -131,6 +165,7 @@ def main():
     summary = {'version': version, 'scope': 'incremental-' + args.scope + '-release', 'archive_sha256': archive_sha,
                'baseline_version': args.base_version, 'baseline_archive_sha256': base['sha256'],
                'changed_payload': changed, 'unchanged_payload': sorted(new_files - set(changed)),
+               'removed_payload': removed,
                'baseline_policy': 'Unchanged files verified byte exact; previous results are not new runs',
                'source_sha256': runtime_hashes(), 'full_regression_required': False}
     if args.scope == 'jelly':
@@ -146,11 +181,15 @@ def main():
             'moving_timeline_uploads':evidence['moving_timeline_uploads'],
             'final_render_core_ast_unchanged':evidence['final_render_core_ast_unchanged']},
             camera_package=interface, camera_incremental_audit=interactions)
-    else:
+    elif args.scope == 'animation-preview':
         summary.update(animation_performance=evidence,
                        animation_package_checks={'count':len(interface['checks']), 'all_passed':True,
                            'renders':interface['renders'], 'package_sha256':interface['package_sha256']},
                        animation_incremental_audit=interactions)
+    else:
+        summary.update(fullframe_glow={'checks':evidence['checks'],'modes':evidence['modes'],
+                           'transparent_halo_pixels':evidence['transparent_halo_pixels']},
+                       viewport=interface,fullframe_incremental_audit=interactions)
     shutil.copy2(candidate, target)
     (release / ('build-v' + version + '.json')).write_text(json.dumps(record, indent=2) + '\n', 'utf-8', newline='\n')
     (release / ('verification-v' + version + '.json')).write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n', 'utf-8', newline='\n')
