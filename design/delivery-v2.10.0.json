@@ -1,0 +1,148 @@
+{
+  "version": "2.10.0",
+  "status": "published-and-installed-restart-existing-blender-to-activate",
+  "release_url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/tag/v2.10.0",
+  "release_commit": "a350a4d3ea9378fdce9eef55905f8013ef86324c",
+  "workflow": {
+    "id": 42552186147,
+    "url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/actions/runs/42552186147",
+    "conclusion": "success"
+  },
+  "archive": {
+    "name": "hoyo_gi_toon-2.10.0.zip",
+    "sha256": "471357f5cbd6ec8c2ca528fd0276b9595e12f6d8d839c8787ac084462d0ad830",
+    "bytes": 6305726,
+    "payload_files": 61,
+    "public_asset_and_tag_download_verified": true,
+    "source_matches_frozen_payload": true
+  },
+  "scope": [
+    "native_fullframe_glow",
+    "retire_character_capture",
+    "legacy_parameter_and_resource_migration",
+    "reversible_viewer_preview",
+    "original_file_output_preservation"
+  ],
+  "verification": {
+    "policy": "incremental",
+    "changed_payload": [
+      "CHANGELOG.md",
+      "README.md",
+      "__init__.py",
+      "blender_manifest.toml",
+      "docs/workflow.md",
+      "glow.py",
+      "glow_source.py",
+      "panels.py",
+      "properties.py"
+    ],
+    "removed_payload": [
+      "glow_preview.py"
+    ],
+    "unchanged_payload_files": 52,
+    "actual_package_functional_checks": 40,
+    "actual_package_viewport_checks": 10,
+    "native_glare_mode_comparisons": 7,
+    "native_rgb_max_error": 0,
+    "viewer_preview_pixel_response": 0.0925411581993103,
+    "performance": [
+      {
+        "mode": "legacy_2.9.3",
+        "seconds": 6.586821700038854,
+        "ticks": 7,
+        "interval_median_ms": 958.4208999876864,
+        "interval_p95_ms": 1215.10896999971,
+        "frame_set_median_ms": 850.7276000455022,
+        "draws": 4,
+        "uploads": 3,
+        "last_draw_readback_ms": 227.7528999838978,
+        "resources": {
+          "images": 70,
+          "layers": 2,
+          "objects": 12076
+        },
+        "error": ""
+      },
+      {
+        "mode": "fullframe",
+        "seconds": 6.314234199991915,
+        "ticks": 14,
+        "interval_median_ms": 479.4827500008978,
+        "interval_p95_ms": 502.5004499912029,
+        "frame_set_median_ms": 434.950149996439,
+        "draws": 0,
+        "uploads": 0,
+        "last_draw_readback_ms": null,
+        "resources": {
+          "images": 69,
+          "layers": 1,
+          "objects": 12076
+        },
+        "error": ""
+      },
+      {
+        "mode": "off",
+        "seconds": 6.241016099986155,
+        "ticks": 14,
+        "interval_median_ms": 478.8150000094902,
+        "interval_p95_ms": 488.5664400062524,
+        "frame_set_median_ms": 431.88660001032986,
+        "draws": 0,
+        "uploads": 0,
+        "last_draw_readback_ms": null,
+        "resources": {
+          "images": 69,
+          "layers": 1,
+          "objects": 12076
+        },
+        "error": ""
+      },
+      {
+        "mode": "fullframe_repeat",
+        "seconds": 6.2428420999785885,
+        "ticks": 14,
+        "interval_median_ms": 477.0507000212092,
+        "interval_p95_ms": 490.88188003224786,
+        "frame_set_median_ms": 430.924899992533,
+        "draws": 0,
+        "uploads": 0,
+        "last_draw_readback_ms": null,
+        "resources": {
+          "images": 69,
+          "layers": 1,
+          "objects": 12076
+        },
+        "error": ""
+      }
+    ],
+    "performance_metric": "Same hidden process, same real action, four CPU threads; UI timer interval includes viewport blocking and is not playback FPS",
+    "performance_limits": "Original animation, physics, materials and viewport rendering remain; no promise of a particular playback FPS",
+    "full_character_regression_run": false,
+    "formal_record": "../release/verification-v2.10.0.json"
+  },
+  "native": {
+    "module": "bl_ext.Hoyo_GI_Toon.hoyo_gi_toon",
+    "payload_files_verified": 61,
+    "other_addon_files_verified": 394,
+    "native_preferences_unchanged": true,
+    "startup_and_recent_files_unchanged": true,
+    "existing_addons_preserved": true,
+    "repositories_preserved": true,
+    "no_user_project_opened_or_saved": true,
+    "remote_index_synced": true,
+    "handlers_verified": true,
+    "active_user_process_hot_reloaded": false,
+    "restart_required_for_existing_process": true,
+    "other_addon_shutdown_errors": [
+      "MBTs-NG",
+      "MBTs-face"
+    ],
+    "glow_capture_module_removed": true,
+    "no_auxiliary_layer_created": true,
+    "loaded_functions_and_methods_verified": 303,
+    "preferences_used": "private-copy-default-scene"
+  },
+  "private_evidence": ".verification/release-v2.10.0/",
+  "before_update_backup": ".verification/release-v2.10.0/before-update/",
+  "user_visual_acceptance": "pending"
+}
