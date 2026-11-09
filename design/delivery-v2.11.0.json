@@ -1,0 +1,175 @@
+{
+  "version": "2.11.0",
+  "status": "published-and-installed-restart-required",
+  "release_url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/releases/tag/v2.11.0",
+  "release_commit": "8e027502c5d997c3d49ddf197386c1b413f02654",
+  "workflow": {
+    "id": 42681495126,
+    "url": "https://github.com/muchuanhehua/Hoyo-GI-Toon/actions/runs/42681495126",
+    "conclusion": "success"
+  },
+  "archive": {
+    "name": "hoyo_gi_toon-2.11.0.zip",
+    "sha256": "e7e3e418cb01c858218eb8562e675b7ea1c4c455664c1d4d942ace30306ede78",
+    "bytes": 6480657,
+    "payload_files": 63,
+    "public_asset_and_tag_download_verified": true,
+    "source_matches_frozen_payload": true
+  },
+  "scope": [
+    "panoramic_stage",
+    "camera_free_presets",
+    "legacy_mmd_camera_migration",
+    "cached_character_and_appearance_updates",
+    "native_animated_direction_drivers"
+  ],
+  "verification": {
+    "policy": "incremental",
+    "changed_payload": [
+      "CHANGELOG.md",
+      "README.md",
+      "__init__.py",
+      "animation_uniforms.py",
+      "assets/scene_city_terrace.blend",
+      "assets/scene_stage.blend",
+      "assets/scenes.json",
+      "blender_manifest.toml",
+      "docs/scene-presets.md",
+      "lighting.py",
+      "project_io.py",
+      "properties.py",
+      "rendering.py",
+      "scene_camera.py",
+      "scene_models.py",
+      "scene_presets.py",
+      "shaders.py",
+      "workflow.py"
+    ],
+    "unchanged_payload_files": 45,
+    "actual_package_compatibility_checks": 29,
+    "actual_package_camera_ownership_checks": 7,
+    "actual_package_playback_and_undo_checks": 3,
+    "render_comparisons": 3,
+    "render_max_error": 0,
+    "camera_frames_compared": 1053,
+    "camera_trajectory_evidence_scope": "Same-batch source migration on original 1053-frame action; final ZIP separately verifies identical camera object/data/actions/drivers and ownership guards.",
+    "camera_max_error": 0,
+    "stage_views_reviewed": 6,
+    "playback": [
+      {
+        "mode": "baseline_2100",
+        "frames": 36,
+        "fps": 4.317227935079714,
+        "interval_median_ms": 230.9127999978955,
+        "frame_evaluation_median_ms": 168.6023500005831,
+        "frame_range": [
+          193,
+          228
+        ],
+        "objects": 12077,
+        "cameras": 3,
+        "stage_layout": "legacy"
+      },
+      {
+        "mode": "candidate_2110",
+        "frames": 36,
+        "fps": 5.2488788919573555,
+        "interval_median_ms": 190.51119999858201,
+        "frame_evaluation_median_ms": 162.99569999864616,
+        "frame_range": [
+          193,
+          228
+        ],
+        "objects": 12077,
+        "cameras": 3,
+        "stage_layout": "legacy"
+      },
+      {
+        "mode": "baseline_repeat",
+        "frames": 36,
+        "fps": 4.323567008994129,
+        "interval_median_ms": 231.68539999824134,
+        "frame_evaluation_median_ms": 169.29089999939606,
+        "frame_range": [
+          193,
+          228
+        ],
+        "objects": 12077,
+        "cameras": 3,
+        "stage_layout": "legacy"
+      },
+      {
+        "mode": "candidate_repeat",
+        "frames": 36,
+        "fps": 5.21573867325437,
+        "interval_median_ms": 190.6725999979244,
+        "frame_evaluation_median_ms": 162.69849999844155,
+        "frame_range": [
+          193,
+          228
+        ],
+        "objects": 12077,
+        "cameras": 3,
+        "stage_layout": "legacy"
+      },
+      {
+        "mode": "candidate_panorama",
+        "frames": 36,
+        "fps": 5.214439737129619,
+        "interval_median_ms": 191.5220999981102,
+        "frame_evaluation_median_ms": 163.99784999885014,
+        "frame_range": [
+          193,
+          228
+        ],
+        "objects": 12076,
+        "cameras": 1,
+        "stage_layout": "panorama-360-v1"
+      }
+    ],
+    "playback_settings": {
+      "samples": 128,
+      "raytracing": true,
+      "fps_target": 30,
+      "objects": 12077
+    },
+    "playback_viewport": [
+      2100,
+      1193
+    ],
+    "performance_improvement_percent": 21.107116103810842,
+    "performance_limits": [
+      "One actual scene, frames 193–228, private process with MMD Tools and GI-Toon only.",
+      "128 EEVEE samples, raytracing and compositor retained; no frame dropping.",
+      "Native rendered playback remains below 30 FPS; geometry/rig/physics and other add-ons remain outside this optimization.",
+      "A/B/A/B isolates workflow on identical legacy stage; final panorama measured separately."
+    ],
+    "full_character_regression_run": false,
+    "formal_record": "../release/verification-v2.11.0.json"
+  },
+  "native": {
+    "module": "bl_ext.Hoyo_GI_Toon.hoyo_gi_toon",
+    "payload_files_verified": 63,
+    "other_addon_files_verified": 394,
+    "native_preferences_unchanged": true,
+    "startup_and_recent_files_unchanged": true,
+    "existing_addons_preserved": true,
+    "repositories_preserved": true,
+    "no_user_project_opened_or_saved": true,
+    "remote_index_synced": true,
+    "handlers_verified": true,
+    "active_user_process_hot_reloaded": false,
+    "restart_required_for_existing_process": true,
+    "other_addon_shutdown_errors": [
+      "MBTs-NG",
+      "MBTs-face"
+    ],
+    "scene_layout_and_material_callback_verified": true,
+    "loaded_functions_and_methods_verified": 316
+  },
+  "activation": "Save and restart Blender; reload Stage once to migrate the existing stage and cameras.",
+  "private_evidence": ".verification/release-v2.11.0/",
+  "before_update_backup": ".verification/release-v2.11.0/before-update/",
+  "user_visual_acceptance": "pending",
+  "user_playback_acceptance": "pending"
+}
