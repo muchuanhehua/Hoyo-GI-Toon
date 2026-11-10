@@ -1,5 +1,6 @@
 """Evaluate animated shader directions in Blender's existing dependency pass."""
 import bpy
+from . import scene_models
 
 _CACHE = {}
 VECTOR_NAMES = ('hgt_head_forward', 'hgt_head_up', 'hgt_light_rotation')
@@ -22,7 +23,7 @@ def sync(root, scene, vectors):
     settings = root.hgt_character
     controls = {entry.key: entry.object for entry in settings.controls if entry.object}
     targets = {}
-    if root.name in scene.objects and settings.head:
+    if scene_models.in_scene(root, scene) and settings.head:
         for name, label in (('hgt_head_forward', 'Head Forward'), ('hgt_head_up', 'Head Up')):
             if controls.get(label):
                 targets[name] = (controls[label], settings.head)

@@ -316,7 +316,7 @@ def update_scene(scene, depsgraph=None):
         return
     scene_models.sync_active(scene)
     for obj in tracked_roots():
-        if obj.name in scene.objects:
+        if scene_models.in_scene(obj, scene):
             refresh_character(obj, depsgraph, scene, appearance=False)
 
 
@@ -326,7 +326,7 @@ def update_frame(scene, depsgraph=None):
         return
     # A material can be reused in a scene that does not contain its source rig.
     for obj in tracked_roots():
-        if obj.name in scene.objects:
+        if scene_models.in_scene(obj, scene):
             refresh_character(obj, depsgraph, scene, changed_only=True)
         elif obj.hgt_character.managed:
             shaders.set_controls(obj)

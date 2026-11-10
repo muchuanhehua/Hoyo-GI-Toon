@@ -3,7 +3,7 @@ import math
 import json
 import bpy
 from mathutils import Vector
-from . import shaders
+from . import shaders, scene_models
 
 UNIFORM_VERSION = 1
 
@@ -129,7 +129,7 @@ def upgrade(root):
 
 def update(root, depsgraph=None, scene=None):
     source = root.hgt_character.light_source
-    if source and scene and source.name not in scene.objects:
+    if source and scene and not scene_models.in_scene(source, scene):
         raise ValueError('材质灯光不在当前场景中')
     shaders.set_controls(root, shader_vectors(root, depsgraph))
 

@@ -3,6 +3,27 @@ import uuid
 import bpy
 
 _ACTIVE = {}
+_OWNERS = {}
+
+
+def in_scene(obj, scene):
+    """Validate cached owner collections instead of searching every scene object."""
+    if obj is None:
+        return False
+    hierarchy = {scene.collection, *scene.collection.children_recursive}
+    key = obj.as_pointer()
+    for collection in _OWNERS.get(key, ()):
+        try:
+            if collection in hierarchy and collection.objects.get(obj.name) == obj:
+                return True
+        except ReferenceError:
+            # Deletion/undo can replace a collection before the cache is reset.
+            continue
+    # Only positive membership is cached, and it is checked again on every use.
+    # New links, other scenes and removed owners need a fresh ownership query.
+    owners = obj.users_collection
+    _OWNERS[key] = owners
+    return any(collection in hierarchy for collection in owners)
 
 
 def model_root(obj):
@@ -150,3 +171,4 @@ def ensure(source, context, filepath=''):
 
 def reset_selection_cache():
     _ACTIVE.clear()
+    _OWNERS.clear()

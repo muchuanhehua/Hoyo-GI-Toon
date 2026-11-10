@@ -154,11 +154,29 @@ def validate_outline_preview_evidence(evidence, playback, audit, hashes, archive
                     assert row['pixels_over_one_byte'] <= 32
 
 
+def validate_scene_lookup_evidence(evidence, playback, audit, hashes, archive_sha):
+    assert evidence['scope'] == 'SCENE-LOOKUP-COMPATIBILITY' and evidence['complete']
+    assert evidence['source_sha256'] == hashes and evidence['package_sha256'] == archive_sha
+    assert len(evidence['checks']) == 27 and all(evidence['checks'].values())
+    assert len(evidence['renders']) == 3 and all(r['max_error'] == 0 for r in evidence['renders'])
+    assert playback['scope'] == 'SCENE-LOOKUP-PLAYBACK' and playback['complete'] and not playback.get('error')
+    assert playback['source_sha256'] == hashes and playback['package_sha256'] == archive_sha
+    assert len(playback['checks']) == 5 and all(playback['checks'].values())
+    rows = playback['cases']
+    assert [r['case'] for r in rows] == ['baseline', 'candidate', 'baseline_repeat', 'candidate_repeat']
+    assert all(r['frames'] == 96 and r['frame_range'] == [193, 288] for r in rows)
+    assert sum(rows[i]['evaluation_ms'] for i in (1, 3)) < sum(rows[i]['evaluation_ms'] for i in (0, 2))
+    assert audit['scope'] == 'INCREMENTAL-SCENE-LOOKUP-RELEASE' and audit['complete']
+    assert audit['source_sha256'] == hashes and audit['archive_sha256'] == archive_sha
+    assert audit['only_membership_queries_changed'] and audit['shader_outline_assets_byte_exact']
+    assert audit['visual_review_complete']
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--candidate', type=Path, required=True)
     parser.add_argument('--base-version', required=True)
-    parser.add_argument('--scope', choices=('jelly', 'glow', 'glow-camera', 'animation-preview', 'fullframe-glow', 'stage-animation', 'outline-preview'), required=True)
+    parser.add_argument('--scope', choices=('jelly', 'glow', 'glow-camera', 'animation-preview', 'fullframe-glow', 'stage-animation', 'outline-preview', 'scene-lookup'), required=True)
     parser.add_argument('--verification', type=Path, required=True)
     parser.add_argument('--interface-verification', type=Path, required=True)
     parser.add_argument('--interactions-verification', type=Path, required=True)
@@ -180,6 +198,8 @@ def main():
         validate_stage_animation_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     elif args.scope == 'outline-preview':
         validate_outline_preview_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
+    elif args.scope == 'scene-lookup':
+        validate_scene_lookup_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     else:
         validate_fullframe_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     base = read(ROOT / 'release' / ('build-v' + args.base_version + '.json'))
@@ -204,6 +224,10 @@ def main():
             assert not new_files - old_files
         elif args.scope == 'outline-preview':
             allowed = {'__init__.py', 'blender_manifest.toml', 'CHANGELOG.md', 'README.md', 'outlines.py', 'workflow.py'}
+            assert new_files == old_files
+        elif args.scope == 'scene-lookup':
+            allowed = {'__init__.py', 'blender_manifest.toml', 'CHANGELOG.md', 'README.md',
+                       'workflow.py', 'lighting.py', 'animation_uniforms.py', 'scene_models.py'}
             assert new_files == old_files
         elif args.scope == 'stage-animation':
             allowed = {'__init__.py', 'blender_manifest.toml', 'CHANGELOG.md', 'README.md', 'docs/scene-presets.md',
@@ -263,6 +287,8 @@ def main():
         summary.update(stage_animation=evidence, native_playback=interface, stage_animation_audit=interactions)
     elif args.scope == 'outline-preview':
         summary.update(outline_preview=evidence, native_playback=interface, outline_preview_audit=interactions)
+    elif args.scope == 'scene-lookup':
+        summary.update(scene_lookup=evidence, native_playback=interface, scene_lookup_audit=interactions)
     else:
         summary.update(fullframe_glow={'checks':evidence['checks'],'modes':evidence['modes'],
                            'transparent_halo_pixels':evidence['transparent_halo_pixels']},
