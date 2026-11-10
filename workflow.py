@@ -268,6 +268,7 @@ def refresh_character(root, depsgraph=None, scene=None, appearance=True, changed
             gaze.update_gaze(root, scene)
         if settings.managed:
             lighting.update(root, depsgraph=depsgraph, scene=scene)
+            outlines.sync_preview(root)
             if appearance:
                 refresh_appearance(root, changed_only)
     finally:

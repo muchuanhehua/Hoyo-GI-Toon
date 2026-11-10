@@ -118,11 +118,47 @@ def validate_stage_animation_evidence(evidence, playback, audit, hashes, archive
     assert len(ownership['checks']) == 7 and all(ownership['checks'].values())
 
 
+def validate_outline_preview_evidence(evidence, playback, audit, hashes, archive_sha):
+    assert evidence['scope'] == 'OUTLINE-PREVIEW-COMPATIBILITY' and evidence['complete']
+    assert evidence['source_sha256'] == hashes and evidence['package_sha256'] == archive_sha
+    assert len(evidence['checks']) == 22 and all(evidence['checks'].values())
+    assert len(evidence['renders']) == 3 and all(row['final_max_error'] == 0 for row in evidence['renders'])
+    assert all(row['preview_max_error'] <= 2/255+1e-6 and row['preview_mean_error'] <= 1e-5 for row in evidence['renders'])
+    assert playback['scope'] == 'OUTLINE-PREVIEW-PLAYBACK' and playback['complete'] and not playback.get('error')
+    assert playback['source_sha256'] == hashes and playback['package_sha256'] == archive_sha
+    assert len(playback['checks']) == 6 and all(playback['checks'].values())
+    rows = playback['cases']
+    assert [r['mode'] for r in rows] == ['baseline_2110', 'candidate', 'baseline_repeat', 'candidate_repeat']
+    assert all(r['frames'] == 36 and r['frame_range'] == [193, 228] for r in rows)
+    assert min(rows[i]['fps'] for i in (1, 3)) > max(rows[i]['fps'] for i in (0, 2))
+    assert len(playback['viewport_comparisons']) == 3
+    assert all(r['mean_error'] <= max(.001, r['baseline_repeat_mean_error']*2) for r in playback['viewport_comparisons'])
+    assert audit['scope'] == 'INCREMENTAL-OUTLINE-PREVIEW-RELEASE' and audit['complete']
+    assert audit['source_sha256'] == hashes and audit['archive_sha256'] == archive_sha
+    assert audit['source_outline_algorithms_ast_unchanged'] and audit['shader_assets_animation_and_physics_byte_exact']
+    assert audit['cross_character_images_reviewed'] and audit['native_playback_images_reviewed']
+    cross = audit['cross_character']
+    assert cross['scope'] == 'CROSS-CHARACTER-OUTLINE-PREVIEW' and cross['complete']
+    assert cross['source_sha256'] == hashes and cross['package_sha256'] == archive_sha
+    assert len(cross['models']) == 13
+    for model in cross['models']:
+        assert model['source_data_preserved'] and model['migration_parameters_preserved'] and model['save_reopen_exact']
+        assert model['final_max_error'] <= 1/255+1e-6
+        assert set(model['views']) == {'front', 'back', 'left', 'right'}
+        for view in model['views'].values():
+            assert set(view) == {'off', 'default', 'wide'}
+            for row in view.values():
+                assert row['mean_error'] <= 1e-5 and row['alpha_max_error'] <= 1/255+1e-6
+                if row['max_error'] > 2/255+1e-6:
+                    assert row['opaque_max_error'] <= 2/255+1e-6 and row['mean_error'] <= 1e-6
+                    assert row['pixels_over_one_byte'] <= 32
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--candidate', type=Path, required=True)
     parser.add_argument('--base-version', required=True)
-    parser.add_argument('--scope', choices=('jelly', 'glow', 'glow-camera', 'animation-preview', 'fullframe-glow', 'stage-animation'), required=True)
+    parser.add_argument('--scope', choices=('jelly', 'glow', 'glow-camera', 'animation-preview', 'fullframe-glow', 'stage-animation', 'outline-preview'), required=True)
     parser.add_argument('--verification', type=Path, required=True)
     parser.add_argument('--interface-verification', type=Path, required=True)
     parser.add_argument('--interactions-verification', type=Path, required=True)
@@ -142,6 +178,8 @@ def main():
         validate_animation_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     elif args.scope == 'stage-animation':
         validate_stage_animation_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
+    elif args.scope == 'outline-preview':
+        validate_outline_preview_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     else:
         validate_fullframe_evidence(evidence, interface, interactions, runtime_hashes(), archive_sha)
     base = read(ROOT / 'release' / ('build-v' + args.base_version + '.json'))
@@ -164,6 +202,9 @@ def main():
             allowed = {'__init__.py','blender_manifest.toml','CHANGELOG.md','README.md','docs/workflow.md',
                        'glow.py','glow_source.py','properties.py','panels.py'}
             assert not new_files - old_files
+        elif args.scope == 'outline-preview':
+            allowed = {'__init__.py', 'blender_manifest.toml', 'CHANGELOG.md', 'README.md', 'outlines.py', 'workflow.py'}
+            assert new_files == old_files
         elif args.scope == 'stage-animation':
             allowed = {'__init__.py', 'blender_manifest.toml', 'CHANGELOG.md', 'README.md', 'docs/scene-presets.md',
                        'assets/scene_city_terrace.blend', 'assets/scene_stage.blend', 'assets/scenes.json',
@@ -220,6 +261,8 @@ def main():
                        animation_incremental_audit=interactions)
     elif args.scope == 'stage-animation':
         summary.update(stage_animation=evidence, native_playback=interface, stage_animation_audit=interactions)
+    elif args.scope == 'outline-preview':
+        summary.update(outline_preview=evidence, native_playback=interface, outline_preview_audit=interactions)
     else:
         summary.update(fullframe_glow={'checks':evidence['checks'],'modes':evidence['modes'],
                            'transparent_halo_pixels':evidence['transparent_halo_pixels']},

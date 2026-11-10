@@ -9,7 +9,7 @@ from .pmx_materials import is_inner_surface, visible_source_edge
 from . import outline_profile
 
 PAIRS = ("Hair", "Body", "Face", "Dress", "Dress 2", "Other")
-GRAPH_VERSION = 5
+GRAPH_VERSION = 6
 
 
 def eligible(binding):
@@ -107,13 +107,31 @@ def build(mesh, root):
                                   ('Outline Thickness', 'INPUT', 'NodeSocketFloat'),
                                   ('Geometry', 'OUTPUT', 'NodeSocketGeometry')]:
         graph.interface.new_socket(name=name, in_out=direction, socket_type=kind)
+    compatibility = graph.interface.new_socket(name='Realize Geometry', in_out='INPUT', socket_type='NodeSocketBool')
+    compatibility.default_value = True
+    compatibility.hide_in_modifier = True
+    compatibility.force_non_field = True
     source = graph.nodes.new('NodeGroupInput')
     output = graph.nodes.new('NodeGroupOutput')
     join = graph.nodes.new('GeometryNodeJoinGeometry')
     realize = graph.nodes.new('GeometryNodeRealizeInstances')
     graph.links.new(source.outputs['Geometry'], join.inputs['Geometry'])
     graph.links.new(join.outputs['Geometry'], realize.inputs['Geometry'])
-    graph.links.new(realize.outputs['Geometry'], output.inputs['Geometry'])
+    viewport = graph.nodes.new('GeometryNodeIsViewport')
+    compatible = graph.nodes.new('FunctionNodeBooleanMath')
+    compatible.operation = 'NOT'
+    graph.links.new(source.outputs['Realize Geometry'], compatible.inputs[0])
+    fast = graph.nodes.new('FunctionNodeBooleanMath')
+    fast.operation = 'AND'
+    graph.links.new(viewport.outputs[0], fast.inputs[0])
+    graph.links.new(compatible.outputs[0], fast.inputs[1])
+    preview = graph.nodes.new('GeometryNodeSwitch')
+    preview.input_type = 'GEOMETRY'
+    preview['hgt_preview_switch'] = True
+    graph.links.new(fast.outputs[0], preview.inputs['Switch'])
+    graph.links.new(realize.outputs['Geometry'], preview.inputs['False'])
+    graph.links.new(join.outputs['Geometry'], preview.inputs['True'])
+    graph.links.new(preview.outputs['Output'], output.inputs['Geometry'])
     profile(mesh, root)
     record_surface_mask(mesh, root)
     surface = graph.nodes.new('GeometryNodeInputNamedAttribute')
@@ -181,6 +199,32 @@ def build(mesh, root):
     update(mesh, root)
     return modifier
 
+
+def sync_preview_mesh(mesh, modifier):
+    """Native instances avoid costly weight/attribute merging at the end of the stack."""
+    if modifier.node_group.get('hgt_outline_version', 0) < 6:
+        return
+    modifiers = list(mesh.modifiers)
+    following = modifiers[modifiers.index(modifier) + 1:]
+    # Later modifiers need the original complete mesh, and editing keeps its cage.
+    required = mesh.mode != 'OBJECT' or any(item.show_viewport for item in following)
+    value = input_value(modifier, 'Realize Geometry')
+    if value.value != required:
+        value.value = required
+        mesh.update_tag(refresh={'OBJECT'})
+
+
+def sync_preview(root):
+    for entry in root.hgt_character.meshes:
+        if not entry.object:
+            continue
+        for modifier in entry.object.modifiers:
+            if (modifier.type == 'NODES' and modifier.node_group
+                    and modifier.node_group.get('hgt_pmx_outline')
+                    and modifier.node_group.get('hgt_owner') == root.hgt_character.uid):
+                sync_preview_mesh(entry.object, modifier)
+
+
 def update(mesh, root):
     settings = root.hgt_character
     for modifier in mesh.modifiers:
@@ -189,6 +233,7 @@ def update(mesh, root):
         graph = modifier.node_group
         if graph != settings.outline_graph and not (graph.get('hgt_pmx_outline') and graph.get('hgt_owner') == settings.uid):
             continue
+        sync_preview_mesh(mesh, modifier)
         scale = max(sum(mesh.matrix_world.to_scale()) / 3, 1e-6)
         value = settings.outline * settings.height / (1.7 * scale)
         field = input_value(modifier, "Outline Thickness")
